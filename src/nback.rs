@@ -101,6 +101,10 @@ impl NBack {
         self.colors = CueChain::with_n_back(self.colors.n_back());
     }
 
+    pub fn n_back(&self) -> usize {
+        self.positions.n_back()
+    }
+
     pub fn check_answer(&mut self) {
         if self.answer.a {
             if self.positions.is_match() {
