@@ -23,6 +23,63 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
+    // Add walls
+    let wall_color = Color::rgb(1.0, 1.0, 1.0);
+    let wall_thickness = 4.0;
+    let bounds = Vec2::new(260.0, 260.0);
+    // left
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(-bounds.x / 2.0, 0.0, 0.0),
+            sprite: Sprite {
+                color: wall_color,
+                custom_size: Some(Vec2::new(wall_thickness, bounds.y + wall_thickness)),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        OnGameScreen,
+    ));
+    // right
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(bounds.x / 2.0, 0.0, 0.0),
+            sprite: Sprite {
+                color: wall_color,
+                custom_size: Some(Vec2::new(wall_thickness, bounds.y + wall_thickness)),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        OnGameScreen,
+    ));
+    // bottom
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(0.0, -bounds.y / 2.0, 0.0),
+            sprite: Sprite {
+                color: wall_color,
+                custom_size: Some(Vec2::new(bounds.x + wall_thickness, wall_thickness)),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        OnGameScreen,
+    ));
+    // top
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(0.0, bounds.y / 2.0, 0.0),
+            sprite: Sprite {
+                color: wall_color,
+                custom_size: Some(Vec2::new(bounds.x + wall_thickness, wall_thickness)),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        OnGameScreen,
+    ));
+
     let tiles = [
         TilePosition::TopLeft,
         TilePosition::TopCenter,
