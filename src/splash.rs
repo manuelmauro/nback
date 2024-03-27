@@ -1,4 +1,7 @@
-use crate::{config::SPLASH_SCREEN_DURATION, despawn_screen, GameState};
+use crate::{
+    config::SPLASH_SCREEN_DURATION,
+    state::{despawn_screen, GameState},
+};
 use bevy::prelude::*;
 
 pub struct SplashPlugin;

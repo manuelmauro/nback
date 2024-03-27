@@ -3,7 +3,11 @@ use bevy::{
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
-use crate::{config::TILE_SIZE, despawn_screen, tile::TilePosition, GameState};
+use crate::{
+    config::TILE_SIZE,
+    state::{despawn_screen, GameState},
+    tile::TilePosition,
+};
 
 pub struct GamePlugin;
 

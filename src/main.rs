@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use nback::{game::GamePlugin, splash::SplashPlugin, GameState};
+use nback::{game::GamePlugin, splash::SplashPlugin, state::GameState};
 
 fn main() {
     App::new()
@@ -8,6 +8,10 @@ fn main() {
         .add_plugins(SplashPlugin)
         .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
+        .add_systems(
+            Update,
+            bevy::window::close_on_esc.run_if(in_state(GameState::Game)),
+        )
         .add_systems(Update, log_transitions)
         .run();
 }
