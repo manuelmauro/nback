@@ -4,10 +4,10 @@ use rand::{
     Rng,
 };
 
-use crate::config::{SIZE, SPACING};
+use crate::config::{TILE_SIZE, TILE_SPACING};
 
 #[derive(Clone, Component, Debug, Default, PartialEq)]
-pub enum Tile {
+pub enum TilePosition {
     TopLeft,
     TopCenter,
     TopRight,
@@ -21,24 +21,24 @@ pub enum Tile {
     None,
 }
 
-impl Distribution<Tile> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Tile {
+impl Distribution<TilePosition> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TilePosition {
         match rng.gen_range(0..=9) {
-            0 => Tile::TopLeft,
-            1 => Tile::TopCenter,
-            2 => Tile::TopRight,
-            3 => Tile::CenterLeft,
-            4 => Tile::Center,
-            5 => Tile::CenterRight,
-            6 => Tile::BottomLeft,
-            7 => Tile::BottomCenter,
-            _ => Tile::BottomRight,
+            0 => TilePosition::TopLeft,
+            1 => TilePosition::TopCenter,
+            2 => TilePosition::TopRight,
+            3 => TilePosition::CenterLeft,
+            4 => TilePosition::Center,
+            5 => TilePosition::CenterRight,
+            6 => TilePosition::BottomLeft,
+            7 => TilePosition::BottomCenter,
+            _ => TilePosition::BottomRight,
         }
     }
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
-pub enum Pigment {
+pub enum TileColor {
     A,
     B,
     C,
@@ -48,67 +48,67 @@ pub enum Pigment {
     None,
 }
 
-impl Distribution<Pigment> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Pigment {
+impl Distribution<TileColor> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TileColor {
         match rng.gen_range(0..=5) {
-            0 => Pigment::A,
-            1 => Pigment::B,
-            2 => Pigment::C,
-            3 => Pigment::D,
-            _ => Pigment::E,
+            0 => TileColor::A,
+            1 => TileColor::B,
+            2 => TileColor::C,
+            3 => TileColor::D,
+            _ => TileColor::E,
         }
     }
 }
 
-impl From<&Tile> for Vec3 {
-    fn from(tile: &Tile) -> Self {
+impl From<&TilePosition> for Vec3 {
+    fn from(tile: &TilePosition) -> Self {
         Vec3::new(
-            column(tile) * (SIZE + SPACING),
-            row(tile) * (SIZE + SPACING),
+            column(tile) * (TILE_SIZE + TILE_SPACING),
+            row(tile) * (TILE_SIZE + TILE_SPACING),
             0.0,
         )
     }
 }
 
-fn row(tile: &Tile) -> f32 {
+fn row(tile: &TilePosition) -> f32 {
     match &tile {
-        Tile::TopLeft => 1.0,
-        Tile::TopCenter => 1.0,
-        Tile::TopRight => 1.0,
-        Tile::CenterLeft => 0.0,
-        Tile::Center => 0.0,
-        Tile::CenterRight => 0.0,
-        Tile::BottomLeft => -1.0,
-        Tile::BottomCenter => -1.0,
-        Tile::BottomRight => -1.0,
-        Tile::None => 0.0,
+        TilePosition::TopLeft => 1.0,
+        TilePosition::TopCenter => 1.0,
+        TilePosition::TopRight => 1.0,
+        TilePosition::CenterLeft => 0.0,
+        TilePosition::Center => 0.0,
+        TilePosition::CenterRight => 0.0,
+        TilePosition::BottomLeft => -1.0,
+        TilePosition::BottomCenter => -1.0,
+        TilePosition::BottomRight => -1.0,
+        TilePosition::None => 0.0,
     }
 }
 
-fn column(tile: &Tile) -> f32 {
+fn column(tile: &TilePosition) -> f32 {
     match &tile {
-        Tile::TopLeft => -1.0,
-        Tile::TopCenter => 0.0,
-        Tile::TopRight => 1.0,
-        Tile::CenterLeft => -1.0,
-        Tile::Center => 0.0,
-        Tile::CenterRight => 1.0,
-        Tile::BottomLeft => -1.0,
-        Tile::BottomCenter => 0.0,
-        Tile::BottomRight => 1.0,
-        Tile::None => 0.0,
+        TilePosition::TopLeft => -1.0,
+        TilePosition::TopCenter => 0.0,
+        TilePosition::TopRight => 1.0,
+        TilePosition::CenterLeft => -1.0,
+        TilePosition::Center => 0.0,
+        TilePosition::CenterRight => 1.0,
+        TilePosition::BottomLeft => -1.0,
+        TilePosition::BottomCenter => 0.0,
+        TilePosition::BottomRight => 1.0,
+        TilePosition::None => 0.0,
     }
 }
 
-impl From<&Pigment> for Color {
-    fn from(pigment: &Pigment) -> Self {
-        match pigment {
-            Pigment::A => Color::rgb(1.0, 0.56, 0.0),
-            Pigment::B => Color::rgb(0.60, 0.05, 1.0),
-            Pigment::C => Color::rgb(1.0, 0.0, 0.65),
-            Pigment::D => Color::rgb(0.12, 1.0, 0.14),
-            Pigment::E => Color::rgb(0.12, 0.80, 1.0),
-            Pigment::None => Color::rgb(0.0, 0.0, 0.0),
+impl From<&TileColor> for Color {
+    fn from(c: &TileColor) -> Self {
+        match c {
+            TileColor::A => Color::rgb(1.0, 0.56, 0.0),
+            TileColor::B => Color::rgb(0.60, 0.05, 1.0),
+            TileColor::C => Color::rgb(1.0, 0.0, 0.65),
+            TileColor::D => Color::rgb(0.12, 1.0, 0.14),
+            TileColor::E => Color::rgb(0.12, 0.80, 1.0),
+            TileColor::None => Color::rgb(0.0, 0.0, 0.0),
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::{despawn_screen, GameState};
+use crate::{config::SPLASH_SCREEN_DURATION, despawn_screen, GameState};
 use bevy::prelude::*;
 
 pub struct SplashPlugin;
@@ -47,7 +47,10 @@ fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             });
         });
 
-    commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
+    commands.insert_resource(SplashTimer(Timer::from_seconds(
+        SPLASH_SCREEN_DURATION,
+        TimerMode::Once,
+    )));
 }
 
 fn countdown(

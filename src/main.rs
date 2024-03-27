@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use nback::{shape::GamePlugin, splash::SplashPlugin, GameState};
+use nback::{game::GamePlugin, splash::SplashPlugin, GameState};
 
 fn main() {
     App::new()

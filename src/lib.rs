@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 pub mod config;
+pub mod game;
 pub mod gui;
-pub mod shape;
 pub mod splash;
 pub mod tile;
 
