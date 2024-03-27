@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 
+pub mod config;
 pub mod gui;
 pub mod shape;
 pub mod splash;
+pub mod tile;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 pub enum GameState {
