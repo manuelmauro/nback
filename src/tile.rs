@@ -21,6 +21,28 @@ pub enum TilePosition {
     None,
 }
 
+impl TilePosition {
+    fn row(&self) -> f32 {
+        match self {
+            TilePosition::TopLeft | TilePosition::TopCenter | TilePosition::TopRight => 1.0,
+            TilePosition::CenterLeft | TilePosition::Center | TilePosition::CenterRight => 0.0,
+            TilePosition::BottomLeft | TilePosition::BottomCenter | TilePosition::BottomRight => {
+                -1.0
+            }
+            TilePosition::None => 0.0,
+        }
+    }
+
+    fn column(&self) -> f32 {
+        match self {
+            TilePosition::TopLeft | TilePosition::CenterLeft | TilePosition::BottomLeft => -1.0,
+            TilePosition::TopCenter | TilePosition::Center | TilePosition::BottomCenter => 0.0,
+            TilePosition::TopRight | TilePosition::CenterRight | TilePosition::BottomRight => 1.0,
+            TilePosition::None => 0.0,
+        }
+    }
+}
+
 impl Distribution<TilePosition> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TilePosition {
         match rng.gen_range(0..=9) {
@@ -63,40 +85,10 @@ impl Distribution<TileColor> for Standard {
 impl From<&TilePosition> for Vec3 {
     fn from(tile: &TilePosition) -> Self {
         Vec3::new(
-            column(tile) * (TILE_SIZE + TILE_SPACING),
-            row(tile) * (TILE_SIZE + TILE_SPACING),
+            tile.column() * (TILE_SIZE + TILE_SPACING),
+            tile.row() * (TILE_SIZE + TILE_SPACING),
             0.0,
         )
-    }
-}
-
-fn row(tile: &TilePosition) -> f32 {
-    match &tile {
-        TilePosition::TopLeft => 1.0,
-        TilePosition::TopCenter => 1.0,
-        TilePosition::TopRight => 1.0,
-        TilePosition::CenterLeft => 0.0,
-        TilePosition::Center => 0.0,
-        TilePosition::CenterRight => 0.0,
-        TilePosition::BottomLeft => -1.0,
-        TilePosition::BottomCenter => -1.0,
-        TilePosition::BottomRight => -1.0,
-        TilePosition::None => 0.0,
-    }
-}
-
-fn column(tile: &TilePosition) -> f32 {
-    match &tile {
-        TilePosition::TopLeft => -1.0,
-        TilePosition::TopCenter => 0.0,
-        TilePosition::TopRight => 1.0,
-        TilePosition::CenterLeft => -1.0,
-        TilePosition::Center => 0.0,
-        TilePosition::CenterRight => 1.0,
-        TilePosition::BottomLeft => -1.0,
-        TilePosition::BottomCenter => 0.0,
-        TilePosition::BottomRight => 1.0,
-        TilePosition::None => 0.0,
     }
 }
 

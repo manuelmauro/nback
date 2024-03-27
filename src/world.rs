@@ -5,17 +5,13 @@ use bevy::{
 
 use crate::{
     config::TILE_SIZE,
-    state::{despawn_screen, GameState},
+    state::{despawn_screen, GameState, OnGameScreen},
     tile::TilePosition,
 };
 
-pub struct GamePlugin;
+pub struct WorldPlugin;
 
-// Tag component used to tag entities added on the game screen
-#[derive(Component)]
-struct OnGameScreen;
-
-impl Plugin for GamePlugin {
+impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Game), setup)
             .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
