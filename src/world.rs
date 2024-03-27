@@ -5,6 +5,8 @@ use bevy::{
 
 use crate::{
     config::TILE_SIZE,
+    gui::{debug_ui, GuiPlugin},
+    nback::NBack,
     state::{despawn_screen, GameState, OnGameScreen},
     tile::TilePosition,
 };
@@ -13,7 +15,9 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Game), setup)
+        app.add_plugins(GuiPlugin)
+            .add_systems(OnEnter(GameState::Game), setup)
+            .insert_resource(NBack::default())
             .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
     }
 }
