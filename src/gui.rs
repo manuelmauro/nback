@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 
-use crate::nback::NBack;
+use crate::{nback::NBack, state::GameState};
 
 pub struct GuiPlugin;
 
 impl Plugin for GuiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(EguiPlugin).add_systems(Update, debug_ui);
+        app.add_plugins(EguiPlugin)
+            .add_systems(Update, debug_ui.run_if(in_state(GameState::Game)));
     }
 }
 
