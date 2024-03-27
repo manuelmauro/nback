@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{
     config::TILE_SIZE,
-    gui::{debug_ui, GuiPlugin},
+    gui::GuiPlugin,
     nback::NBack,
     state::{despawn_screen, GameState, OnGameScreen},
     tile::TilePosition,
