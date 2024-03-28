@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::{
     config::{TILE_SIZE, TILE_SPACING},
-    gui::GuiPlugin,
     nback::NBack,
     state::{despawn_screen, GameState, OnGameScreen},
     tile::TilePosition,
@@ -12,8 +11,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(GuiPlugin)
-            .add_systems(OnEnter(GameState::Game), setup)
+        app.add_systems(OnEnter(GameState::Game), setup)
             .add_systems(
                 Update,
                 (timer_system, answer_system, cue_system.after(answer_system))

@@ -1,11 +1,12 @@
 use bevy::prelude::*;
-use nback::{splash::SplashPlugin, state::GameState, world::WorldPlugin};
+use nback::{menu::MenuPlugin, splash::SplashPlugin, state::GameState, world::WorldPlugin};
 
 fn main() {
     App::new()
         .init_state::<GameState>()
         .add_plugins(DefaultPlugins)
         .add_plugins(SplashPlugin)
+        .add_plugins(MenuPlugin)
         .add_plugins(WorldPlugin)
         .add_systems(Startup, setup)
         .add_systems(

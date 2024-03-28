@@ -4,12 +4,17 @@ use bevy::prelude::*;
 pub enum GameState {
     #[default]
     Splash,
+    Menu,
     Game,
 }
 
 /// Tag component used to tag entities added on the splash screen
 #[derive(Component)]
 pub struct OnSplashScreen;
+
+// Tag component used to tag entities added on menu screen
+#[derive(Component)]
+pub struct OnMenuScreen;
 
 // Tag component used to tag entities added on the game screen
 #[derive(Component)]
