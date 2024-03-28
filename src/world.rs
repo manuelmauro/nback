@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::*,
-    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-};
+use bevy::prelude::*;
 
 use crate::{
     config::{TILE_SIZE, TILE_SPACING},
@@ -27,11 +24,7 @@ impl Plugin for WorldPlugin {
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(mut commands: Commands) {
     // Add walls
     let wall_color = Color::rgb(1.0, 1.0, 1.0);
     let wall_thickness = 4.0;
@@ -45,9 +38,9 @@ fn setup(
             sprite: Sprite {
                 color: wall_color,
                 custom_size: Some(Vec2::new(wall_thickness, bounds.y + wall_thickness)),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
         OnGameScreen,
     ));
@@ -58,9 +51,9 @@ fn setup(
             sprite: Sprite {
                 color: wall_color,
                 custom_size: Some(Vec2::new(wall_thickness, bounds.y + wall_thickness)),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
         OnGameScreen,
     ));
@@ -71,9 +64,9 @@ fn setup(
             sprite: Sprite {
                 color: wall_color,
                 custom_size: Some(Vec2::new(bounds.x + wall_thickness, wall_thickness)),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
         OnGameScreen,
     ));
@@ -84,26 +77,27 @@ fn setup(
             sprite: Sprite {
                 color: wall_color,
                 custom_size: Some(Vec2::new(bounds.x + wall_thickness, wall_thickness)),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
         OnGameScreen,
     ));
 
-    let tile = TilePosition::None;
-    commands
-        .spawn((
-            MaterialMesh2dBundle {
-                mesh: Mesh2dHandle(meshes.add(Rectangle::new(TILE_SIZE, TILE_SIZE))),
-                material: materials.add(Color::rgb(1.0, 0.56, 0.0)),
-                transform: Transform::from_translation((&tile).into()),
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_translation((&TilePosition::None).into()),
+            sprite: Sprite {
+                color: Color::rgb(1.0, 0.56, 0.0),
+                custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
                 ..default()
             },
-            OnGameScreen,
-        ))
-        .insert(tile)
-        .insert(CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)));
+            ..default()
+        },
+        TilePosition::None,
+        CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
+        OnGameScreen,
+    ));
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -122,15 +116,14 @@ fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>) {
 /// Render cues.
 fn cue_system(
     mut game: ResMut<NBack>,
-    mut board_query: Query<(&TilePosition, &mut Transform, &mut Mesh2dHandle, &CueTimer)>,
+    mut query: Query<(&TilePosition, &mut Transform, &mut Sprite, &CueTimer)>,
 ) {
-    if let Ok((_, mut transform, mut sprite, timer)) = board_query.get_single_mut() {
+    if let Ok((_, mut transform, mut sprite, timer)) = query.get_single_mut() {
         if timer.just_finished() {
             if let Some((new_cell, new_pigment)) = game.next() {
                 info!("cue: {:?}", new_cell);
                 transform.translation = (&new_cell).into();
-
-                // TODO sprite.material = (&new_pigment).into();
+                sprite.color = (&new_pigment).into();
             }
         }
     }
