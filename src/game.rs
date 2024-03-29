@@ -141,9 +141,7 @@ fn setup(mut commands: Commands, game: Res<NBack>, asset_server: Res<AssetServer
                             width: Val::Px(150.0),
                             height: Val::Px(65.0),
                             border: UiRect::all(Val::Px(3.0)),
-                            // horizontally center child text
                             justify_content: JustifyContent::Center,
-                            // vertically center child text
                             align_items: AlignItems::Center,
                             ..default()
                         },
@@ -173,9 +171,7 @@ fn setup(mut commands: Commands, game: Res<NBack>, asset_server: Res<AssetServer
                             width: Val::Px(150.0),
                             height: Val::Px(65.0),
                             border: UiRect::all(Val::Px(3.0)),
-                            // horizontally center child text
                             justify_content: JustifyContent::Center,
-                            // vertically center child text
                             align_items: AlignItems::Center,
                             ..default()
                         },
