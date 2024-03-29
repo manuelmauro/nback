@@ -7,9 +7,9 @@ use crate::{
     tile::TilePosition,
 };
 
-pub struct WorldPlugin;
+pub struct GamePlugin;
 
-impl Plugin for WorldPlugin {
+impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Game), setup)
             .add_systems(

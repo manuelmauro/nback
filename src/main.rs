@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use nback::{menu::MenuPlugin, splash::SplashPlugin, state::GameState, world::WorldPlugin};
+use nback::{game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::GameState};
 
 fn main() {
     App::new()
@@ -7,7 +7,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(SplashPlugin)
         .add_plugins(MenuPlugin)
-        .add_plugins(WorldPlugin)
+        .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, log_transitions)
         .run();
