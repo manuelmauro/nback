@@ -1,5 +1,5 @@
 use crate::tile::{TileColor, TilePosition};
-use bevy::prelude::{info, Resource};
+use bevy::prelude::*;
 use rand::{
     distributions::{Distribution, Standard},
     Rng,
@@ -82,8 +82,9 @@ impl Score {
     }
 }
 
-#[derive(Resource)]
+#[derive(Component, Resource)]
 pub struct NBack {
+    pub n: usize,
     pub rounds: usize,
     pub cur_round: usize,
     pub round_time: f32,
@@ -95,14 +96,14 @@ pub struct NBack {
 
 impl NBack {
     pub fn new() -> Self {
-        Default::default()
+        default()
     }
 
     pub fn restart(&mut self) {
-        self.score = Default::default();
+        self.score = default();
         self.cur_round = 0;
-        self.positions = CueChain::with_n_back(self.positions.n_back());
-        self.colors = CueChain::with_n_back(self.colors.n_back());
+        self.positions = CueChain::with_n_back(self.n);
+        self.colors = CueChain::with_n_back(self.n);
     }
 
     pub fn n_back(&self) -> usize {
@@ -151,17 +152,20 @@ impl NBack {
 impl Default for NBack {
     fn default() -> Self {
         NBack {
+            n: 2,
             rounds: 10,
             cur_round: 0,
             round_time: 1.0,
-            score: Default::default(),
-            answer: Default::default(),
+            score: default(),
+            answer: default(),
             positions: CueChain::with_n_back(2),
             colors: CueChain::with_n_back(2),
         }
     }
 }
 
+/// Generate cues for the n-back task.
+/// The iterator will run indefinitely.
 impl Iterator for NBack {
     type Item = (TilePosition, TileColor);
 
@@ -189,7 +193,7 @@ impl<T: Default> CueChain<T> {
         };
 
         for _ in 0..n + 1 {
-            cc.short_memory.push_front(Default::default());
+            cc.short_memory.push_front(default());
         }
 
         cc
@@ -209,7 +213,7 @@ where
         let mut rng = rand::thread_rng();
         let y = rng.gen::<f64>();
 
-        let cue = if y < 0.25 && *self.short_memory.front().unwrap() != Default::default() {
+        let cue = if y < 0.25 && *self.short_memory.front().unwrap() != default() {
             self.short_memory.front().unwrap().clone()
         } else {
             rand::random()
@@ -224,7 +228,7 @@ where
 
 impl<T: PartialEq + Default> CueChain<T> {
     pub fn is_match(&self) -> bool {
-        if self.short_memory.front() != Some(&Default::default()) {
+        if self.short_memory.front() != Some(&default()) {
             self.short_memory.back() == self.short_memory.front()
         } else {
             false
