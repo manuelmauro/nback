@@ -20,18 +20,22 @@ pub fn debug_ui(
 ) {
     egui::SidePanel::left("settings").show(egui_context.ctx_mut(), |ui| {
         ui.heading("Dual-N-Back");
-        ui.label(format!("n back: {}", game.n_back()));
-        ui.label(format!("correct: {}", game.score.correct()));
-        ui.label(format!("wrong: {}", game.score.wrong()));
-        ui.label(format!("F1 score: {}", game.score.f1_score()));
-        ui.label(format!("{:?}", game.answer));
+        ui.add(egui::Slider::new(&mut game.rounds, 1..=50).text("Rounds"));
+        ui.add(egui::Slider::new(&mut game.round_time, 0.5..=4.0).text("Round Time"));
 
         if ui.button("Play").clicked() {
+            game.restart();
             game_state.set(GameState::Game);
         }
+    });
 
-        if ui.button("Restart").clicked() {
-            game.restart()
-        }
+    egui::SidePanel::right("status").show(egui_context.ctx_mut(), |ui| {
+        ui.label(format!("N-back: {}", game.n_back()));
+        ui.label(format!("Correct: {}", game.score.correct()));
+        ui.label(format!("Wrong: {}", game.score.wrong()));
+        ui.label(format!(
+            "Score: {}",
+            (game.score.f1_score() * 100.0) as usize
+        ));
     });
 }

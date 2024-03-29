@@ -82,8 +82,11 @@ impl Score {
     }
 }
 
-#[derive(Default, Resource)]
+#[derive(Resource)]
 pub struct NBack {
+    pub rounds: usize,
+    pub cur_round: usize,
+    pub round_time: f32,
     pub score: Score,
     pub answer: Answer,
     pub positions: CueChain<TilePosition>,
@@ -97,12 +100,17 @@ impl NBack {
 
     pub fn restart(&mut self) {
         self.score = Default::default();
+        self.cur_round = 0;
         self.positions = CueChain::with_n_back(self.positions.n_back());
         self.colors = CueChain::with_n_back(self.colors.n_back());
     }
 
     pub fn n_back(&self) -> usize {
         self.positions.n_back()
+    }
+
+    pub fn is_over(&self) -> bool {
+        self.cur_round >= self.rounds
     }
 
     pub fn check_answer(&mut self) {
@@ -140,10 +148,25 @@ impl NBack {
     }
 }
 
+impl Default for NBack {
+    fn default() -> Self {
+        NBack {
+            rounds: 10,
+            cur_round: 0,
+            round_time: 1.0,
+            score: Default::default(),
+            answer: Default::default(),
+            positions: CueChain::with_n_back(2),
+            colors: CueChain::with_n_back(2),
+        }
+    }
+}
+
 impl Iterator for NBack {
     type Item = (TilePosition, TileColor);
 
     fn next(&mut self) -> Option<Self::Item> {
+        self.cur_round += 1;
         Some((self.positions.gen(), self.colors.gen()))
     }
 }

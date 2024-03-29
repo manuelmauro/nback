@@ -9,10 +9,6 @@ fn main() {
         .add_plugins(MenuPlugin)
         .add_plugins(WorldPlugin)
         .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            bevy::window::close_on_esc.run_if(in_state(GameState::Game)),
-        )
         .add_systems(Update, log_transitions)
         .run();
 }

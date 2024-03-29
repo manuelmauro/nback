@@ -6,6 +6,7 @@ use bevy::{
 use crate::{
     config::{TILE_SIZE, TILE_SPACING},
     gui::GuiPlugin,
+    nback::NBack,
     state::{despawn_screen, GameState, OnMenuScreen},
     tile::TilePosition,
 };
@@ -16,7 +17,8 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(GuiPlugin)
             .add_systems(OnEnter(GameState::Menu), setup)
-            .add_systems(OnExit(GameState::Menu), despawn_screen::<OnMenuScreen>);
+            .add_systems(OnExit(GameState::Menu), despawn_screen::<OnMenuScreen>)
+            .insert_resource(NBack::default());
     }
 }
 

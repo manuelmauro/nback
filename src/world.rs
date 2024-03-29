@@ -14,15 +14,19 @@ impl Plugin for WorldPlugin {
         app.add_systems(OnEnter(GameState::Game), setup)
             .add_systems(
                 Update,
-                (timer_system, answer_system, cue_system.after(answer_system))
+                (
+                    timer_system,
+                    answer_system,
+                    cue_system.after(answer_system),
+                    exit_game,
+                )
                     .run_if(in_state(GameState::Game)),
             )
-            .insert_resource(NBack::default())
             .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, game: Res<NBack>) {
     // Add walls
     let wall_color = Color::rgb(1.0, 1.0, 1.0);
     let wall_thickness = 4.0;
@@ -93,7 +97,7 @@ fn setup(mut commands: Commands) {
             ..default()
         },
         TilePosition::None,
-        CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
+        CueTimer(Timer::from_seconds(game.round_time, TimerMode::Repeating)),
         OnGameScreen,
     ));
 }
@@ -152,5 +156,11 @@ fn answer_system(
             game.answer.reset();
             info!("reset answer");
         }
+    }
+}
+
+fn exit_game(game: ResMut<NBack>, mut game_state: ResMut<NextState<GameState>>) {
+    if game.is_over() {
+        game_state.set(GameState::Menu);
     }
 }
