@@ -1,5 +1,5 @@
 use crate::{
-    config::SPLASH_SCREEN_DURATION,
+    config,
     state::{despawn_screen, GameState, OnSplashScreen},
 };
 use bevy::prelude::*;
@@ -47,7 +47,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 
     commands.insert_resource(SplashTimer(Timer::from_seconds(
-        SPLASH_SCREEN_DURATION,
+        config::SPLASH_SCREEN_DURATION,
         TimerMode::Once,
     )));
 }

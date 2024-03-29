@@ -4,7 +4,7 @@ use rand::{
     Rng,
 };
 
-use crate::config::{TILE_SIZE, TILE_SPACING};
+use crate::config;
 
 #[derive(Clone, Component, Debug, Default, PartialEq)]
 pub enum TilePosition {
@@ -85,8 +85,8 @@ impl Distribution<TileColor> for Standard {
 impl From<&TilePosition> for Vec3 {
     fn from(tile: &TilePosition) -> Self {
         Vec3::new(
-            tile.column() * (TILE_SIZE + TILE_SPACING),
-            tile.row() * (TILE_SIZE + TILE_SPACING),
+            tile.column() * (config::TILE_SIZE + config::TILE_SPACING),
+            tile.row() * (config::TILE_SIZE + config::TILE_SPACING),
             0.0,
         )
     }
@@ -95,11 +95,11 @@ impl From<&TilePosition> for Vec3 {
 impl From<&TileColor> for Color {
     fn from(c: &TileColor) -> Self {
         match c {
-            TileColor::A => Color::rgb(1.0, 0.56, 0.0),
-            TileColor::B => Color::rgb(0.60, 0.05, 1.0),
-            TileColor::C => Color::rgb(1.0, 0.0, 0.65),
-            TileColor::D => Color::rgb(0.12, 1.0, 0.14),
-            TileColor::E => Color::rgb(0.12, 0.80, 1.0),
+            TileColor::A => config::TILE_COLOR_A,
+            TileColor::B => config::TILE_COLOR_B,
+            TileColor::C => config::TILE_COLOR_C,
+            TileColor::D => config::TILE_COLOR_D,
+            TileColor::E => config::TILE_COLOR_E,
             TileColor::None => Color::rgb(0.0, 0.0, 0.0),
         }
     }

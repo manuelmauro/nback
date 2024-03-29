@@ -4,7 +4,7 @@ use bevy::{
 };
 
 use crate::{
-    config::{TILE_SIZE, TILE_SPACING},
+    config,
     gui::GuiPlugin,
     nback::NBack,
     state::{despawn_screen, GameState, OnMenuScreen},
@@ -31,7 +31,7 @@ fn setup(
     let wall_color = Color::rgb(1.0, 1.0, 1.0);
     let wall_thickness = 4.0;
 
-    let edge = (TILE_SIZE * 3.0) + (TILE_SPACING * 4.0);
+    let edge = (config::TILE_SIZE * 3.0) + (config::TILE_SPACING * 4.0);
     let bounds = Vec2::new(edge, edge);
     // left
     commands.spawn((
@@ -106,7 +106,9 @@ fn setup(
 
         commands.spawn((
             MaterialMesh2dBundle {
-                mesh: Mesh2dHandle(meshes.add(Rectangle::new(TILE_SIZE, TILE_SIZE))),
+                mesh: Mesh2dHandle(
+                    meshes.add(Rectangle::new(config::TILE_SIZE, config::TILE_SIZE)),
+                ),
                 material: materials.add(color),
                 transform: Transform::from_translation((&tile).into()),
                 ..default()
