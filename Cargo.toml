@@ -8,7 +8,9 @@ edition = "2021"
 [dependencies]
 bevy = "0.13.1"
 bevy_egui = "0.26.0"
+image = "0.25.0"
 rand = "0.8.5"
+winit = "0.29.15"
 
 [workspace]
 resolver = "2"
