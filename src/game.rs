@@ -136,7 +136,6 @@ fn setup(
         },
         tile,
         player,
-        TilePosition::None,
         CueTimer(Timer::from_seconds(game.round_time, TimerMode::Repeating)),
         OnGameScreen,
     ));
@@ -237,15 +236,9 @@ fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>, game: ResMut<N
 /// Render cues.
 fn cue_system(
     mut game: ResMut<NBack>,
-    mut query: Query<(
-        &TilePosition,
-        &mut Transform,
-        &mut Sprite,
-        &CueTimer,
-        &mut AnimationPlayer,
-    )>,
+    mut query: Query<(&mut Transform, &mut Sprite, &CueTimer, &mut AnimationPlayer)>,
 ) {
-    if let Ok((_, mut transform, mut sprite, timer, mut player)) = query.get_single_mut() {
+    if let Ok((mut transform, mut sprite, timer, mut player)) = query.get_single_mut() {
         if timer.just_finished() {
             if let Some((new_cell, new_pigment)) = game.next() {
                 info!("cue: {:?}", new_cell);
@@ -292,12 +285,12 @@ fn exit_game(game: ResMut<NBack>, mut game_state: ResMut<NextState<GameState>>) 
 }
 
 fn button_system(
-    mut interaction_query: Query<
+    mut query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut color, mut border_color) in &mut interaction_query {
+    for (interaction, mut color, mut border_color) in &mut query {
         match *interaction {
             Interaction::Pressed => {
                 *color = config::PRESSED_BUTTON.into();
