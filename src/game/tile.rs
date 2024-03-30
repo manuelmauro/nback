@@ -6,7 +6,9 @@ use rand::{
 
 use crate::config;
 
-#[derive(Clone, Component, Debug, Default, PartialEq)]
+use super::{nback::NBack, CueTimer};
+
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum TilePosition {
     TopLeft,
     TopCenter,
@@ -101,6 +103,50 @@ impl From<&TileColor> for Color {
             TileColor::D => config::TILE_COLOR_D,
             TileColor::E => config::TILE_COLOR_E,
             TileColor::None => Color::rgb(0.0, 0.0, 0.0),
+        }
+    }
+}
+
+#[derive(Bundle)]
+pub struct TileBundle {
+    pub sprite: SpriteBundle,
+    pub name: Name,
+    pub animation: AnimationPlayer,
+    pub timer: CueTimer,
+}
+
+impl Default for TileBundle {
+    fn default() -> Self {
+        TileBundle {
+            sprite: SpriteBundle {
+                transform: Transform::from_translation((&TilePosition::None).into()),
+                sprite: Sprite {
+                    color: (&TileColor::A).into(),
+                    custom_size: Some(Vec2::new(config::TILE_SIZE, config::TILE_SIZE)),
+                    ..default()
+                },
+                ..default()
+            },
+            name: Name::default(),
+            animation: AnimationPlayer::default(),
+            timer: CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
+        }
+    }
+}
+
+/// Update tile state every time the timer finishes.
+pub fn tile_system(
+    mut game: ResMut<NBack>,
+    mut query: Query<(&mut Transform, &mut Sprite, &mut AnimationPlayer, &CueTimer)>,
+) {
+    if let Ok((mut transform, mut sprite, mut animation, timer)) = query.get_single_mut() {
+        if timer.just_finished() {
+            if let Some((new_position, new_color)) = game.next() {
+                info!(pos = ?new_position, col = ?new_color, "tile updated");
+                transform.translation = (&new_position).into();
+                sprite.color = (&new_color).into();
+                animation.replay();
+            }
         }
     }
 }

@@ -5,7 +5,11 @@ use crate::{
     state::{despawn_screen, GameState, OnGameScreen},
 };
 
-use self::{gui::GuiPlugin, nback::NBack, tile::TilePosition};
+use self::{
+    gui::GuiPlugin,
+    nback::NBack,
+    tile::{tile_system, TileBundle},
+};
 
 pub mod gui;
 pub mod nback;
@@ -22,7 +26,7 @@ impl Plugin for GamePlugin {
                 (
                     timer_system,
                     answer_system,
-                    cue_system.after(answer_system),
+                    tile_system.after(answer_system),
                     exit_game,
                     button_system,
                     button_shortcut_system,
@@ -130,18 +134,12 @@ fn setup(
 
     // tile
     commands.spawn((
-        SpriteBundle {
-            transform: Transform::from_translation((&TilePosition::None).into()),
-            sprite: Sprite {
-                color: Color::rgb(1.0, 0.56, 0.0),
-                custom_size: Some(Vec2::new(config::TILE_SIZE, config::TILE_SIZE)),
-                ..default()
-            },
+        TileBundle {
+            name: tile,
+            animation: player,
+            timer: CueTimer(Timer::from_seconds(game.round_time, TimerMode::Repeating)),
             ..default()
         },
-        tile,
-        player,
-        CueTimer(Timer::from_seconds(game.round_time, TimerMode::Repeating)),
         OnGameScreen,
     ));
 
@@ -224,32 +222,15 @@ fn setup(
 }
 
 #[derive(Component, Deref, DerefMut)]
-struct CueTimer(Timer);
+pub struct CueTimer(Timer);
 
-/// Tick all the `Timer` components on entities within the scene using bevy's
+/// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
 fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>, game: ResMut<NBack>) {
     if !game.paused {
         for mut timer in query.iter_mut() {
             if timer.tick(time.delta()).just_finished() {
                 info!("tick!")
-            }
-        }
-    }
-}
-
-/// Render cues.
-fn cue_system(
-    mut game: ResMut<NBack>,
-    mut query: Query<(&mut Transform, &mut Sprite, &CueTimer, &mut AnimationPlayer)>,
-) {
-    if let Ok((mut transform, mut sprite, timer, mut player)) = query.get_single_mut() {
-        if timer.just_finished() {
-            if let Some((new_cell, new_pigment)) = game.next() {
-                info!("cue: {:?}", new_cell);
-                transform.translation = (&new_cell).into();
-                sprite.color = (&new_pigment).into();
-                player.replay();
             }
         }
     }
