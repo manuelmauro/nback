@@ -199,10 +199,12 @@ struct CueTimer(Timer);
 
 /// Tick all the `Timer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
-fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>) {
-    for mut timer in query.iter_mut() {
-        if timer.tick(time.delta()).just_finished() {
-            info!("tick!")
+fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>, game: ResMut<NBack>) {
+    if !game.paused {
+        for mut timer in query.iter_mut() {
+            if timer.tick(time.delta()).just_finished() {
+                info!("tick!")
+            }
         }
     }
 }

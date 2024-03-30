@@ -43,7 +43,7 @@ pub fn menu_ui(
 }
 
 /// Debug interface.
-pub fn debug_ui(mut egui_context: EguiContexts, game: ResMut<NBack>) {
+pub fn debug_ui(mut egui_context: EguiContexts, mut game: ResMut<NBack>) {
     egui::Window::new("debug").show(egui_context.ctx_mut(), |ui| {
         ui.label(format!("N-back: {}", game.n_back()));
         ui.label(format!("Correct: {}", game.score.correct()));
@@ -53,5 +53,9 @@ pub fn debug_ui(mut egui_context: EguiContexts, game: ResMut<NBack>) {
             "Score: {}",
             (game.score.f1_score() * 100.0) as usize
         ));
+
+        if ui.button("Pause").clicked() {
+            game.paused = !game.paused;
+        }
     });
 }
