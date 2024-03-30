@@ -31,7 +31,12 @@ impl Plugin for GamePlugin {
 #[derive(Component)]
 struct Shortcut(KeyCode);
 
-fn setup(mut commands: Commands, game: Res<NBack>, asset_server: Res<AssetServer>) {
+fn setup(
+    mut commands: Commands,
+    game: Res<NBack>,
+    asset_server: Res<AssetServer>,
+    mut animations: ResMut<Assets<AnimationClip>>,
+) {
     // Add walls
     let edge = (config::TILE_SIZE * 3.0) + (config::TILE_SPACING * 4.0);
     let bounds = Vec2::new(edge, edge);
@@ -100,6 +105,24 @@ fn setup(mut commands: Commands, game: Res<NBack>, asset_server: Res<AssetServer
         OnGameScreen,
     ));
 
+    let tile = Name::new("tile");
+    let mut animation = AnimationClip::default();
+
+    animation.add_curve_to_path(
+        EntityPath {
+            parts: vec![tile.clone()],
+        },
+        VariableCurve {
+            keyframe_timestamps: vec![0.0, 0.25],
+            keyframes: Keyframes::Scale(vec![Vec3::splat(0.8), Vec3::splat(1.0)]),
+            interpolation: Interpolation::Linear,
+        },
+    );
+
+    // Create the animation player, and set it to repeat
+    let mut player = AnimationPlayer::default();
+    player.play(animations.add(animation));
+
     // tile
     commands.spawn((
         SpriteBundle {
@@ -111,6 +134,8 @@ fn setup(mut commands: Commands, game: Res<NBack>, asset_server: Res<AssetServer
             },
             ..default()
         },
+        tile,
+        player,
         TilePosition::None,
         CueTimer(Timer::from_seconds(game.round_time, TimerMode::Repeating)),
         OnGameScreen,
@@ -212,14 +237,21 @@ fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>, game: ResMut<N
 /// Render cues.
 fn cue_system(
     mut game: ResMut<NBack>,
-    mut query: Query<(&TilePosition, &mut Transform, &mut Sprite, &CueTimer)>,
+    mut query: Query<(
+        &TilePosition,
+        &mut Transform,
+        &mut Sprite,
+        &CueTimer,
+        &mut AnimationPlayer,
+    )>,
 ) {
-    if let Ok((_, mut transform, mut sprite, timer)) = query.get_single_mut() {
+    if let Ok((_, mut transform, mut sprite, timer, mut player)) = query.get_single_mut() {
         if timer.just_finished() {
             if let Some((new_cell, new_pigment)) = game.next() {
                 info!("cue: {:?}", new_cell);
                 transform.translation = (&new_cell).into();
                 sprite.color = (&new_pigment).into();
+                player.replay();
             }
         }
     }
