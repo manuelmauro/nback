@@ -8,34 +8,22 @@ use std::collections::VecDeque;
 
 #[derive(Default, Debug)]
 pub struct Answer {
-    w: bool,
-    a: bool,
-    s: bool,
-    d: bool,
+    same_position: bool,
+    same_color: bool,
 }
 
 impl Answer {
-    pub fn w(&mut self) {
-        self.w = true;
+    pub fn same_position(&mut self) {
+        self.same_position = true;
     }
 
-    pub fn a(&mut self) {
-        self.a = true;
-    }
-
-    pub fn s(&mut self) {
-        self.s = true;
-    }
-
-    pub fn d(&mut self) {
-        self.d = true;
+    pub fn same_color(&mut self) {
+        self.same_color = true;
     }
 
     pub fn reset(&mut self) {
-        self.w = false;
-        self.a = false;
-        self.s = false;
-        self.d = false;
+        self.same_position = false;
+        self.same_color = false;
     }
 }
 
@@ -116,7 +104,7 @@ impl NBack {
     }
 
     pub fn check_answer(&mut self) {
-        if self.answer.a {
+        if self.answer.same_position {
             if self.positions.is_match() {
                 self.score.record_tp();
                 info!("true_positive");
@@ -132,7 +120,7 @@ impl NBack {
             info!("true_neg");
         }
 
-        if self.answer.d {
+        if self.answer.same_color {
             if self.colors.is_match() {
                 self.score.record_tp();
                 info!("true_positive");

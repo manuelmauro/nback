@@ -240,17 +240,11 @@ fn answer_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&CueTimer>,
 ) {
-    if keyboard_input.pressed(KeyCode::KeyW) {
-        game.answer.w();
-    }
     if keyboard_input.pressed(KeyCode::KeyA) {
-        game.answer.a();
-    }
-    if keyboard_input.pressed(KeyCode::KeyS) {
-        game.answer.s();
+        game.answer.same_position();
     }
     if keyboard_input.pressed(KeyCode::KeyD) {
-        game.answer.d();
+        game.answer.same_color();
     }
 
     if let Ok(timer) = query.get_single_mut() {
