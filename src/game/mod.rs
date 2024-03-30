@@ -7,16 +7,16 @@ use crate::{
 
 use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
+    core::DualNBack,
     gui::GuiPlugin,
-    nback::NBack,
     score::GameScore,
     settings::GameSettings,
     tile::{tile_system, TileBundle},
 };
 
 pub mod button;
+pub mod core;
 pub mod gui;
-pub mod nback;
 pub mod score;
 pub mod settings;
 pub mod tile;
@@ -145,7 +145,7 @@ fn setup(
             )),
             ..default()
         },
-        NBack::default(),
+        DualNBack::default(),
         OnGameScreen,
     ));
 
@@ -232,7 +232,7 @@ pub struct CueTimer(Timer);
 
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
-fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &NBack)>) {
+fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &DualNBack)>) {
     if let Ok((mut timer, game)) = query.get_single_mut() {
         if !game.paused {
             if timer.tick(time.delta()).just_finished() {
@@ -245,7 +245,7 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &NBack)>) {
 /// Record answers.
 fn answer_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut NBack, &CueTimer)>,
+    mut query: Query<(&mut DualNBack, &CueTimer)>,
 ) {
     if let Ok((mut game, timer)) = query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::KeyA) {
@@ -266,7 +266,7 @@ fn answer_system(
 fn endgame_system(
     mut score: ResMut<GameScore>,
     mut game_state: ResMut<NextState<GameState>>,
-    query: Query<&NBack>,
+    query: Query<&DualNBack>,
 ) {
     if let Ok(game) = query.get_single() {
         if game.is_over() {

@@ -6,7 +6,7 @@ use rand::{
 
 use crate::config;
 
-use super::{nback::NBack, CueTimer};
+use super::{core::DualNBack, CueTimer};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum TilePosition {
@@ -141,7 +141,7 @@ pub fn tile_system(
         &mut Sprite,
         &mut AnimationPlayer,
         &CueTimer,
-        &mut NBack,
+        &mut DualNBack,
     )>,
 ) {
     if let Ok((mut transform, mut sprite, mut animation, timer, mut game)) = query.get_single_mut()

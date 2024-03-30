@@ -3,7 +3,7 @@ use bevy_egui::{egui, EguiContexts};
 
 use crate::state::GameState;
 
-use super::nback::NBack;
+use super::core::DualNBack;
 
 pub struct GuiPlugin;
 
@@ -14,7 +14,7 @@ impl Plugin for GuiPlugin {
 }
 
 /// Debug interface.
-pub fn debug_ui(mut egui_context: EguiContexts, mut query: Query<&mut NBack>) {
+pub fn debug_ui(mut egui_context: EguiContexts, mut query: Query<&mut DualNBack>) {
     if let Ok(mut game) = query.get_single_mut() {
         egui::Window::new("debug").show(egui_context.ctx_mut(), |ui| {
             ui.label(format!("N-back: {}", game.n_back()));

@@ -71,7 +71,7 @@ impl Score {
 }
 
 #[derive(Component, Resource)]
-pub struct NBack {
+pub struct DualNBack {
     pub n: usize,
     pub rounds: usize,
     pub cur_round: usize,
@@ -83,7 +83,7 @@ pub struct NBack {
     pub colors: CueChain<TileColor>,
 }
 
-impl NBack {
+impl DualNBack {
     pub fn new() -> Self {
         default()
     }
@@ -138,9 +138,9 @@ impl NBack {
     }
 }
 
-impl Default for NBack {
+impl Default for DualNBack {
     fn default() -> Self {
-        NBack {
+        DualNBack {
             n: 2,
             rounds: 10,
             cur_round: 0,
@@ -156,7 +156,7 @@ impl Default for NBack {
 
 /// Generate cues for the n-back task.
 /// The iterator will run indefinitely.
-impl Iterator for NBack {
+impl Iterator for DualNBack {
     type Item = (TilePosition, TileColor);
 
     fn next(&mut self) -> Option<Self::Item> {
