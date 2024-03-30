@@ -6,11 +6,13 @@ use crate::{
 };
 
 use self::{
+    button::{GameButtonBundle, GameButtonPlugin, Shortcut},
     gui::GuiPlugin,
     nback::NBack,
     tile::{tile_system, TileBundle},
 };
 
+pub mod button;
 pub mod gui;
 pub mod nback;
 pub mod tile;
@@ -20,6 +22,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(GuiPlugin)
+            .add_plugins(GameButtonPlugin)
             .add_systems(OnEnter(GameState::Game), setup)
             .add_systems(
                 Update,
@@ -28,17 +31,12 @@ impl Plugin for GamePlugin {
                     answer_system,
                     tile_system.after(answer_system),
                     exit_game,
-                    button_system,
-                    button_shortcut_system,
                 )
                     .run_if(in_state(GameState::Game)),
             )
             .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
     }
 }
-
-#[derive(Component)]
-struct Shortcut(KeyCode);
 
 fn setup(
     mut commands: Commands,
@@ -160,8 +158,8 @@ fn setup(
         ))
         .with_children(|parent| {
             parent
-                .spawn((
-                    ButtonBundle {
+                .spawn(GameButtonBundle {
+                    button: ButtonBundle {
                         style: Style {
                             left: Val::Px(-100.0),
                             top: Val::Px(230.0),
@@ -176,8 +174,8 @@ fn setup(
                         background_color: config::NORMAL_BUTTON.into(),
                         ..default()
                     },
-                    Shortcut(KeyCode::KeyA),
-                ))
+                    shortcut: Shortcut(KeyCode::KeyA),
+                })
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
                         "Position (A)",
@@ -190,8 +188,8 @@ fn setup(
                 });
 
             parent
-                .spawn((
-                    ButtonBundle {
+                .spawn(GameButtonBundle {
+                    button: ButtonBundle {
                         style: Style {
                             left: Val::Px(100.0),
                             top: Val::Px(230.0),
@@ -206,8 +204,8 @@ fn setup(
                         background_color: config::NORMAL_BUTTON.into(),
                         ..default()
                     },
-                    Shortcut(KeyCode::KeyD),
-                ))
+                    shortcut: Shortcut(KeyCode::KeyD),
+                })
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
                         "Color (D)",
@@ -267,46 +265,5 @@ fn answer_system(
 fn exit_game(game: ResMut<NBack>, mut game_state: ResMut<NextState<GameState>>) {
     if game.is_over() {
         game_state.set(GameState::Menu);
-    }
-}
-
-fn button_system(
-    mut query: Query<
-        (&Interaction, &mut BackgroundColor, &mut BorderColor),
-        (Changed<Interaction>, With<Button>),
-    >,
-) {
-    for (interaction, mut color, mut border_color) in &mut query {
-        match *interaction {
-            Interaction::Pressed => {
-                *color = config::PRESSED_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR.into();
-            }
-            Interaction::Hovered => {
-                *color = config::HOVERED_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR.into();
-            }
-            Interaction::None => {
-                *color = config::NORMAL_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR.into();
-            }
-        }
-    }
-}
-
-fn button_shortcut_system(
-    mut interaction_query: Query<(&mut BackgroundColor, &mut BorderColor, &Shortcut), With<Button>>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-) {
-    for (mut color, mut border_color, shortcut) in &mut interaction_query {
-        if keyboard_input.pressed(shortcut.0) {
-            *color = config::PRESSED_BUTTON.into();
-            border_color.0 = config::PRESSED_BUTTON_BORDER_COLOR.into();
-        }
-
-        if keyboard_input.just_released(shortcut.0) {
-            *color = config::NORMAL_BUTTON.into();
-            border_color.0 = config::BUTTON_BORDER_COLOR.into();
-        }
     }
 }
