@@ -30,7 +30,7 @@ impl Plugin for GamePlugin {
                     timer_system,
                     answer_system,
                     tile_system.after(answer_system),
-                    exit_game,
+                    endgame_system,
                 )
                     .run_if(in_state(GameState::Game)),
             )
@@ -262,7 +262,7 @@ fn answer_system(
     }
 }
 
-fn exit_game(game: ResMut<NBack>, mut game_state: ResMut<NextState<GameState>>) {
+fn endgame_system(game: ResMut<NBack>, mut game_state: ResMut<NextState<GameState>>) {
     if game.is_over() {
         game_state.set(GameState::Menu);
     }
