@@ -136,10 +136,16 @@ impl Default for TileBundle {
 
 /// Update tile state every time the timer finishes.
 pub fn tile_system(
-    mut game: ResMut<NBack>,
-    mut query: Query<(&mut Transform, &mut Sprite, &mut AnimationPlayer, &CueTimer)>,
+    mut query: Query<(
+        &mut Transform,
+        &mut Sprite,
+        &mut AnimationPlayer,
+        &CueTimer,
+        &mut NBack,
+    )>,
 ) {
-    if let Ok((mut transform, mut sprite, mut animation, timer)) = query.get_single_mut() {
+    if let Ok((mut transform, mut sprite, mut animation, timer, mut game)) = query.get_single_mut()
+    {
         if timer.just_finished() {
             if let Some((new_position, new_color)) = game.next() {
                 info!(pos = ?new_position, col = ?new_color, "tile updated");

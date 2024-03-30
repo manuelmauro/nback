@@ -9,12 +9,16 @@ use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
     gui::GuiPlugin,
     nback::NBack,
+    score::GameScore,
+    settings::GameSettings,
     tile::{tile_system, TileBundle},
 };
 
 pub mod button;
 pub mod gui;
 pub mod nback;
+pub mod score;
+pub mod settings;
 pub mod tile;
 
 pub struct GamePlugin;
@@ -40,7 +44,7 @@ impl Plugin for GamePlugin {
 
 fn setup(
     mut commands: Commands,
-    game: Res<NBack>,
+    settings: Res<GameSettings>,
     asset_server: Res<AssetServer>,
     mut animations: ResMut<Assets<AnimationClip>>,
 ) {
@@ -130,14 +134,18 @@ fn setup(
     let mut player = AnimationPlayer::default();
     player.play(animations.add(animation));
 
-    // tile
+    // game
     commands.spawn((
         TileBundle {
             name: tile,
             animation: player,
-            timer: CueTimer(Timer::from_seconds(game.round_time, TimerMode::Repeating)),
+            timer: CueTimer(Timer::from_seconds(
+                settings.round_time,
+                TimerMode::Repeating,
+            )),
             ..default()
         },
+        NBack::default(),
         OnGameScreen,
     ));
 
@@ -224,9 +232,9 @@ pub struct CueTimer(Timer);
 
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
-fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>, game: ResMut<NBack>) {
-    if !game.paused {
-        for mut timer in query.iter_mut() {
+fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &NBack)>) {
+    if let Ok((mut timer, game)) = query.get_single_mut() {
+        if !game.paused {
             if timer.tick(time.delta()).just_finished() {
                 info!("tick!")
             }
@@ -236,18 +244,17 @@ fn timer_system(time: Res<Time>, mut query: Query<&mut CueTimer>, game: ResMut<N
 
 /// Record answers.
 fn answer_system(
-    mut game: ResMut<NBack>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&CueTimer>,
+    mut query: Query<(&mut NBack, &CueTimer)>,
 ) {
-    if keyboard_input.pressed(KeyCode::KeyA) {
-        game.answer.same_position();
-    }
-    if keyboard_input.pressed(KeyCode::KeyD) {
-        game.answer.same_color();
-    }
+    if let Ok((mut game, timer)) = query.get_single_mut() {
+        if keyboard_input.pressed(KeyCode::KeyA) {
+            game.answer.same_position();
+        }
+        if keyboard_input.pressed(KeyCode::KeyD) {
+            game.answer.same_color();
+        }
 
-    if let Ok(timer) = query.get_single_mut() {
         if timer.just_finished() {
             game.check_answer();
             game.answer.reset();
@@ -256,8 +263,18 @@ fn answer_system(
     }
 }
 
-fn endgame_system(game: ResMut<NBack>, mut game_state: ResMut<NextState<GameState>>) {
-    if game.is_over() {
-        game_state.set(GameState::Menu);
+fn endgame_system(
+    mut score: ResMut<GameScore>,
+    mut game_state: ResMut<NextState<GameState>>,
+    query: Query<&NBack>,
+) {
+    if let Ok(game) = query.get_single() {
+        if game.is_over() {
+            score.n = game.n;
+            score.correct = game.score.correct();
+            score.wrong = game.score.wrong();
+            score.f1_score = game.score.f1_score();
+            game_state.set(GameState::Menu);
+        }
     }
 }

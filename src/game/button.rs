@@ -54,10 +54,10 @@ fn button_system(
 }
 
 fn button_shortcut_system(
-    mut interaction_query: Query<(&mut BackgroundColor, &mut BorderColor, &Shortcut), With<Button>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut query: Query<(&mut BackgroundColor, &mut BorderColor, &Shortcut), With<Button>>,
 ) {
-    for (mut color, mut border_color, shortcut) in &mut interaction_query {
+    for (mut color, mut border_color, shortcut) in &mut query {
         if keyboard_input.pressed(shortcut.0) {
             *color = config::PRESSED_BUTTON.into();
             border_color.0 = config::PRESSED_BUTTON_BORDER_COLOR.into();
