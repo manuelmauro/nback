@@ -1,4 +1,5 @@
 use bevy::{prelude::*, winit::WinitWindows};
+use bevy_egui::EguiPlugin;
 use nback::{game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::GameState};
 use winit::window::Icon;
 
@@ -6,6 +7,7 @@ fn main() {
     App::new()
         .init_state::<GameState>()
         .add_plugins(DefaultPlugins)
+        .add_plugins(EguiPlugin)
         .add_plugins(SplashPlugin)
         .add_plugins(MenuPlugin)
         .add_plugins(GamePlugin)

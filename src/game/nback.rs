@@ -1,4 +1,4 @@
-use crate::tile::{TileColor, TilePosition};
+use super::tile::{TileColor, TilePosition};
 use bevy::prelude::*;
 use rand::{
     distributions::{Distribution, Standard},

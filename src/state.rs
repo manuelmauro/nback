@@ -12,11 +12,11 @@ pub enum GameState {
 #[derive(Component)]
 pub struct OnSplashScreen;
 
-// Tag component used to tag entities added on menu screen
+/// Tag component used to tag entities added on menu screen
 #[derive(Component)]
 pub struct OnMenuScreen;
 
-// Tag component used to tag entities added on the game screen
+/// Tag component used to tag entities added on the game screen
 #[derive(Component)]
 pub struct OnGameScreen;
 

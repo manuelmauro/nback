@@ -5,11 +5,13 @@ use bevy::{
 
 use crate::{
     config,
-    gui::GuiPlugin,
-    nback::NBack,
+    game::{nback::NBack, tile::TilePosition},
     state::{despawn_screen, GameState, OnMenuScreen},
-    tile::TilePosition,
 };
+
+use self::gui::GuiPlugin;
+
+pub mod gui;
 
 pub struct MenuPlugin;
 

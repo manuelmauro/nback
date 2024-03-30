@@ -2,16 +2,21 @@ use bevy::prelude::*;
 
 use crate::{
     config,
-    nback::NBack,
     state::{despawn_screen, GameState, OnGameScreen},
-    tile::TilePosition,
 };
+
+use self::{gui::GuiPlugin, nback::NBack, tile::TilePosition};
+
+pub mod gui;
+pub mod nback;
+pub mod tile;
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Game), setup)
+        app.add_plugins(GuiPlugin)
+            .add_systems(OnEnter(GameState::Game), setup)
             .add_systems(
                 Update,
                 (
