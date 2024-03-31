@@ -1,11 +1,11 @@
 use bevy::{prelude::*, winit::WinitWindows};
 use bevy_egui::EguiPlugin;
-use nback::{game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::GameState};
+use nback::{game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::AppState};
 use winit::window::Icon;
 
 fn main() {
     App::new()
-        .init_state::<GameState>()
+        .init_state::<AppState>()
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
         .add_plugins(SplashPlugin)
@@ -43,7 +43,7 @@ fn set_window_icon(
     }
 }
 
-fn log_transitions(mut transitions: EventReader<StateTransitionEvent<GameState>>) {
+fn log_transitions(mut transitions: EventReader<StateTransitionEvent<AppState>>) {
     for transition in transitions.read() {
         info!(
             "transition: {:?} => {:?}",

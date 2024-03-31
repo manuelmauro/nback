@@ -2,12 +2,12 @@ use bevy::prelude::*;
 
 use crate::{
     config,
-    state::{despawn_screen, GameState, OnGameScreen},
+    state::{despawn_screen, AppState, OnGameScreen},
 };
 
 use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
-    core::{DualNBack, DualNBackBundle},
+    core::{state::GameState, DualNBack, DualNBackBundle},
     gui::GuiPlugin,
     score::GameScore,
     settings::GameSettings,
@@ -28,12 +28,12 @@ impl Plugin for GamePlugin {
         app.add_plugins(GuiPlugin)
             .add_plugins(TilePlugin)
             .add_plugins(GameButtonPlugin)
-            .add_systems(OnEnter(GameState::Game), setup)
+            .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
                 Update,
-                (timer_system, answer_system, endgame_system).run_if(in_state(GameState::Game)),
+                (timer_system, answer_system, endgame_system).run_if(in_state(AppState::Game)),
             )
-            .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
+            .add_systems(OnExit(AppState::Game), despawn_screen::<OnGameScreen>);
     }
 }
 
@@ -142,6 +142,7 @@ fn setup(
                 settings.round_time,
                 TimerMode::Repeating,
             )),
+            ..default()
         },
         OnGameScreen,
     ));
@@ -229,9 +230,9 @@ pub struct CueTimer(Timer);
 
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
-fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &DualNBack)>) {
-    if let Ok((mut timer, game)) = query.get_single_mut() {
-        if !game.paused {
+fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) {
+    if let Ok((mut timer, state)) = query.get_single_mut() {
+        if *state == GameState::Playing {
             if timer.tick(time.delta()).just_finished() {
                 info!("tick!")
             }
@@ -267,7 +268,7 @@ fn answer_system(
 
 fn endgame_system(
     mut score: ResMut<GameScore>,
-    mut game_state: ResMut<NextState<GameState>>,
+    mut app_state: ResMut<NextState<AppState>>,
     query: Query<&DualNBack>,
 ) {
     if let Ok(game) = query.get_single() {
@@ -276,7 +277,7 @@ fn endgame_system(
             score.correct = game.score.correct();
             score.wrong = game.score.wrong();
             score.f1_score = game.score.f1_score();
-            game_state.set(GameState::Menu);
+            app_state.set(AppState::Menu);
         }
     }
 }

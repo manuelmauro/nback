@@ -6,7 +6,7 @@ use bevy::{
 use crate::{
     config,
     game::{score::GameScore, settings::GameSettings, tile::position::TilePosition},
-    state::{despawn_screen, GameState, OnMenuScreen},
+    state::{despawn_screen, AppState, OnMenuScreen},
 };
 
 use self::gui::GuiPlugin;
@@ -18,8 +18,8 @@ pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(GuiPlugin)
-            .add_systems(OnEnter(GameState::Menu), setup)
-            .add_systems(OnExit(GameState::Menu), despawn_screen::<OnMenuScreen>)
+            .add_systems(OnEnter(AppState::Menu), setup)
+            .add_systems(OnExit(AppState::Menu), despawn_screen::<OnMenuScreen>)
             .insert_resource(GameSettings::default())
             .insert_resource(GameScore::default());
     }

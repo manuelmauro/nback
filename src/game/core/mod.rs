@@ -1,4 +1,4 @@
-use self::{answer::Answer, cue::CueChain, round::Round, score::Score};
+use self::{answer::Answer, cue::CueChain, round::Round, score::Score, state::GameState};
 
 use super::{
     tile::{color::TileColor, position::TilePosition},
@@ -10,10 +10,12 @@ pub mod answer;
 pub mod cue;
 pub mod round;
 pub mod score;
+pub mod state;
 
 #[derive(Bundle)]
 pub struct DualNBackBundle {
     pub dual_n_back: DualNBack,
+    pub state: GameState,
     pub timer: CueTimer,
 }
 
@@ -22,6 +24,7 @@ impl Default for DualNBackBundle {
         DualNBackBundle {
             dual_n_back: DualNBack::new(),
             timer: CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
+            state: GameState::Playing,
         }
     }
 }
@@ -29,7 +32,6 @@ impl Default for DualNBackBundle {
 #[derive(Component, Resource)]
 pub struct DualNBack {
     pub n: usize,
-    pub paused: bool,
     pub round: Round,
     pub score: Score,
     pub answer: Answer,
@@ -90,7 +92,6 @@ impl Default for DualNBack {
         DualNBack {
             n: 2,
             round: default(),
-            paused: false,
             score: default(),
             answer: default(),
             positions: CueChain::with_n_back(2),

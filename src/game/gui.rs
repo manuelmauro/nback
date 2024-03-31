@@ -1,21 +1,21 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::state::GameState;
+use crate::state::AppState;
 
-use super::core::DualNBack;
+use super::core::{state::GameState, DualNBack};
 
 pub struct GuiPlugin;
 
 impl Plugin for GuiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, debug_ui.run_if(in_state(GameState::Game)));
+        app.add_systems(Update, debug_ui.run_if(in_state(AppState::Game)));
     }
 }
 
 /// Debug interface.
-pub fn debug_ui(mut egui_context: EguiContexts, mut query: Query<&mut DualNBack>) {
-    if let Ok(mut game) = query.get_single_mut() {
+pub fn debug_ui(mut egui_context: EguiContexts, mut query: Query<(&DualNBack, &mut GameState)>) {
+    if let Ok((game, mut state)) = query.get_single_mut() {
         egui::Window::new("debug").show(egui_context.ctx_mut(), |ui| {
             ui.label(format!("N-back: {}", game.n_back()));
             ui.label(format!("Correct: {}", game.score.correct()));
@@ -26,8 +26,12 @@ pub fn debug_ui(mut egui_context: EguiContexts, mut query: Query<&mut DualNBack>
                 (game.score.f1_score() * 100.0) as usize
             ));
 
+            if ui.button("Play").clicked() {
+                *state = GameState::Playing;
+            }
+
             if ui.button("Pause").clicked() {
-                game.paused = !game.paused;
+                *state = GameState::Paused;
             }
         });
     }
