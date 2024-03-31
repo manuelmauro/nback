@@ -7,7 +7,7 @@ use crate::{
 
 use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
-    core::DualNBack,
+    core::{DualNBack, DualNBackBundle},
     gui::GuiPlugin,
     score::GameScore,
     settings::GameSettings,
@@ -145,7 +145,9 @@ fn setup(
             )),
             ..default()
         },
-        DualNBack::default(),
+        DualNBackBundle {
+            dual_n_back: DualNBack::default(),
+        },
         OnGameScreen,
     ));
 

@@ -8,6 +8,19 @@ pub mod cue;
 pub mod round;
 pub mod score;
 
+#[derive(Bundle)]
+pub struct DualNBackBundle {
+    pub dual_n_back: DualNBack,
+}
+
+impl Default for DualNBackBundle {
+    fn default() -> Self {
+        DualNBackBundle {
+            dual_n_back: DualNBack::new(),
+        }
+    }
+}
+
 #[derive(Component, Resource)]
 pub struct DualNBack {
     pub n: usize,
