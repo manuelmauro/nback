@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
-#[derive(Component, Eq, PartialEq)]
+#[derive(Component, Default, Eq, PartialEq)]
 pub enum GameState {
+    #[default]
     Playing,
     Paused,
 }

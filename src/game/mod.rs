@@ -7,7 +7,9 @@ use crate::{
 
 use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
-    core::{round::Round, score::Score, state::GameState, DualNBack, DualNBackBundle},
+    core::{
+        cue::CueTimer, round::Round, score::Score, state::GameState, DualNBack, DualNBackBundle,
+    },
     gui::GuiPlugin,
     score::GameScore,
     settings::GameSettings,
@@ -144,10 +146,7 @@ fn setup(
         },
         DualNBackBundle {
             dual_n_back: default(),
-            timer: CueTimer(Timer::from_seconds(
-                settings.round_time,
-                TimerMode::Repeating,
-            )),
+            timer: CueTimer::with_duration(settings.round_time),
             ..default()
         },
         OnGameScreen,
@@ -230,9 +229,6 @@ fn setup(
                 });
         });
 }
-
-#[derive(Component, Deref, DerefMut)]
-pub struct CueTimer(Timer);
 
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.

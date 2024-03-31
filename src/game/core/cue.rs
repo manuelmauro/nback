@@ -6,6 +6,21 @@ use rand::{
     Rng,
 };
 
+#[derive(Component, Deref, DerefMut)]
+pub struct CueTimer(pub Timer);
+
+impl CueTimer {
+    pub fn with_duration(duration: f32) -> Self {
+        CueTimer(Timer::from_seconds(duration, TimerMode::Repeating))
+    }
+}
+
+impl Default for CueTimer {
+    fn default() -> Self {
+        CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating))
+    }
+}
+
 /// Memorization and generation of new cues.
 pub struct CueChain<T> {
     short_memory: VecDeque<T>,
