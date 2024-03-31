@@ -2,10 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
 use crate::{
-    game::{
-        score::{GameScore, LatestGameScores},
-        settings::GameSettings,
-    },
+    game::{score::LatestGameScores, settings::GameSettings},
     state::AppState,
 };
 
