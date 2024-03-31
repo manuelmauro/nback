@@ -1,30 +1,10 @@
-use self::cue::CueChain;
+use self::{answer::Answer, cue::CueChain};
 
 use super::tile::{TileColor, TilePosition};
 use bevy::prelude::*;
 
+pub mod answer;
 pub mod cue;
-
-#[derive(Default, Debug)]
-pub struct Answer {
-    same_position: bool,
-    same_color: bool,
-}
-
-impl Answer {
-    pub fn same_position(&mut self) {
-        self.same_position = true;
-    }
-
-    pub fn same_color(&mut self) {
-        self.same_color = true;
-    }
-
-    pub fn reset(&mut self) {
-        self.same_position = false;
-        self.same_color = false;
-    }
-}
 
 #[derive(Default)]
 pub struct Score {
