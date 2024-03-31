@@ -30,7 +30,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    // Add walls
+    // add walls
     let wall_color = Color::rgb(1.0, 1.0, 1.0);
     let wall_thickness = 4.0;
 
@@ -89,6 +89,7 @@ fn setup(
         OnMenuScreen,
     ));
 
+    // add tiles
     let tiles = [
         TilePosition::TopLeft,
         TilePosition::TopCenter,
