@@ -6,6 +6,8 @@ use rand::{
     Rng,
 };
 
+use crate::game::tile::{color::TileColor, position::TilePosition};
+
 #[derive(Component, Deref, DerefMut)]
 pub struct CueTimer(pub Timer);
 
@@ -78,6 +80,47 @@ impl<T: PartialEq + Default> CueChain<T> {
             self.short_memory.back() == self.short_memory.front()
         } else {
             false
+        }
+    }
+}
+
+#[derive(Component, Resource)]
+pub struct CueEngine {
+    n: usize,
+    pub positions: CueChain<TilePosition>,
+    pub colors: CueChain<TileColor>,
+}
+
+impl CueEngine {
+    pub fn with_n(n: usize) -> Self {
+        CueEngine {
+            n,
+            positions: CueChain::with_n_back(n),
+            colors: CueChain::with_n_back(n),
+        }
+    }
+
+    pub fn n(&self) -> usize {
+        self.n
+    }
+
+    pub fn new_cue(&mut self) -> (TilePosition, TileColor) {
+        (self.positions.gen(), self.colors.gen())
+    }
+
+    pub fn n_back(&self) -> usize {
+        self.positions.n_back()
+    }
+}
+
+impl Default for CueEngine {
+    fn default() -> Self {
+        let n = 2;
+
+        CueEngine {
+            n,
+            positions: CueChain::with_n_back(n),
+            colors: CueChain::with_n_back(n),
         }
     }
 }

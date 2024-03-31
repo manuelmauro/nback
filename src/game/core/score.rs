@@ -10,18 +10,22 @@ pub struct Score {
 
 impl Score {
     pub fn record_fp(&mut self) {
+        info!("false_positive");
         self.false_pos += 1;
     }
 
     pub fn record_tp(&mut self) {
+        info!("true_positive");
         self.true_pos += 1;
     }
 
     pub fn record_fn(&mut self) {
+        info!("false_neg");
         self.false_neg += 1;
     }
 
     pub fn record_tn(&mut self) {
+        info!("true_neg");
         self.true_neg += 1;
     }
 

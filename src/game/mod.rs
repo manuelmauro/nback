@@ -8,7 +8,11 @@ use crate::{
 use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
     core::{
-        cue::CueTimer, round::Round, score::Score, state::GameState, DualNBack, DualNBackBundle,
+        cue::{CueEngine, CueTimer},
+        round::Round,
+        score::Score,
+        state::GameState,
+        DualNBackBundle,
     },
     gui::GuiPlugin,
     score::GameScore,
@@ -145,7 +149,7 @@ fn setup(
             ..default()
         },
         DualNBackBundle {
-            dual_n_back: default(),
+            engine: CueEngine::with_n(settings.n),
             timer: CueTimer::with_duration(settings.round_time),
             ..default()
         },
@@ -242,20 +246,20 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) 
     }
 }
 
-fn input_system(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut DualNBack>) {
-    if let Ok(mut game) = query.get_single_mut() {
+fn input_system(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Round>) {
+    if let Ok(mut round) = query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::KeyA) {
-            game.answer.same_position();
+            round.answer.same_position = true;
         }
         if keyboard_input.pressed(KeyCode::KeyD) {
-            game.answer.same_color();
+            round.answer.same_color = true;
         }
     }
 }
 
 fn end_of_round_system(
     mut query: Query<(
-        &mut DualNBack,
+        &mut CueEngine,
         &mut Round,
         &mut Score,
         &mut TilePosition,
@@ -263,46 +267,37 @@ fn end_of_round_system(
         &CueTimer,
     )>,
 ) {
-    if let Ok((mut game, mut round, mut score, mut position, mut color, timer)) =
+    if let Ok((mut engine, mut round, mut score, mut position, mut color, timer)) =
         query.get_single_mut()
     {
         if timer.just_finished() {
-            if game.answer.same_position {
-                if game.positions.is_match() {
+            if round.answer.same_position {
+                if engine.positions.is_match() {
                     score.record_tp();
-                    info!("true_positive");
                 } else {
                     score.record_fp();
-                    info!("false_positive");
                 }
-            } else if game.positions.is_match() {
+            } else if engine.positions.is_match() {
                 score.record_fn();
-                info!("false_neg");
             } else {
                 score.record_tn();
-                info!("true_neg");
             }
 
-            if game.answer.same_color {
-                if game.colors.is_match() {
+            if round.answer.same_color {
+                if engine.colors.is_match() {
                     score.record_tp();
-                    info!("true_positive");
                 } else {
                     score.record_fp();
-                    info!("false_positive");
                 }
-            } else if game.colors.is_match() {
+            } else if engine.colors.is_match() {
                 score.record_fn();
-                info!("false_neg");
             } else {
                 score.record_tn();
-                info!("true_neg");
             }
 
-            game.answer.reset();
-            info!("reset answer");
+            round.answer.reset();
 
-            let (new_position, new_color) = game.new_cue();
+            let (new_position, new_color) = engine.new_cue();
             *position = new_position;
             *color = new_color;
             round.current += 1;
@@ -313,11 +308,11 @@ fn end_of_round_system(
 fn end_of_game_system(
     mut game_score: ResMut<GameScore>,
     mut app_state: ResMut<NextState<AppState>>,
-    query: Query<(&DualNBack, &Round, &mut Score)>,
+    query: Query<(&CueEngine, &Round, &mut Score)>,
 ) {
-    if let Ok((game, round, score)) = query.get_single() {
+    if let Ok((engine, round, score)) = query.get_single() {
         if round.is_last() {
-            game_score.n = game.n;
+            game_score.n = engine.n();
             game_score.correct = score.correct();
             game_score.wrong = score.wrong();
             game_score.f1_score = score.f1_score();
