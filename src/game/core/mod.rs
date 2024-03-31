@@ -1,18 +1,17 @@
-use self::{answer::Answer, cue::CueChain, score::Score};
+use self::{answer::Answer, cue::CueChain, round::Round, score::Score};
 
 use super::tile::{TileColor, TilePosition};
 use bevy::prelude::*;
 
 pub mod answer;
 pub mod cue;
+pub mod round;
 pub mod score;
 
 #[derive(Component, Resource)]
 pub struct DualNBack {
     pub n: usize,
-    pub rounds: usize,
-    pub cur_round: usize,
-    pub round_time: f32,
+    pub round: Round,
     pub paused: bool,
     pub score: Score,
     pub answer: Answer,
@@ -27,7 +26,7 @@ impl DualNBack {
 
     pub fn restart(&mut self) {
         self.score = default();
-        self.cur_round = 0;
+        self.round.current = 0;
         self.positions = CueChain::with_n_back(self.n);
         self.colors = CueChain::with_n_back(self.n);
     }
@@ -37,7 +36,7 @@ impl DualNBack {
     }
 
     pub fn is_over(&self) -> bool {
-        self.cur_round >= self.rounds
+        self.round.current >= self.round.total
     }
 
     pub fn check_answer(&mut self) {
@@ -79,9 +78,7 @@ impl Default for DualNBack {
     fn default() -> Self {
         DualNBack {
             n: 2,
-            rounds: 10,
-            cur_round: 0,
-            round_time: 1.0,
+            round: default(),
             paused: false,
             score: default(),
             answer: default(),
@@ -97,7 +94,7 @@ impl Iterator for DualNBack {
     type Item = (TilePosition, TileColor);
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.cur_round += 1;
+        self.round.current += 1;
         Some((self.positions.gen(), self.colors.gen()))
     }
 }
