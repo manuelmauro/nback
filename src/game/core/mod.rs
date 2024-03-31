@@ -24,13 +24,6 @@ impl DualNBack {
         default()
     }
 
-    pub fn restart(&mut self) {
-        self.score = default();
-        self.round.current = 0;
-        self.positions = CueChain::with_n_back(self.n);
-        self.colors = CueChain::with_n_back(self.n);
-    }
-
     pub fn n_back(&self) -> usize {
         self.positions.n_back()
     }
