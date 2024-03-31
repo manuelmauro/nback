@@ -31,7 +31,13 @@ impl Plugin for GamePlugin {
             .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
                 Update,
-                (timer_system, answer_system, endgame_system).run_if(in_state(AppState::Game)),
+                (
+                    timer_system,
+                    input_system,
+                    end_of_round_system,
+                    end_of_game_system,
+                )
+                    .run_if(in_state(AppState::Game)),
             )
             .add_systems(OnExit(AppState::Game), despawn_screen::<OnGameScreen>);
     }
@@ -240,19 +246,21 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) 
     }
 }
 
-/// Record answers.
-fn answer_system(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut DualNBack, &mut TilePosition, &mut TileColor, &CueTimer)>,
-) {
-    if let Ok((mut game, mut position, mut color, timer)) = query.get_single_mut() {
+fn input_system(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut DualNBack>) {
+    if let Ok(mut game) = query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::KeyA) {
             game.answer.same_position();
         }
         if keyboard_input.pressed(KeyCode::KeyD) {
             game.answer.same_color();
         }
+    }
+}
 
+fn end_of_round_system(
+    mut query: Query<(&mut DualNBack, &mut TilePosition, &mut TileColor, &CueTimer)>,
+) {
+    if let Ok((mut game, mut position, mut color, timer)) = query.get_single_mut() {
         if timer.just_finished() {
             game.check_answer();
             game.answer.reset();
@@ -266,7 +274,7 @@ fn answer_system(
     }
 }
 
-fn endgame_system(
+fn end_of_game_system(
     mut score: ResMut<GameScore>,
     mut app_state: ResMut<NextState<AppState>>,
     query: Query<&DualNBack>,
