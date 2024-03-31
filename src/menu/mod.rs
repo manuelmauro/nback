@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{
     config,
-    game::{score::GameScore, settings::GameSettings, tile::position::TilePosition},
+    game::{score::LatestGameScores, settings::GameSettings, tile::position::TilePosition},
     state::{despawn_screen, AppState, OnMenuScreen},
 };
 
@@ -21,7 +21,7 @@ impl Plugin for MenuPlugin {
             .add_systems(OnEnter(AppState::Menu), setup)
             .add_systems(OnExit(AppState::Menu), despawn_screen::<OnMenuScreen>)
             .insert_resource(GameSettings::default())
-            .insert_resource(GameScore::default());
+            .insert_resource(LatestGameScores::default());
     }
 }
 

@@ -15,7 +15,7 @@ use self::{
         DualNBackBundle,
     },
     gui::GuiPlugin,
-    score::GameScore,
+    score::{GameScore, LatestGameScores},
     settings::GameSettings,
     tile::{color::TileColor, position::TilePosition, TileBundle, TilePlugin},
 };
@@ -150,6 +150,7 @@ fn setup(
         },
         DualNBackBundle {
             engine: CueEngine::with_n(settings.n),
+            round: Round::with_total(settings.rounds),
             timer: CueTimer::with_duration(settings.round_time),
             ..default()
         },
@@ -306,16 +307,21 @@ fn end_of_round_system(
 }
 
 fn end_of_game_system(
-    mut game_score: ResMut<GameScore>,
+    mut scores: ResMut<LatestGameScores>,
     mut app_state: ResMut<NextState<AppState>>,
-    query: Query<(&CueEngine, &Round, &mut Score)>,
+    query: Query<(&CueEngine, &Round, &CueTimer, &mut Score)>,
 ) {
-    if let Ok((engine, round, score)) = query.get_single() {
+    if let Ok((engine, round, timer, score)) = query.get_single() {
         if round.is_last() {
-            game_score.n = engine.n();
-            game_score.correct = score.correct();
-            game_score.wrong = score.wrong();
-            game_score.f1_score = score.f1_score();
+            scores.0.push(GameScore {
+                n: engine.n(),
+                total_rounds: round.total,
+                round_duration: timer.0.duration().as_secs_f32(),
+                correct: score.correct(),
+                wrong: score.wrong(),
+                f1_score: score.f1_score(),
+            });
+
             app_state.set(AppState::Menu);
         }
     }
