@@ -11,10 +11,7 @@ use self::{
     gui::GuiPlugin,
     score::GameScore,
     settings::GameSettings,
-    tile::{
-        color::TileColor, position::TilePosition, tile_color_system, tile_position_system,
-        TileBundle, TilePlugin,
-    },
+    tile::{color::TileColor, position::TilePosition, TileBundle, TilePlugin},
 };
 
 pub mod button;
