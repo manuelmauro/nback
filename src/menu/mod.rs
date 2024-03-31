@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{
     config,
-    game::{score::GameScore, settings::GameSettings, tile::TilePosition},
+    game::{score::GameScore, settings::GameSettings, tile::position::TilePosition},
     state::{despawn_screen, GameState, OnMenuScreen},
 };
 

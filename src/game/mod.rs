@@ -11,7 +11,10 @@ use self::{
     gui::GuiPlugin,
     score::GameScore,
     settings::GameSettings,
-    tile::{tile_system, TileBundle},
+    tile::{
+        color::TileColor, position::TilePosition, tile_color_system, tile_position_system,
+        TileBundle, TilePlugin,
+    },
 };
 
 pub mod button;
@@ -26,17 +29,12 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(GuiPlugin)
+            .add_plugins(TilePlugin)
             .add_plugins(GameButtonPlugin)
             .add_systems(OnEnter(GameState::Game), setup)
             .add_systems(
                 Update,
-                (
-                    timer_system,
-                    answer_system,
-                    tile_system.after(answer_system),
-                    endgame_system,
-                )
-                    .run_if(in_state(GameState::Game)),
+                (timer_system, answer_system, endgame_system).run_if(in_state(GameState::Game)),
             )
             .add_systems(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
     }
@@ -139,14 +137,14 @@ fn setup(
         TileBundle {
             name: tile,
             animation: player,
+            ..default()
+        },
+        DualNBackBundle {
+            dual_n_back: default(),
             timer: CueTimer(Timer::from_seconds(
                 settings.round_time,
                 TimerMode::Repeating,
             )),
-            ..default()
-        },
-        DualNBackBundle {
-            dual_n_back: DualNBack::default(),
         },
         OnGameScreen,
     ));
@@ -247,9 +245,9 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &DualNBack)>) 
 /// Record answers.
 fn answer_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut DualNBack, &CueTimer)>,
+    mut query: Query<(&mut DualNBack, &mut TilePosition, &mut TileColor, &CueTimer)>,
 ) {
-    if let Ok((mut game, timer)) = query.get_single_mut() {
+    if let Ok((mut game, mut position, mut color, timer)) = query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::KeyA) {
             game.answer.same_position();
         }
@@ -261,6 +259,11 @@ fn answer_system(
             game.check_answer();
             game.answer.reset();
             info!("reset answer");
+
+            if let Some((new_position, new_color)) = game.next() {
+                *position = new_position;
+                *color = new_color;
+            }
         }
     }
 }

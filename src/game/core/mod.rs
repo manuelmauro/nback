@@ -1,6 +1,9 @@
 use self::{answer::Answer, cue::CueChain, round::Round, score::Score};
 
-use super::tile::{TileColor, TilePosition};
+use super::{
+    tile::{color::TileColor, position::TilePosition},
+    CueTimer,
+};
 use bevy::prelude::*;
 
 pub mod answer;
@@ -11,12 +14,14 @@ pub mod score;
 #[derive(Bundle)]
 pub struct DualNBackBundle {
     pub dual_n_back: DualNBack,
+    pub timer: CueTimer,
 }
 
 impl Default for DualNBackBundle {
     fn default() -> Self {
         DualNBackBundle {
             dual_n_back: DualNBack::new(),
+            timer: CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
         }
     }
 }
@@ -24,8 +29,8 @@ impl Default for DualNBackBundle {
 #[derive(Component, Resource)]
 pub struct DualNBack {
     pub n: usize,
-    pub round: Round,
     pub paused: bool,
+    pub round: Round,
     pub score: Score,
     pub answer: Answer,
     pub positions: CueChain<TilePosition>,
