@@ -1,4 +1,6 @@
-#[derive(Default)]
+use bevy::prelude::*;
+
+#[derive(Component, Default)]
 pub struct Score {
     false_pos: usize,
     true_pos: usize,
@@ -38,5 +40,9 @@ impl Score {
             self.true_pos as f32
                 / (self.true_pos as f32 + 0.5 * (self.false_pos as f32 + self.false_neg as f32))
         }
+    }
+
+    pub fn f1_score_percent(&self) -> usize {
+        (self.f1_score() * 100.0) as usize
     }
 }

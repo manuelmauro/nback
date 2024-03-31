@@ -17,6 +17,8 @@ pub struct DualNBackBundle {
     pub dual_n_back: DualNBack,
     pub state: GameState,
     pub timer: CueTimer,
+    pub round: Round,
+    pub score: Score,
 }
 
 impl Default for DualNBackBundle {
@@ -25,6 +27,8 @@ impl Default for DualNBackBundle {
             dual_n_back: DualNBack::new(),
             timer: CueTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
             state: GameState::Playing,
+            round: default(),
+            score: default(),
         }
     }
 }
@@ -32,8 +36,6 @@ impl Default for DualNBackBundle {
 #[derive(Component, Resource)]
 pub struct DualNBack {
     pub n: usize,
-    pub round: Round,
-    pub score: Score,
     pub answer: Answer,
     pub positions: CueChain<TilePosition>,
     pub colors: CueChain<TileColor>,
@@ -44,46 +46,12 @@ impl DualNBack {
         default()
     }
 
+    pub fn new_cue(&mut self) -> (TilePosition, TileColor) {
+        (self.positions.gen(), self.colors.gen())
+    }
+
     pub fn n_back(&self) -> usize {
         self.positions.n_back()
-    }
-
-    pub fn is_over(&self) -> bool {
-        self.round.current >= self.round.total
-    }
-
-    pub fn check_answer(&mut self) {
-        if self.answer.same_position {
-            if self.positions.is_match() {
-                self.score.record_tp();
-                info!("true_positive");
-            } else {
-                self.score.record_fp();
-                info!("false_positive");
-            }
-        } else if self.positions.is_match() {
-            self.score.record_fn();
-            info!("false_neg");
-        } else {
-            self.score.record_tn();
-            info!("true_neg");
-        }
-
-        if self.answer.same_color {
-            if self.colors.is_match() {
-                self.score.record_tp();
-                info!("true_positive");
-            } else {
-                self.score.record_fp();
-                info!("false_positive");
-            }
-        } else if self.colors.is_match() {
-            self.score.record_fn();
-            info!("false_neg");
-        } else {
-            self.score.record_tn();
-            info!("true_neg");
-        }
     }
 }
 
@@ -91,22 +59,9 @@ impl Default for DualNBack {
     fn default() -> Self {
         DualNBack {
             n: 2,
-            round: default(),
-            score: default(),
             answer: default(),
             positions: CueChain::with_n_back(2),
             colors: CueChain::with_n_back(2),
         }
-    }
-}
-
-/// Generate cues for the n-back task.
-/// The iterator will run indefinitely.
-impl Iterator for DualNBack {
-    type Item = (TilePosition, TileColor);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.round.current += 1;
-        Some((self.positions.gen(), self.colors.gen()))
     }
 }

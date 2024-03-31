@@ -7,7 +7,7 @@ use crate::{
 
 use self::{
     button::{GameButtonBundle, GameButtonPlugin, Shortcut},
-    core::{state::GameState, DualNBack, DualNBackBundle},
+    core::{round::Round, score::Score, state::GameState, DualNBack, DualNBackBundle},
     gui::GuiPlugin,
     score::GameScore,
     settings::GameSettings,
@@ -258,33 +258,73 @@ fn input_system(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut
 }
 
 fn end_of_round_system(
-    mut query: Query<(&mut DualNBack, &mut TilePosition, &mut TileColor, &CueTimer)>,
+    mut query: Query<(
+        &mut DualNBack,
+        &mut Round,
+        &mut Score,
+        &mut TilePosition,
+        &mut TileColor,
+        &CueTimer,
+    )>,
 ) {
-    if let Ok((mut game, mut position, mut color, timer)) = query.get_single_mut() {
+    if let Ok((mut game, mut round, mut score, mut position, mut color, timer)) =
+        query.get_single_mut()
+    {
         if timer.just_finished() {
-            game.check_answer();
+            if game.answer.same_position {
+                if game.positions.is_match() {
+                    score.record_tp();
+                    info!("true_positive");
+                } else {
+                    score.record_fp();
+                    info!("false_positive");
+                }
+            } else if game.positions.is_match() {
+                score.record_fn();
+                info!("false_neg");
+            } else {
+                score.record_tn();
+                info!("true_neg");
+            }
+
+            if game.answer.same_color {
+                if game.colors.is_match() {
+                    score.record_tp();
+                    info!("true_positive");
+                } else {
+                    score.record_fp();
+                    info!("false_positive");
+                }
+            } else if game.colors.is_match() {
+                score.record_fn();
+                info!("false_neg");
+            } else {
+                score.record_tn();
+                info!("true_neg");
+            }
+
             game.answer.reset();
             info!("reset answer");
 
-            if let Some((new_position, new_color)) = game.next() {
-                *position = new_position;
-                *color = new_color;
-            }
+            let (new_position, new_color) = game.new_cue();
+            *position = new_position;
+            *color = new_color;
+            round.current += 1;
         }
     }
 }
 
 fn end_of_game_system(
-    mut score: ResMut<GameScore>,
+    mut game_score: ResMut<GameScore>,
     mut app_state: ResMut<NextState<AppState>>,
-    query: Query<&DualNBack>,
+    query: Query<(&DualNBack, &Round, &mut Score)>,
 ) {
-    if let Ok(game) = query.get_single() {
-        if game.is_over() {
-            score.n = game.n;
-            score.correct = game.score.correct();
-            score.wrong = game.score.wrong();
-            score.f1_score = game.score.f1_score();
+    if let Ok((game, round, score)) = query.get_single() {
+        if round.is_last() {
+            game_score.n = game.n;
+            game_score.correct = score.correct();
+            game_score.wrong = score.wrong();
+            game_score.f1_score = score.f1_score();
             app_state.set(AppState::Menu);
         }
     }
