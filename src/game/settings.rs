@@ -11,8 +11,8 @@ impl Default for GameSettings {
     fn default() -> Self {
         Self {
             n: 2,
-            rounds: 10,
-            round_time: 2.0,
+            rounds: 24,
+            round_time: 3.0,
         }
     }
 }

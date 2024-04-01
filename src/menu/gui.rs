@@ -54,7 +54,7 @@ pub fn menu_ui(
                         "{:.2}s",
                         score.total_rounds as f32 * score.round_duration
                     ));
-                    cols[3].label(format!("{}%", (score.f1_score * 100.0) as usize));
+                    cols[3].label(format!("{}%", score.f1_score_percent));
                 });
             }
         });

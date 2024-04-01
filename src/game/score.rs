@@ -7,7 +7,7 @@ pub struct GameScore {
     pub round_duration: f32,
     pub correct: usize,
     pub wrong: usize,
-    pub f1_score: f32,
+    pub f1_score_percent: usize,
 }
 
 #[derive(Default, Resource)]

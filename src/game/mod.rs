@@ -307,6 +307,7 @@ fn end_of_round_system(
 }
 
 fn end_of_game_system(
+    mut settings: ResMut<GameSettings>,
     mut scores: ResMut<LatestGameScores>,
     mut app_state: ResMut<NextState<AppState>>,
     query: Query<(&CueEngine, &Round, &CueTimer, &mut Score)>,
@@ -319,8 +320,16 @@ fn end_of_game_system(
                 round_duration: timer.0.duration().as_secs_f32(),
                 correct: score.correct(),
                 wrong: score.wrong(),
-                f1_score: score.f1_score(),
+                f1_score_percent: score.f1_score_percent(),
             });
+
+            if score.f1_score_percent() >= 80 {
+                settings.n += 1;
+                settings.rounds = 20 + settings.n.pow(2);
+            } else if score.f1_score_percent() <= 50 {
+                settings.n = settings.n.max(1);
+                settings.rounds = 20 + settings.n.pow(2);
+            }
 
             app_state.set(AppState::Menu);
         }
