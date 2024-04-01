@@ -240,7 +240,8 @@ fn setup(
 fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) {
     if let Ok((mut timer, state)) = query.get_single_mut() {
         if *state == GameState::Playing {
-            if timer.tick(time.delta()).just_finished() {
+            timer.tick(time.delta());
+            if timer.just_finished() {
                 info!("tick!")
             }
         }

@@ -29,6 +29,7 @@ impl Plugin for GameButtonPlugin {
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn button_system(
     mut query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
@@ -39,15 +40,15 @@ fn button_system(
         match *interaction {
             Interaction::Pressed => {
                 *color = config::PRESSED_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR.into();
+                border_color.0 = config::BUTTON_BORDER_COLOR;
             }
             Interaction::Hovered => {
                 *color = config::HOVERED_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR.into();
+                border_color.0 = config::BUTTON_BORDER_COLOR;
             }
             Interaction::None => {
                 *color = config::NORMAL_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR.into();
+                border_color.0 = config::BUTTON_BORDER_COLOR;
             }
         }
     }
@@ -60,12 +61,12 @@ fn button_shortcut_system(
     for (mut color, mut border_color, shortcut) in &mut query {
         if keyboard_input.pressed(shortcut.0) {
             *color = config::PRESSED_BUTTON.into();
-            border_color.0 = config::PRESSED_BUTTON_BORDER_COLOR.into();
+            border_color.0 = config::PRESSED_BUTTON_BORDER_COLOR;
         }
 
         if keyboard_input.just_released(shortcut.0) {
             *color = config::NORMAL_BUTTON.into();
-            border_color.0 = config::BUTTON_BORDER_COLOR.into();
+            border_color.0 = config::BUTTON_BORDER_COLOR;
         }
     }
 }
