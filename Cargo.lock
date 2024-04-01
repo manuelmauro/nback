@@ -2740,7 +2740,6 @@ dependencies = [
  "bevy_egui",
  "image 0.25.0",
  "rand",
- "winit",
 ]
 
 [[package]]
