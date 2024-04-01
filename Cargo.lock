@@ -197,25 +197,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d5a26814d8dcb93b0e5a0ff3c6d80a8843bafb21b39e8e18a6f05471870e110"
 
 [[package]]
-name = "arboard"
-version = "3.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2041f1943049c7978768d84e6d0fd95de98b76d6c4727b09e78ec253d29fa58"
-dependencies = [
- "clipboard-win",
- "core-graphics",
- "image 0.24.9",
- "log",
- "objc",
- "objc-foundation",
- "objc_id",
- "parking_lot",
- "thiserror",
- "windows-sys 0.48.0",
- "x11rb",
-]
-
-[[package]]
 name = "arg_enum_proc_macro"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -365,7 +346,6 @@ version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea370412c322af887c9115442d8f2ec991b652f163a1d8920ecaf08cae63f2bc"
 dependencies = [
- "bevy_dylib",
  "bevy_internal",
 ]
 
@@ -543,15 +523,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_dylib"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2e57c27c2ea4b35a7eb3d8c1ded793139f13607697ee8c60629020d30bd7179"
-dependencies = [
- "bevy_internal",
-]
-
-[[package]]
 name = "bevy_ecs"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -589,14 +560,12 @@ version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44197ead4c9e40303fa5056be44de593f17151bd08d1d9dbe7b127700e1b9d01"
 dependencies = [
- "arboard",
  "bevy",
  "console_log",
  "crossbeam-channel",
  "egui",
  "js-sys",
  "log",
- "thread_local",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -1403,15 +1372,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "clipboard-win"
-version = "5.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d517d4b86184dbb111d3556a10f1c8a04da7428d2987bf1081602bf11c3aa9ee"
-dependencies = [
- "error-code",
-]
-
-[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1829,12 +1789,6 @@ dependencies = [
  "libc",
  "windows-sys 0.52.0",
 ]
-
-[[package]]
-name = "error-code"
-version = "3.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0474425d51df81997e2f90a21591180b38eccf27292d755f3e30750225c175b"
 
 [[package]]
 name = "euclid"
@@ -2351,7 +2305,6 @@ dependencies = [
  "color_quant",
  "num-traits",
  "png",
- "tiff",
 ]
 
 [[package]]
@@ -2969,17 +2922,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "objc-foundation"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1add1b659e36c9607c7aab864a76c7a4c2760cd0cd2e120f3fb8b952c7e22bf9"
-dependencies = [
- "block",
- "objc",
- "objc_id",
-]
-
-[[package]]
 name = "objc-sys"
 version = "0.2.0-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3034,15 +2976,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad970fb455818ad6cba4c122ad012fae53ae8b4795f86378bce65e4f6bab2ca4"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "objc_id"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c92d4ddb4bd7b50d730c215ff871754d0da6b2178849f8a2a2ab69712d0c073b"
-dependencies = [
- "objc",
 ]
 
 [[package]]
