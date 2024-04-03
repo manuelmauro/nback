@@ -1,22 +1,17 @@
-use crate::{
-    config,
-    state::{despawn_screen, AppState, OnSplashScreen},
-};
+use crate::state::{despawn_screen, AppState, OnSplashScreen};
 use bevy::prelude::*;
 
 pub struct SplashPlugin;
 
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::Splash), setup)
-            .add_systems(Update, countdown.run_if(in_state(AppState::Splash)))
-            .add_systems(OnExit(AppState::Splash), despawn_screen::<OnSplashScreen>);
+        app.add_systems(OnEnter(AppState::AssetLoading), setup)
+            .add_systems(
+                OnExit(AppState::AssetLoading),
+                despawn_screen::<OnSplashScreen>,
+            );
     }
 }
-
-// Newtype to use a `Timer` for this screen as a resource
-#[derive(Resource, Deref, DerefMut)]
-struct SplashTimer(Timer);
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let icon = asset_server.load("icon.png");
@@ -45,19 +40,4 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             });
         });
-
-    commands.insert_resource(SplashTimer(Timer::from_seconds(
-        config::SPLASH_SCREEN_DURATION,
-        TimerMode::Once,
-    )));
-}
-
-fn countdown(
-    mut app_state: ResMut<NextState<AppState>>,
-    time: Res<Time>,
-    mut timer: ResMut<SplashTimer>,
-) {
-    if timer.tick(time.delta()).finished() {
-        app_state.set(AppState::Menu);
-    }
 }

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
-use crate::config;
+use crate::{asset::AudioAssets, config, state::AppState};
 
 use self::{color::TileColor, position::TilePosition, sound::TileSound};
 
@@ -15,7 +15,10 @@ impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (tile_position_system, tile_color_system, tile_sound_system),
+            // NOTE the run_if guard is a woraround for running the tile_sound_system
+            // only when the audio resource handles are ready
+            (tile_position_system, tile_color_system, tile_sound_system)
+                .run_if(in_state(AppState::Game)),
         );
     }
 }
@@ -72,13 +75,37 @@ pub fn tile_color_system(mut query: Query<(&mut Sprite, &TileColor), Changed<Til
 
 /// Update tile state every time the color changes.
 pub fn tile_sound_system(
-    asset_server: Res<AssetServer>,
     audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut query: Query<&TileSound, Changed<TileSound>>,
 ) {
     if let Ok(sound) = query.get_single_mut() {
-        if let Some(sound_path) = Option::<&str>::from(sound) {
-            audio.play(asset_server.load(sound_path));
+        match sound {
+            TileSound::C => {
+                audio.play(audio_assets.c.clone());
+            }
+            TileSound::H => {
+                audio.play(audio_assets.h.clone());
+            }
+            TileSound::K => {
+                audio.play(audio_assets.k.clone());
+            }
+            TileSound::L => {
+                audio.play(audio_assets.l.clone());
+            }
+            TileSound::Q => {
+                audio.play(audio_assets.q.clone());
+            }
+            TileSound::R => {
+                audio.play(audio_assets.r.clone());
+            }
+            TileSound::S => {
+                audio.play(audio_assets.s.clone());
+            }
+            TileSound::T => {
+                audio.play(audio_assets.t.clone());
+            }
+            TileSound::None => return,
         }
     }
 }

@@ -1,11 +1,21 @@
 use bevy::prelude::*;
+use bevy_asset_loader::loading_state::{
+    config::ConfigureLoadingState, LoadingState, LoadingStateAppExt,
+};
 use bevy_egui::EguiPlugin;
 use bevy_kira_audio::AudioPlugin;
-use nback::{game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::AppState};
+use nback::{
+    asset::AudioAssets, game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::AppState,
+};
 
 fn main() {
     App::new()
         .init_state::<AppState>()
+        .add_loading_state(
+            LoadingState::new(AppState::AssetLoading)
+                .continue_to_state(AppState::Menu)
+                .load_collection::<AudioAssets>(),
+        )
         .add_plugins(DefaultPlugins)
         .add_plugins(AudioPlugin)
         .add_plugins(EguiPlugin)
