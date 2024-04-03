@@ -1,16 +1,12 @@
 use std::collections::VecDeque;
 
-use bevy::{prelude::*, render::color};
+use bevy::prelude::*;
 use rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
 
-use crate::game::tile::{
-    color::TileColor,
-    position::{self, TilePosition},
-    sound::TileSound,
-};
+use crate::game::tile::{color::TileColor, position::TilePosition, sound::TileSound};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct CueTimer(pub Timer);
