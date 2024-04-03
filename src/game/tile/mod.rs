@@ -105,7 +105,7 @@ pub fn tile_sound_system(
             TileSound::T => {
                 audio.play(audio_assets.t.clone());
             }
-            TileSound::None => return,
+            TileSound::None => (),
         }
     }
 }
