@@ -29,6 +29,9 @@ pub fn menu_ui(
             ui.add(egui::Slider::new(&mut settings.rounds, 1..=50).text("Rounds"));
             ui.add(egui::Slider::new(&mut settings.round_time, 0.5..=4.0).text("Round Time"));
             ui.add(egui::Slider::new(&mut settings.n, 1..=7).text("N-back"));
+            ui.add(egui::Checkbox::new(&mut settings.position, "Position"));
+            ui.add(egui::Checkbox::new(&mut settings.color, "Color"));
+            ui.add(egui::Checkbox::new(&mut settings.sound, "Sound"));
 
             if ui.button("Play").clicked() {
                 app_state.set(AppState::Game);

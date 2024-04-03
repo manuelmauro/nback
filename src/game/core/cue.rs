@@ -1,12 +1,16 @@
 use std::collections::VecDeque;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::color};
 use rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
 
-use crate::game::tile::{color::TileColor, position::TilePosition, sound::TileSound};
+use crate::game::tile::{
+    color::TileColor,
+    position::{self, TilePosition},
+    sound::TileSound,
+};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct CueTimer(pub Timer);
@@ -87,18 +91,36 @@ impl<T: PartialEq + Default> CueChain<T> {
 #[derive(Component, Resource)]
 pub struct CueEngine {
     n: usize,
-    pub positions: CueChain<TilePosition>,
-    pub colors: CueChain<TileColor>,
-    pub sounds: CueChain<TileSound>,
+    pub positions: Option<CueChain<TilePosition>>,
+    pub colors: Option<CueChain<TileColor>>,
+    pub sounds: Option<CueChain<TileSound>>,
 }
 
 impl CueEngine {
-    pub fn with_n(n: usize) -> Self {
+    pub fn with(n: usize, position: bool, color: bool, sound: bool) -> Self {
+        let positions = if position {
+            Some(CueChain::with_n_back(n))
+        } else {
+            None
+        };
+
+        let colors = if color {
+            Some(CueChain::with_n_back(n))
+        } else {
+            None
+        };
+
+        let sounds = if sound {
+            Some(CueChain::with_n_back(n))
+        } else {
+            None
+        };
+
         CueEngine {
             n,
-            positions: CueChain::with_n_back(n),
-            colors: CueChain::with_n_back(n),
-            sounds: CueChain::with_n_back(n),
+            positions,
+            colors,
+            sounds,
         }
     }
 
@@ -106,8 +128,26 @@ impl CueEngine {
         self.n
     }
 
-    pub fn new_cue(&mut self) -> (TilePosition, TileColor, TileSound) {
-        (self.positions.gen(), self.colors.gen(), self.sounds.gen())
+    pub fn new_cue(&mut self) -> (Option<TilePosition>, Option<TileColor>, Option<TileSound>) {
+        let new_position = if self.positions.is_some() {
+            Some(self.positions.as_mut().unwrap().gen())
+        } else {
+            None
+        };
+
+        let new_color = if self.colors.is_some() {
+            Some(self.colors.as_mut().unwrap().gen())
+        } else {
+            None
+        };
+
+        let new_sound = if self.sounds.is_some() {
+            Some(self.sounds.as_mut().unwrap().gen())
+        } else {
+            None
+        };
+
+        (new_position, new_color, new_sound)
     }
 }
 
@@ -117,9 +157,9 @@ impl Default for CueEngine {
 
         CueEngine {
             n,
-            positions: CueChain::with_n_back(n),
-            colors: CueChain::with_n_back(n),
-            sounds: CueChain::with_n_back(n),
+            positions: Some(CueChain::with_n_back(n)),
+            colors: Some(CueChain::with_n_back(n)),
+            sounds: Some(CueChain::with_n_back(n)),
         }
     }
 }
