@@ -1,11 +1,13 @@
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
+use bevy_kira_audio::AudioPlugin;
 use nback::{game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::AppState};
 
 fn main() {
     App::new()
         .init_state::<AppState>()
         .add_plugins(DefaultPlugins)
+        .add_plugins(AudioPlugin)
         .add_plugins(EguiPlugin)
         .add_plugins(SplashPlugin)
         .add_plugins(MenuPlugin)

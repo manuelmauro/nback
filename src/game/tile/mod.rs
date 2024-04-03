@@ -1,17 +1,22 @@
 use bevy::prelude::*;
+use bevy_kira_audio::prelude::*;
 
 use crate::config;
 
-use self::{color::TileColor, position::TilePosition};
+use self::{color::TileColor, position::TilePosition, sound::TileSound};
 
 pub mod color;
 pub mod position;
+pub mod sound;
 
 pub struct TilePlugin;
 
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (tile_position_system, tile_color_system));
+        app.add_systems(
+            Update,
+            (tile_position_system, tile_color_system, tile_sound_system),
+        );
     }
 }
 
@@ -22,6 +27,7 @@ pub struct TileBundle {
     pub animation: AnimationPlayer,
     pub position: TilePosition,
     pub color: TileColor,
+    pub sound: TileSound,
 }
 
 impl Default for TileBundle {
@@ -40,6 +46,7 @@ impl Default for TileBundle {
             animation: AnimationPlayer::default(),
             position: TilePosition::None,
             color: TileColor::None,
+            sound: TileSound::None,
         }
     }
 }
@@ -60,5 +67,18 @@ pub fn tile_color_system(mut query: Query<(&mut Sprite, &TileColor), Changed<Til
     if let Ok((mut sprite, color)) = query.get_single_mut() {
         info!(?color, "tile updated");
         sprite.color = color.into();
+    }
+}
+
+/// Update tile state every time the color changes.
+pub fn tile_sound_system(
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
+    mut query: Query<&TileSound, Changed<TileSound>>,
+) {
+    if let Ok(sound) = query.get_single_mut() {
+        if let Some(sound_path) = Option::<&str>::from(sound) {
+            audio.play(asset_server.load(sound_path));
+        }
     }
 }

@@ -8,6 +8,14 @@ pub const TILE_COLOR_B: Color = Color::rgb(0.60, 0.05, 1.0);
 pub const TILE_COLOR_C: Color = Color::rgb(1.0, 0.0, 0.65);
 pub const TILE_COLOR_D: Color = Color::rgb(0.12, 1.0, 0.14);
 pub const TILE_COLOR_E: Color = Color::rgb(0.12, 0.80, 1.0);
+pub const TILE_SOUND_C: &str = "sounds/letters/c.ogg";
+pub const TILE_SOUND_H: &str = "sounds/letters/h.ogg";
+pub const TILE_SOUND_K: &str = "sounds/letters/k.ogg";
+pub const TILE_SOUND_L: &str = "sounds/letters/l.ogg";
+pub const TILE_SOUND_Q: &str = "sounds/letters/q.ogg";
+pub const TILE_SOUND_R: &str = "sounds/letters/r.ogg";
+pub const TILE_SOUND_S: &str = "sounds/letters/s.ogg";
+pub const TILE_SOUND_T: &str = "sounds/letters/t.ogg";
 
 // splash screen
 pub const SPLASH_SCREEN_DURATION: f32 = 1.0;

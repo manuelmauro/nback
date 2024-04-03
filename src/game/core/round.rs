@@ -28,14 +28,16 @@ impl Default for Round {
 
 #[derive(Debug, Default)]
 pub struct Answer {
-    pub same_position: bool,
-    pub same_color: bool,
+    pub position: bool,
+    pub color: bool,
+    pub sound: bool,
 }
 
 impl Answer {
     pub fn reset(&mut self) {
         info!("reset answer");
-        self.same_position = false;
-        self.same_color = false;
+        self.position = false;
+        self.color = false;
+        self.sound = false;
     }
 }

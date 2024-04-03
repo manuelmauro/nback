@@ -17,7 +17,7 @@ use self::{
     gui::GuiPlugin,
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
-    tile::{color::TileColor, position::TilePosition, TileBundle, TilePlugin},
+    tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
 };
 
 pub mod button;
@@ -207,6 +207,36 @@ fn setup(
                 .spawn(GameButtonBundle {
                     button: ButtonBundle {
                         style: Style {
+                            left: Val::Px(0.0),
+                            top: Val::Px(230.0),
+                            width: Val::Px(150.0),
+                            height: Val::Px(65.0),
+                            border: UiRect::all(Val::Px(3.0)),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        border_color: config::BUTTON_BORDER_COLOR.into(),
+                        background_color: config::NORMAL_BUTTON.into(),
+                        ..default()
+                    },
+                    shortcut: Shortcut(KeyCode::KeyS),
+                })
+                .with_children(|parent| {
+                    parent.spawn(TextBundle::from_section(
+                        "Sound (S)",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 20.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
+
+            parent
+                .spawn(GameButtonBundle {
+                    button: ButtonBundle {
+                        style: Style {
                             left: Val::Px(100.0),
                             top: Val::Px(230.0),
                             width: Val::Px(150.0),
@@ -251,10 +281,15 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) 
 fn input_system(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Round>) {
     if let Ok(mut round) = query.get_single_mut() {
         if keyboard_input.pressed(KeyCode::KeyA) {
-            round.answer.same_position = true;
+            round.answer.position = true;
         }
+
+        if keyboard_input.pressed(KeyCode::KeyS) {
+            round.answer.sound = true;
+        }
+
         if keyboard_input.pressed(KeyCode::KeyD) {
-            round.answer.same_color = true;
+            round.answer.color = true;
         }
     }
 }
@@ -266,14 +301,15 @@ fn end_of_round_system(
         &mut Score,
         &mut TilePosition,
         &mut TileColor,
+        &mut TileSound,
         &CueTimer,
     )>,
 ) {
-    if let Ok((mut engine, mut round, mut score, mut position, mut color, timer)) =
+    if let Ok((mut engine, mut round, mut score, mut position, mut color, mut sound, timer)) =
         query.get_single_mut()
     {
         if timer.just_finished() {
-            if round.answer.same_position {
+            if round.answer.position {
                 if engine.positions.is_match() {
                     score.record_tp();
                 } else {
@@ -285,7 +321,7 @@ fn end_of_round_system(
                 score.record_tn();
             }
 
-            if round.answer.same_color {
+            if round.answer.color {
                 if engine.colors.is_match() {
                     score.record_tp();
                 } else {
@@ -299,9 +335,10 @@ fn end_of_round_system(
 
             round.answer.reset();
 
-            let (new_position, new_color) = engine.new_cue();
+            let (new_position, new_color, new_sound) = engine.new_cue();
             *position = new_position;
             *color = new_color;
+            *sound = new_sound;
             round.current += 1;
         }
     }
