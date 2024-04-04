@@ -6,9 +6,9 @@ use crate::{
     state::AppState,
 };
 
-pub struct GuiPlugin;
+pub struct UiPlugin;
 
-impl Plugin for GuiPlugin {
+impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, menu_ui.run_if(in_state(AppState::Menu)));
     }

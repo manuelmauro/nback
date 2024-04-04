@@ -9,15 +9,15 @@ use crate::{
     state::{despawn_screen, AppState, OnMenuScreen},
 };
 
-use self::gui::GuiPlugin;
+use self::ui::UiPlugin;
 
-pub mod gui;
+pub mod ui;
 
 pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(GuiPlugin)
+        app.add_plugins(UiPlugin)
             .add_systems(OnEnter(AppState::Menu), setup)
             .add_systems(OnExit(AppState::Menu), despawn_screen::<OnMenuScreen>)
             .insert_resource(GameSettings::default())

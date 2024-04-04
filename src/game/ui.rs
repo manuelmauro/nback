@@ -5,9 +5,9 @@ use crate::state::AppState;
 
 use super::core::{cue::CueEngine, round::Round, score::Score, state::GameState};
 
-pub struct GuiPlugin;
+pub struct UiPlugin;
 
-impl Plugin for GuiPlugin {
+impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, debug_ui.run_if(in_state(AppState::Game)));
     }

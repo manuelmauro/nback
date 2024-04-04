@@ -14,24 +14,24 @@ use self::{
         state::GameState,
         DualNBackBundle,
     },
-    gui::GuiPlugin,
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
     tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
+    ui::UiPlugin,
 };
 
 pub mod button;
 pub mod core;
-pub mod gui;
 pub mod score;
 pub mod settings;
 pub mod tile;
+pub mod ui;
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(GuiPlugin)
+        app.add_plugins(UiPlugin)
             .add_plugins(TilePlugin)
             .add_plugins(GameButtonPlugin)
             .add_systems(OnEnter(AppState::Game), setup)
