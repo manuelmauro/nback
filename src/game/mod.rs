@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 use crate::{
@@ -138,6 +140,8 @@ fn setup(
     // Create the animation player, and set it to repeat
     let mut player = AnimationPlayer::default();
     player.play(animations.add(animation));
+    let mut timer = CueTimer::with_duration(settings.round_time);
+    timer.tick(Duration::from_secs_f32(settings.round_time - 0.1));
 
     // game
     commands.spawn((
@@ -154,7 +158,7 @@ fn setup(
                 settings.sound,
             ),
             round: Round::with_total(settings.rounds),
-            timer: CueTimer::with_duration(settings.round_time),
+            timer,
             ..default()
         },
         OnGameScreen,
