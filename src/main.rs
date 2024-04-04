@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResolution};
 use bevy_asset_loader::loading_state::{
     config::ConfigureLoadingState, LoadingState, LoadingStateAppExt,
 };
@@ -16,7 +16,13 @@ fn main() {
                 .continue_to_state(AppState::Menu)
                 .load_collection::<AudioAssets>(),
         )
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                resolution: WindowResolution::new(1280., 720.),
+                ..default()
+            }),
+            ..default()
+        }))
         .add_plugins(AudioPlugin)
         .add_plugins(EguiPlugin)
         .add_plugins(SplashPlugin)
