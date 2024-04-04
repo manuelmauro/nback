@@ -41,9 +41,12 @@ impl Plugin for GamePlugin {
             .add_plugins(GameButtonPlugin)
             .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
+                PreUpdate,
+                end_of_game_system.run_if(in_state(AppState::Game)),
+            )
+            .add_systems(
                 Update,
-                (timer_system, end_of_round_system, end_of_game_system)
-                    .run_if(in_state(AppState::Game)),
+                (timer_system, end_of_round_system).run_if(in_state(AppState::Game)),
             )
             .add_systems(OnExit(AppState::Game), despawn_screen::<OnGameScreen>);
     }
@@ -143,7 +146,9 @@ fn setup(
 
     // start with a cue
     let mut timer = CueTimer::with_duration(settings.round_time);
-    timer.tick(Duration::from_secs_f32(settings.round_time - 0.1));
+    timer.tick(Duration::from_millis(
+        ((settings.round_time * 1000.0) as u64) - 1,
+    ));
 
     // game
     commands.spawn((

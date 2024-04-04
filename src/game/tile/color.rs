@@ -37,7 +37,7 @@ impl From<&TileColor> for Color {
             TileColor::C => config::TILE_COLOR_C,
             TileColor::D => config::TILE_COLOR_D,
             TileColor::E => config::TILE_COLOR_E,
-            TileColor::None => Color::rgb(0.0, 0.0, 0.0),
+            TileColor::None => config::TILE_COLOR_C,
         }
     }
 }
