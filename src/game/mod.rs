@@ -140,6 +140,8 @@ fn setup(
     // Create the animation player, and set it to repeat
     let mut player = AnimationPlayer::default();
     player.play(animations.add(animation));
+
+    // start with a cue
     let mut timer = CueTimer::with_duration(settings.round_time);
     timer.tick(Duration::from_secs_f32(settings.round_time - 0.1));
 
