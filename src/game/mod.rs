@@ -8,7 +8,6 @@ use crate::{
 };
 
 use self::{
-    button::{GameButtonBundle, GameButtonPlugin, Shortcut},
     core::{
         cue::{CueEngine, CueTimer},
         round::Round,
@@ -20,10 +19,10 @@ use self::{
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
     tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
+    ui::button::{GameButtonBundle, GameButtonPlugin, Shortcut},
     ui::UiPlugin,
 };
 
-pub mod button;
 pub mod core;
 pub mod input;
 pub mod score;

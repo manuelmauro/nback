@@ -5,6 +5,8 @@ use crate::state::AppState;
 
 use super::core::{cue::CueEngine, round::Round, score::Score, state::GameState};
 
+pub mod button;
+
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
