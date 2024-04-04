@@ -3,11 +3,6 @@ use bevy::prelude::*;
 // tile
 pub const TILE_SIZE: f32 = 100.0;
 pub const TILE_SPACING: f32 = 10.0;
-pub const TILE_COLOR_A: Color = Color::rgb(1.0, 0.56, 0.0);
-pub const TILE_COLOR_B: Color = Color::rgb(0.60, 0.05, 1.0);
-pub const TILE_COLOR_C: Color = Color::rgb(1.0, 0.0, 0.65);
-pub const TILE_COLOR_D: Color = Color::rgb(0.12, 1.0, 0.14);
-pub const TILE_COLOR_E: Color = Color::rgb(0.12, 0.80, 1.0);
 pub const TILE_SOUND_C: &str = "sounds/letters/c.ogg";
 pub const TILE_SOUND_H: &str = "sounds/letters/h.ogg";
 pub const TILE_SOUND_K: &str = "sounds/letters/k.ogg";

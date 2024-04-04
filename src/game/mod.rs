@@ -19,7 +19,7 @@ use self::{
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
     tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
-    ui::button::{GameButtonBundle, GameButtonPlugin, Shortcut},
+    ui::button::GameButtonPlugin,
     ui::UiPlugin,
 };
 
@@ -54,7 +54,6 @@ impl Plugin for GamePlugin {
 fn setup(
     mut commands: Commands,
     settings: Res<GameSettings>,
-    asset_server: Res<AssetServer>,
     mut animations: ResMut<Assets<AnimationClip>>,
 ) {
     // Add walls
@@ -169,119 +168,6 @@ fn setup(
         },
         OnGameScreen,
     ));
-
-    // buttons
-    commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
-                ..default()
-            },
-            OnGameScreen,
-        ))
-        .with_children(|parent| {
-            if settings.position {
-                parent
-                    .spawn(GameButtonBundle {
-                        button: ButtonBundle {
-                            style: Style {
-                                left: Val::Px(-100.0),
-                                top: Val::Px(230.0),
-                                width: Val::Px(150.0),
-                                height: Val::Px(65.0),
-                                border: UiRect::all(Val::Px(3.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            border_color: config::BUTTON_BORDER_COLOR.into(),
-                            background_color: config::NORMAL_BUTTON.into(),
-                            ..default()
-                        },
-                        shortcut: Shortcut(KeyCode::KeyA),
-                    })
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            "Position (A)",
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 20.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
-                            },
-                        ));
-                    });
-            }
-
-            if settings.sound {
-                parent
-                    .spawn(GameButtonBundle {
-                        button: ButtonBundle {
-                            style: Style {
-                                left: Val::Px(0.0),
-                                top: Val::Px(230.0),
-                                width: Val::Px(150.0),
-                                height: Val::Px(65.0),
-                                border: UiRect::all(Val::Px(3.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            border_color: config::BUTTON_BORDER_COLOR.into(),
-                            background_color: config::NORMAL_BUTTON.into(),
-                            ..default()
-                        },
-                        shortcut: Shortcut(KeyCode::KeyS),
-                    })
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            "Sound (S)",
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 20.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
-                            },
-                        ));
-                    });
-            }
-
-            if settings.color {
-                parent
-                    .spawn(GameButtonBundle {
-                        button: ButtonBundle {
-                            style: Style {
-                                left: Val::Px(100.0),
-                                top: Val::Px(230.0),
-                                width: Val::Px(150.0),
-                                height: Val::Px(65.0),
-                                border: UiRect::all(Val::Px(3.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            border_color: config::BUTTON_BORDER_COLOR.into(),
-                            background_color: config::NORMAL_BUTTON.into(),
-                            ..default()
-                        },
-                        shortcut: Shortcut(KeyCode::KeyD),
-                    })
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            "Color (D)",
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 20.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
-                            },
-                        ));
-                    });
-            }
-        });
 }
 
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
