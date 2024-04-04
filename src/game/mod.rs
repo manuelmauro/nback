@@ -14,6 +14,7 @@ use self::{
         state::GameState,
         DualNBackBundle,
     },
+    input::InputPlugin,
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
     tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
@@ -22,6 +23,7 @@ use self::{
 
 pub mod button;
 pub mod core;
+pub mod input;
 pub mod score;
 pub mod settings;
 pub mod tile;
@@ -33,16 +35,12 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(UiPlugin)
             .add_plugins(TilePlugin)
+            .add_plugins(InputPlugin)
             .add_plugins(GameButtonPlugin)
             .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
                 Update,
-                (
-                    timer_system,
-                    input_system,
-                    end_of_round_system,
-                    end_of_game_system,
-                )
+                (timer_system, end_of_round_system, end_of_game_system)
                     .run_if(in_state(AppState::Game)),
             )
             .add_systems(OnExit(AppState::Game), despawn_screen::<OnGameScreen>);
@@ -285,22 +283,6 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) 
             if timer.just_finished() {
                 info!("tick!")
             }
-        }
-    }
-}
-
-fn input_system(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Round>) {
-    if let Ok(mut round) = query.get_single_mut() {
-        if keyboard_input.pressed(KeyCode::KeyA) {
-            round.answer.position = true;
-        }
-
-        if keyboard_input.pressed(KeyCode::KeyS) {
-            round.answer.sound = true;
-        }
-
-        if keyboard_input.pressed(KeyCode::KeyD) {
-            round.answer.color = true;
         }
     }
 }
