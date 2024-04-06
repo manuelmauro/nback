@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
-use crate::palette;
+use crate::{palette, state::AppState};
 
 pub const NORMAL_BUTTON: Color = palette::SLATE_800;
-pub const HOVERED_BUTTON: Color = palette::PURPLE_400;
-pub const PRESSED_BUTTON: Color = palette::PURPLE_500;
+pub const HOVERED_BUTTON: Color = palette::TEAL_600;
+pub const PRESSED_BUTTON: Color = palette::TEAL_700;
 pub const BUTTON_BORDER_COLOR: Color = palette::WHITE;
 pub const PRESSED_BUTTON_BORDER_COLOR: Color = palette::WHITE;
 
@@ -30,8 +30,10 @@ pub struct GameButtonPlugin;
 
 impl Plugin for GameButtonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, button_system)
-            .add_systems(Update, button_shortcut_system);
+        app.add_systems(
+            Update,
+            (button_system, button_shortcut_system).run_if(in_state(AppState::Game)),
+        );
     }
 }
 

@@ -20,7 +20,7 @@ fn main() {
         .insert_resource(ClearColor(palette::SLATE_800))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                resolution: WindowResolution::new(1280., 720.),
+                resolution: WindowResolution::new(504., 896.),
                 ..default()
             }),
             ..default()

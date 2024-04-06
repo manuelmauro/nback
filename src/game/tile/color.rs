@@ -37,7 +37,7 @@ impl From<&TileColor> for Color {
             TileColor::C => palette::YELLOW_400,
             TileColor::D => palette::EMERALD_500,
             TileColor::E => palette::BLUE_500,
-            TileColor::None => palette::PURPLE_500,
+            TileColor::None => palette::LIME_500,
         }
     }
 }
