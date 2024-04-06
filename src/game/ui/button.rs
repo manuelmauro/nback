@@ -1,6 +1,12 @@
 use bevy::prelude::*;
 
-use crate::config;
+use crate::palette;
+
+pub const NORMAL_BUTTON: Color = palette::SLATE_800;
+pub const HOVERED_BUTTON: Color = palette::PURPLE_400;
+pub const PRESSED_BUTTON: Color = palette::PURPLE_500;
+pub const BUTTON_BORDER_COLOR: Color = palette::WHITE;
+pub const PRESSED_BUTTON_BORDER_COLOR: Color = palette::WHITE;
 
 #[derive(Component)]
 pub struct Shortcut(pub KeyCode);
@@ -39,16 +45,16 @@ fn button_system(
     for (interaction, mut color, mut border_color) in &mut query {
         match *interaction {
             Interaction::Pressed => {
-                *color = config::PRESSED_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR;
+                *color = PRESSED_BUTTON.into();
+                border_color.0 = BUTTON_BORDER_COLOR;
             }
             Interaction::Hovered => {
-                *color = config::HOVERED_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR;
+                *color = HOVERED_BUTTON.into();
+                border_color.0 = BUTTON_BORDER_COLOR;
             }
             Interaction::None => {
-                *color = config::NORMAL_BUTTON.into();
-                border_color.0 = config::BUTTON_BORDER_COLOR;
+                *color = NORMAL_BUTTON.into();
+                border_color.0 = BUTTON_BORDER_COLOR;
             }
         }
     }
@@ -60,13 +66,13 @@ fn button_shortcut_system(
 ) {
     for (mut color, mut border_color, shortcut) in &mut query {
         if keyboard_input.pressed(shortcut.0) {
-            *color = config::PRESSED_BUTTON.into();
-            border_color.0 = config::PRESSED_BUTTON_BORDER_COLOR;
+            *color = PRESSED_BUTTON.into();
+            border_color.0 = PRESSED_BUTTON_BORDER_COLOR;
         }
 
         if keyboard_input.just_released(shortcut.0) {
-            *color = config::NORMAL_BUTTON.into();
-            border_color.0 = config::BUTTON_BORDER_COLOR;
+            *color = NORMAL_BUTTON.into();
+            border_color.0 = BUTTON_BORDER_COLOR;
         }
     }
 }

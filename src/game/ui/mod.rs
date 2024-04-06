@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::{
-    config,
-    state::{AppState, OnGameScreen},
-};
+use crate::state::{AppState, OnGameScreen};
 
 use self::button::{GameButtonBundle, Shortcut};
 
@@ -54,8 +51,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, settings: R
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            border_color: config::BUTTON_BORDER_COLOR.into(),
-                            background_color: config::NORMAL_BUTTON.into(),
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::NORMAL_BUTTON.into(),
                             ..default()
                         },
                         shortcut: Shortcut(KeyCode::KeyA),
@@ -86,8 +83,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, settings: R
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            border_color: config::BUTTON_BORDER_COLOR.into(),
-                            background_color: config::NORMAL_BUTTON.into(),
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::NORMAL_BUTTON.into(),
                             ..default()
                         },
                         shortcut: Shortcut(KeyCode::KeyS),
@@ -118,8 +115,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, settings: R
                                 align_items: AlignItems::Center,
                                 ..default()
                             },
-                            border_color: config::BUTTON_BORDER_COLOR.into(),
-                            background_color: config::NORMAL_BUTTON.into(),
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::NORMAL_BUTTON.into(),
                             ..default()
                         },
                         shortcut: Shortcut(KeyCode::KeyD),

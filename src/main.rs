@@ -5,7 +5,8 @@ use bevy_asset_loader::loading_state::{
 use bevy_egui::EguiPlugin;
 use bevy_kira_audio::AudioPlugin;
 use nback::{
-    asset::AudioAssets, game::GamePlugin, menu::MenuPlugin, splash::SplashPlugin, state::AppState,
+    asset::AudioAssets, game::GamePlugin, menu::MenuPlugin, palette, splash::SplashPlugin,
+    state::AppState,
 };
 
 fn main() {
@@ -16,6 +17,7 @@ fn main() {
                 .continue_to_state(AppState::Menu)
                 .load_collection::<AudioAssets>(),
         )
+        .insert_resource(ClearColor(palette::SLATE_800))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 resolution: WindowResolution::new(1280., 720.),

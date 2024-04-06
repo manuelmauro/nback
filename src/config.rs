@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::palette;
+
 // tile
 pub const TILE_SIZE: f32 = 100.0;
 pub const TILE_SPACING: f32 = 10.0;
@@ -16,12 +18,5 @@ pub const TILE_SOUND_T: &str = "sounds/letters/t.ogg";
 pub const SPLASH_SCREEN_DURATION: f32 = 1.0;
 
 // game/menu screen
-pub const WALL_COLOR: Color = Color::rgb(1.0, 1.0, 1.0);
+pub const WALL_COLOR: Color = palette::WHITE;
 pub const WALL_THICKNESS: f32 = 4.0;
-
-// buttons
-pub const NORMAL_BUTTON: Color = Color::rgb(0.16, 0.17, 0.18);
-pub const HOVERED_BUTTON: Color = Color::rgb(0.20, 0.21, 0.22);
-pub const PRESSED_BUTTON: Color = Color::rgb(1.0, 0.56, 0.0);
-pub const BUTTON_BORDER_COLOR: Color = Color::rgb(1.0, 1.0, 1.0);
-pub const PRESSED_BUTTON_BORDER_COLOR: Color = Color::rgb(1.0, 1.0, 1.0);
