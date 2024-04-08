@@ -5,10 +5,7 @@ use crate::state::{AppState, OnGameScreen};
 
 use self::button::{GameButtonBundle, Shortcut};
 
-use super::{
-    core::{cue::CueEngine, round::Round, score::Score, state::GameState},
-    settings::GameSettings,
-};
+use super::core::{cue::CueEngine, round::Round, score::Score, state::GameState};
 
 pub mod button;
 
