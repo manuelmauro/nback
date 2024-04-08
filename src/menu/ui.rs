@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    input::mouse::{MouseScrollUnit, MouseWheel},
+    prelude::*,
+};
 
 use crate::{
     game::{score::LatestGameScores, settings::GameSettings},
@@ -19,7 +22,8 @@ impl Plugin for UiPlugin {
         app.add_systems(
             OnEnter(AppState::Menu),
             menu_ui.run_if(in_state(AppState::Menu)),
-        );
+        )
+        .add_systems(Update, mouse_scroll);
     }
 }
 
@@ -320,7 +324,7 @@ pub fn menu_ui(
                 .spawn((
                     NodeBundle {
                         style: Style {
-                            width: Val::Percent(75.0),
+                            width: Val::Percent(100.0),
                             height: Val::Percent(100.0),
                             justify_content: JustifyContent::SpaceBetween,
                             align_items: AlignItems::Center,
@@ -359,49 +363,95 @@ pub fn menu_ui(
                     ));
                 });
 
-            for score in scores.0.iter() {
-                parent
-                    .spawn((
-                        NodeBundle {
-                            style: Style {
-                                width: Val::Percent(75.0),
-                                height: Val::Percent(100.0),
-                                justify_content: JustifyContent::SpaceBetween,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.0),
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
                             ..default()
                         },
-                        OnMenuScreen,
-                    ))
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            format!("{}", score.n),
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 32.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
-                            },
-                        ));
+                        ..default()
+                    },
+                    ScrollingList::default(),
+                ))
+                .with_children(|parent| {
+                    for score in scores.0.iter() {
+                        parent
+                            .spawn((
+                                NodeBundle {
+                                    style: Style {
+                                        width: Val::Percent(100.0),
+                                        justify_content: JustifyContent::SpaceBetween,
+                                        align_items: AlignItems::Center,
+                                        ..default()
+                                    },
+                                    ..default()
+                                },
+                                OnMenuScreen,
+                            ))
+                            .with_children(|parent| {
+                                parent.spawn(TextBundle::from_section(
+                                    format!("{}", score.n),
+                                    TextStyle {
+                                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                        font_size: 32.0,
+                                        color: Color::rgb(0.9, 0.9, 0.9),
+                                    },
+                                ));
 
-                        parent.spawn(TextBundle::from_section(
-                            format!("{:.2}s", score.total_rounds as f32 * score.round_duration),
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 32.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
-                            },
-                        ));
+                                parent.spawn(TextBundle::from_section(
+                                    format!(
+                                        "{:.2}s",
+                                        score.total_rounds as f32 * score.round_duration
+                                    ),
+                                    TextStyle {
+                                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                        font_size: 32.0,
+                                        color: Color::rgb(0.9, 0.9, 0.9),
+                                    },
+                                ));
 
-                        parent.spawn(TextBundle::from_section(
-                            format!("{}%", score.f1_score_percent),
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 32.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
-                            },
-                        ));
-                    });
-            }
+                                parent.spawn(TextBundle::from_section(
+                                    format!("{}%", score.f1_score_percent),
+                                    TextStyle {
+                                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                        font_size: 32.0,
+                                        color: Color::rgb(0.9, 0.9, 0.9),
+                                    },
+                                ));
+                            });
+                    }
+                });
         });
+}
+
+#[derive(Component, Default)]
+struct ScrollingList {
+    position: f32,
+}
+
+fn mouse_scroll(
+    mut mouse_wheel_events: EventReader<MouseWheel>,
+    mut query_list: Query<(&mut ScrollingList, &mut Style, &Parent, &Node)>,
+    query_node: Query<&Node>,
+) {
+    for mouse_wheel_event in mouse_wheel_events.read() {
+        for (mut scrolling_list, mut style, parent, list_node) in &mut query_list {
+            let items_height = list_node.size().y;
+            let container_height = query_node.get(parent.get()).unwrap().size().y;
+
+            let max_scroll = (items_height - container_height).max(0.);
+
+            let dy = match mouse_wheel_event.unit {
+                MouseScrollUnit::Line => mouse_wheel_event.y * 20.,
+                MouseScrollUnit::Pixel => mouse_wheel_event.y,
+            };
+
+            scrolling_list.position += dy;
+            scrolling_list.position = scrolling_list.position.clamp(-max_scroll, 0.);
+            style.top = Val::Px(scrolling_list.position);
+        }
+    }
 }
