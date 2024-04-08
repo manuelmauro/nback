@@ -38,6 +38,7 @@ impl Plugin for GamePlugin {
             .add_plugins(TilePlugin)
             .add_plugins(InputPlugin)
             .add_plugins(GameButtonPlugin)
+            .add_event::<EndOfRoundEvent>()
             .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
                 PreUpdate,
@@ -183,7 +184,13 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) 
     }
 }
 
+#[derive(Event)]
+pub struct EndOfRoundEvent {
+    pub round: usize,
+}
+
 fn end_of_round_system(
+    mut events: EventWriter<EndOfRoundEvent>,
     mut query: Query<(
         &mut CueEngine,
         &mut Round,
@@ -252,6 +259,10 @@ fn end_of_round_system(
             if let Some(new_sound) = new_sound {
                 *sound = new_sound;
             }
+
+            events.send(EndOfRoundEvent {
+                round: round.current,
+            });
 
             round.current += 1;
         }
