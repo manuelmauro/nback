@@ -10,6 +10,12 @@ pub struct GameSettings {
     pub sound: bool,
 }
 
+impl GameSettings {
+    pub fn set_rounds_from_n(&mut self) {
+        self.rounds = 20 + self.n.pow(2);
+    }
+}
+
 impl Default for GameSettings {
     fn default() -> Self {
         Self {
@@ -17,7 +23,7 @@ impl Default for GameSettings {
             rounds: 24,
             round_time: 3.0,
             position: true,
-            color: false,
+            color: true,
             sound: true,
         }
     }

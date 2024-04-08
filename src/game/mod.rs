@@ -277,10 +277,10 @@ fn end_of_game_system(
 
             if score.f1_score_percent() >= 80 {
                 settings.n += 1;
-                settings.rounds = 20 + settings.n.pow(2);
+                settings.set_rounds_from_n();
             } else if score.f1_score_percent() <= 50 {
                 settings.n = settings.n.max(1);
-                settings.rounds = 20 + settings.n.pow(2);
+                settings.set_rounds_from_n();
             }
 
             app_state.set(AppState::Menu);

@@ -51,6 +51,7 @@ pub fn increase_n_button_system(
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
                 settings.n += 1;
+                settings.set_rounds_from_n();
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
@@ -78,6 +79,7 @@ pub fn decrease_n_button_system(
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
                 settings.n -= 1;
+                settings.set_rounds_from_n();
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
