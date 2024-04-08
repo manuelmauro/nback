@@ -44,14 +44,14 @@ pub fn position_checkbox_system(
 }
 
 #[derive(Component)]
-pub struct SoundCheckBox;
+pub struct SoundCheckbox;
 
 #[allow(clippy::type_complexity)]
 pub fn sound_checkbox_system(
     mut settings: ResMut<GameSettings>,
     mut query: Query<
         (&Interaction, &mut BackgroundColor, &mut Checkbox),
-        (Changed<Interaction>, With<SoundCheckBox>),
+        (Changed<Interaction>, With<SoundCheckbox>),
     >,
 ) {
     for (interaction, mut color, mut checkbox) in &mut query {
