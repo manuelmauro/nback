@@ -2,13 +2,14 @@ use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
 use crate::{
-    game::{score::LatestGameScores, settings::GameSettings, ui::button},
+    game::{score::LatestGameScores, settings::GameSettings},
     palette,
     state::{AppState, OnMenuScreen},
 };
 
 use super::{
-    button::{DecreaseNButton, IncreaseNButton, PlayButton},
+    button::{self, DecreaseNButton, IncreaseNButton, PlayButton},
+    checkbox::{Checkbox, ColorCheckBox, PositionCheckBox, SoundCheckBox},
     text::NBackText,
 };
 
@@ -27,6 +28,7 @@ pub fn menu_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     settings: Res<GameSettings>,
+    scores: ResMut<LatestGameScores>,
 ) {
     commands
         .spawn((
@@ -47,7 +49,7 @@ pub fn menu_ui(
                 "Dual-N-Back",
                 TextStyle {
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    font_size: 64.0,
+                    font_size: 96.0,
                     color: palette::LIME_500,
                 },
             ),));
@@ -71,8 +73,8 @@ pub fn menu_ui(
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    width: Val::Px(64.0),
-                                    height: Val::Px(64.0),
+                                    width: Val::Px(40.0),
+                                    height: Val::Px(40.0),
                                     border: UiRect::all(Val::Px(3.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -89,7 +91,7 @@ pub fn menu_ui(
                                 "-",
                                 TextStyle {
                                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    font_size: 20.0,
+                                    font_size: 40.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
                                 },
                             ));
@@ -111,8 +113,8 @@ pub fn menu_ui(
                         .spawn((
                             ButtonBundle {
                                 style: Style {
-                                    width: Val::Px(64.0),
-                                    height: Val::Px(64.0),
+                                    width: Val::Px(40.0),
+                                    height: Val::Px(40.0),
                                     border: UiRect::all(Val::Px(3.0)),
                                     justify_content: JustifyContent::Center,
                                     align_items: AlignItems::Center,
@@ -129,13 +131,147 @@ pub fn menu_ui(
                                 "+",
                                 TextStyle {
                                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    font_size: 20.0,
+                                    font_size: 40.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
                                 },
                             ));
                         });
                 });
 
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(75.0),
+                            height: Val::Percent(100.0),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    OnMenuScreen,
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Px(32.0),
+                                height: Val::Px(32.0),
+                                border: UiRect::all(Val::Px(3.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::PRESSED_BUTTON.into(),
+                            ..default()
+                        },
+                        PositionCheckBox,
+                        Checkbox {
+                            checked: settings.position,
+                        },
+                    ));
+
+                    parent.spawn(TextBundle::from_section(
+                        "Position",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 32.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
+
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(75.0),
+                            height: Val::Percent(100.0),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    OnMenuScreen,
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Px(32.0),
+                                height: Val::Px(32.0),
+                                border: UiRect::all(Val::Px(3.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::PRESSED_BUTTON.into(),
+                            ..default()
+                        },
+                        SoundCheckBox,
+                        Checkbox {
+                            checked: settings.sound,
+                        },
+                    ));
+
+                    parent.spawn(TextBundle::from_section(
+                        "Sound",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 32.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
+
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(75.0),
+                            height: Val::Percent(100.0),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    OnMenuScreen,
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Px(32.0),
+                                height: Val::Px(32.0),
+                                border: UiRect::all(Val::Px(3.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::PRESSED_BUTTON.into(),
+                            ..default()
+                        },
+                        ColorCheckBox,
+                        Checkbox {
+                            checked: settings.color,
+                        },
+                    ));
+
+                    parent.spawn(TextBundle::from_section(
+                        "Color",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 32.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
             parent
                 .spawn((
                     NodeBundle {
@@ -174,60 +310,99 @@ pub fn menu_ui(
                                 "PLAY",
                                 TextStyle {
                                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    font_size: 20.0,
+                                    font_size: 32.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
                                 },
                             ));
                         });
                 });
-        });
-}
 
-/// Game menu.
-pub fn egui_ui(
-    mut egui_context: EguiContexts,
-    mut settings: ResMut<GameSettings>,
-    scores: ResMut<LatestGameScores>,
-    mut app_state: ResMut<NextState<AppState>>,
-) {
-    egui::SidePanel::left("settings")
-        .resizable(false)
-        .exact_width(250.0)
-        .show(egui_context.ctx_mut(), |ui| {
-            ui.heading("Dual-N-Back");
-            ui.add(egui::Slider::new(&mut settings.rounds, 1..=50).text("Rounds"));
-            ui.add(egui::Slider::new(&mut settings.round_time, 0.5..=4.0).text("Round Time"));
-            ui.add(egui::Slider::new(&mut settings.n, 1..=7).text("N-back"));
-            ui.add(egui::Checkbox::new(&mut settings.position, "Position"));
-            ui.add(egui::Checkbox::new(&mut settings.color, "Color"));
-            ui.add(egui::Checkbox::new(&mut settings.sound, "Sound"));
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(75.0),
+                            height: Val::Percent(100.0),
+                            justify_content: JustifyContent::SpaceBetween,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    OnMenuScreen,
+                ))
+                .with_children(|parent| {
+                    parent.spawn(TextBundle::from_section(
+                        "N-Back",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 32.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
 
-            if ui.button("Play").clicked() {
-                app_state.set(AppState::Game);
-            }
-        });
+                    parent.spawn(TextBundle::from_section(
+                        "Time",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 32.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
 
-    egui::SidePanel::right("status")
-        .resizable(false)
-        .exact_width(250.0)
-        .show(egui_context.ctx_mut(), |ui| {
-            ui.columns(4, |cols| {
-                cols[0].label("N-Back");
-                cols[1].label("Rounds");
-                cols[2].label("Time");
-                cols[3].label("Score");
-            });
+                    parent.spawn(TextBundle::from_section(
+                        "Score",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 32.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
 
             for score in scores.0.iter() {
-                ui.columns(4, |cols| {
-                    cols[0].label(format!("{}", score.n));
-                    cols[1].label(format!("{}", score.total_rounds));
-                    cols[2].label(format!(
-                        "{:.2}s",
-                        score.total_rounds as f32 * score.round_duration
-                    ));
-                    cols[3].label(format!("{}%", score.f1_score_percent));
-                });
+                parent
+                    .spawn((
+                        NodeBundle {
+                            style: Style {
+                                width: Val::Percent(75.0),
+                                height: Val::Percent(100.0),
+                                justify_content: JustifyContent::SpaceBetween,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            ..default()
+                        },
+                        OnMenuScreen,
+                    ))
+                    .with_children(|parent| {
+                        parent.spawn(TextBundle::from_section(
+                            format!("{}", score.n),
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 32.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        ));
+
+                        parent.spawn(TextBundle::from_section(
+                            format!("{:.2}s", score.total_rounds as f32 * score.round_duration),
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 32.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        ));
+
+                        parent.spawn(TextBundle::from_section(
+                            format!("{}%", score.f1_score_percent),
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 32.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            },
+                        ));
+                    });
             }
         });
 }
