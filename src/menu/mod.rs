@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::{score::LatestGameScores, settings::GameSettings, tile::position},
+    game::{score::LatestGameScores, settings::GameSettings},
     state::{despawn_screen, AppState, OnMenuScreen},
 };
 

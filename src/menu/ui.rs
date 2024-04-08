@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
 
 use crate::{
     game::{score::LatestGameScores, settings::GameSettings},

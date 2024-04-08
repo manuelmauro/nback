@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::settings::GameSettings, palette, state::AppState};
+use crate::{game::settings::GameSettings, palette};
 
 pub const NORMAL_BUTTON: Color = palette::SLATE_800;
 pub const HOVERED_BUTTON: Color = palette::LIME_900;
