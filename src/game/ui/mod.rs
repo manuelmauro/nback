@@ -21,7 +21,7 @@ impl Plugin for UiPlugin {
     }
 }
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, settings: Res<GameSettings>) {
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             NodeBundle {
