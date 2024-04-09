@@ -42,7 +42,7 @@ pub fn menu_ui(
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
                     flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
+                    padding: UiRect::all(Val::Px(5.0)),
                     ..default()
                 },
                 ..default()
@@ -53,11 +53,11 @@ pub fn menu_ui(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.0),
-                        flex_grow: 1.0,
                         justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..default()
                     },
+                    background_color: palette::SLATE_800.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -67,12 +67,14 @@ pub fn menu_ui(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(75.0),
-                        flex_grow: 1.0,
-                        justify_content: JustifyContent::SpaceBetween,
+                        flex_grow: 0.5,
+                        justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..default()
                     },
+                    background_color: palette::SLATE_800.into(),
+
                     ..default()
                 })
                 .with_children(|parent| {
@@ -83,9 +85,8 @@ pub fn menu_ui(
                 .spawn(NodeBundle {
                     style: Style {
                         display: Display::Grid,
-                        width: Val::Percent(100.0),
-                        flex_grow: 1.0,
                         justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(5.0)),
                         grid_template_columns: vec![
                             GridTrack::min_content(),
                             GridTrack::min_content(),
@@ -100,6 +101,7 @@ pub fn menu_ui(
                         padding: UiRect::all(Val::Px(24.0)),
                         ..default()
                     },
+                    background_color: palette::SLATE_800.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -109,13 +111,14 @@ pub fn menu_ui(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.0),
-                        flex_grow: 1.0,
+                        flex_grow: 0.5,
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
+                        margin: UiRect::all(Val::Px(5.0)),
                         ..default()
                     },
+                    background_color: palette::SLATE_800.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -126,10 +129,10 @@ pub fn menu_ui(
                 .spawn(NodeBundle {
                     style: Style {
                         display: Display::Grid,
-                        width: Val::Percent(100.0),
-                        flex_grow: 1.0,
+                        flex_grow: 0.8,
                         justify_content: JustifyContent::Center,
                         justify_items: JustifyItems::Center,
+                        margin: UiRect::all(Val::Px(5.0)),
                         grid_template_columns: vec![
                             GridTrack::auto(),
                             GridTrack::auto(),
@@ -140,6 +143,7 @@ pub fn menu_ui(
                         padding: UiRect::all(Val::Px(12.0)),
                         ..default()
                     },
+                    background_color: palette::SLATE_900.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -153,7 +157,7 @@ fn game_title(parent: &mut ChildBuilder, font: Handle<Font>) {
         "Dual-N-Back",
         TextStyle {
             font,
-            font_size: 96.0,
+            font_size: 86.0,
             color: palette::LIME_500,
         },
     ));
@@ -169,6 +173,7 @@ fn select_n(parent: &mut ChildBuilder, settings: &Res<GameSettings>, font: Handl
                     border: UiRect::all(Val::Px(3.0)),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    margin: UiRect::all(Val::Px(5.0)),
                     ..default()
                 },
                 border_color: button::BUTTON_BORDER_COLOR.into(),
@@ -188,17 +193,27 @@ fn select_n(parent: &mut ChildBuilder, settings: &Res<GameSettings>, font: Handl
             ));
         });
 
-    parent.spawn((
-        TextBundle::from_section(
-            settings.n.to_string(),
-            TextStyle {
-                font: font.clone(),
-                font_size: 40.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
+    parent
+        .spawn(NodeBundle {
+            style: Style {
+                margin: UiRect::all(Val::Px(5.0)),
+                ..Default::default()
             },
-        ),
-        NBackText,
-    ));
+            ..Default::default()
+        })
+        .with_children(|parent| {
+            parent.spawn((
+                TextBundle::from_section(
+                    settings.n.to_string(),
+                    TextStyle {
+                        font: font.clone(),
+                        font_size: 40.0,
+                        color: Color::rgb(0.9, 0.9, 0.9),
+                    },
+                ),
+                NBackText,
+            ));
+        });
 
     parent
         .spawn((
@@ -209,6 +224,7 @@ fn select_n(parent: &mut ChildBuilder, settings: &Res<GameSettings>, font: Handl
                     border: UiRect::all(Val::Px(3.0)),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    margin: UiRect::all(Val::Px(5.0)),
                     ..default()
                 },
                 border_color: button::BUTTON_BORDER_COLOR.into(),
