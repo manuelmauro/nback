@@ -397,7 +397,7 @@ fn score_history(parent: &mut ChildBuilder, scores: &ResMut<LatestGameScores>, f
             format!("{}", score.n),
             TextStyle {
                 font: font.clone(),
-                font_size: 32.0,
+                font_size: 24.0,
                 color: Color::rgb(0.9, 0.9, 0.9),
             },
         ));
@@ -406,7 +406,7 @@ fn score_history(parent: &mut ChildBuilder, scores: &ResMut<LatestGameScores>, f
             format!("{:.2}s", score.total_rounds as f32 * score.round_duration),
             TextStyle {
                 font: font.clone(),
-                font_size: 32.0,
+                font_size: 24.0,
                 color: Color::rgb(0.9, 0.9, 0.9),
             },
         ));
@@ -415,7 +415,7 @@ fn score_history(parent: &mut ChildBuilder, scores: &ResMut<LatestGameScores>, f
             format!("{}%", score.f1_score_percent),
             TextStyle {
                 font: font.clone(),
-                font_size: 32.0,
+                font_size: 24.0,
                 color: Color::rgb(0.9, 0.9, 0.9),
             },
         ));
