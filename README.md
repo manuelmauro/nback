@@ -4,6 +4,9 @@ This repository contains an implementation of the Dual-N-Back game using the Bev
 
 ## Overview
 
+![menu](screenshots/menu.png)
+![menu](screenshots/game.png)
+
 The game requires players to identify when the current stimulus matches the one presented N steps back in the sequence. This implementation provides both visual and auditory stimuli, adjustable difficulty levels, and tracks user performance over time.
 
 ## Technical Details
