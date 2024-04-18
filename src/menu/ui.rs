@@ -33,7 +33,7 @@ pub fn menu_ui(
     settings: Res<GameSettings>,
     scores: ResMut<LatestGameScores>,
 ) {
-    let font = asset_server.load("fonts/FiraSans-Bold.ttf");
+    let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
 
     commands
         .spawn((

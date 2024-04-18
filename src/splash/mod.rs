@@ -14,7 +14,7 @@ impl Plugin for SplashPlugin {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let icon = asset_server.load("icon.png");
+    let icon = asset_server.load("embedded://icon.png");
 
     commands
         .spawn((

@@ -22,6 +22,8 @@ impl Plugin for UiPlugin {
 }
 
 pub fn setup(mut commands: Commands, settings: Res<GameSettings>, asset_server: Res<AssetServer>) {
+    let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
+
     commands
         .spawn((
             NodeBundle {
@@ -56,7 +58,7 @@ pub fn setup(mut commands: Commands, settings: Res<GameSettings>, asset_server: 
                     parent.spawn(TextBundle::from_section(
                         format!("{}-Back", settings.n),
                         TextStyle {
-                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font: font.clone(),
                             font_size: 40.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -65,7 +67,7 @@ pub fn setup(mut commands: Commands, settings: Res<GameSettings>, asset_server: 
                         TextBundle::from_section(
                             "11/24",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font: font.clone(),
                                 font_size: 40.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
                             },
@@ -109,7 +111,7 @@ pub fn setup(mut commands: Commands, settings: Res<GameSettings>, asset_server: 
                             parent.spawn(TextBundle::from_section(
                                 "Position (A)",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font: font.clone(),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
                                 },
@@ -137,7 +139,7 @@ pub fn setup(mut commands: Commands, settings: Res<GameSettings>, asset_server: 
                             parent.spawn(TextBundle::from_section(
                                 "Sound (S)",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font: font.clone(),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
                                 },
@@ -165,7 +167,7 @@ pub fn setup(mut commands: Commands, settings: Res<GameSettings>, asset_server: 
                             parent.spawn(TextBundle::from_section(
                                 "Color (D)",
                                 TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font: font.clone(),
                                     font_size: 20.0,
                                     color: Color::rgb(0.9, 0.9, 0.9),
                                 },
