@@ -4,7 +4,6 @@ use bevy::prelude::*;
 pub struct Round {
     pub total: usize,
     pub current: usize,
-    pub answer: Answer,
 }
 
 impl Round {
@@ -21,12 +20,11 @@ impl Default for Round {
         Round {
             total: 10,
             current: 0,
-            answer: default(),
         }
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Resource, Debug, Default)]
 pub struct Answer {
     pub position: bool,
     pub color: bool,

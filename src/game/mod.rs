@@ -10,7 +10,7 @@ use crate::{
 use self::{
     core::{
         cue::{CueEngine, CueTimer},
-        round::Round,
+        round::{Answer, Round},
         score::Score,
         state::GameState,
         DualNBackBundle,
@@ -19,8 +19,7 @@ use self::{
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
     tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
-    ui::button::GameButtonPlugin,
-    ui::UiPlugin,
+    ui::{button::GameButtonPlugin, UiPlugin},
 };
 
 pub mod core;
@@ -34,7 +33,8 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(UiPlugin)
+        app.insert_resource(Answer::default())
+            .add_plugins(UiPlugin)
             .add_plugins(TilePlugin)
             .add_plugins(InputPlugin)
             .add_plugins(GameButtonPlugin)
@@ -191,6 +191,7 @@ pub struct EndOfRoundEvent {
 
 fn end_of_round_system(
     mut events: EventWriter<EndOfRoundEvent>,
+    mut answer: ResMut<Answer>,
     mut query: Query<(
         &mut CueEngine,
         &mut Round,
@@ -206,7 +207,7 @@ fn end_of_round_system(
     {
         if timer.just_finished() {
             if let Some(positions) = &engine.positions {
-                if round.answer.position {
+                if answer.position {
                     if positions.is_match() {
                         score.record_tp();
                     } else {
@@ -220,7 +221,7 @@ fn end_of_round_system(
             }
 
             if let Some(colors) = &engine.colors {
-                if round.answer.color {
+                if answer.color {
                     if colors.is_match() {
                         score.record_tp();
                     } else {
@@ -234,7 +235,7 @@ fn end_of_round_system(
             }
 
             if let Some(sounds) = &engine.sounds {
-                if round.answer.sound {
+                if answer.sound {
                     if sounds.is_match() {
                         score.record_tp();
                     } else {
@@ -247,7 +248,7 @@ fn end_of_round_system(
                 }
             }
 
-            round.answer.reset();
+            answer.reset();
 
             let (new_position, new_color, new_sound) = engine.new_cue();
             if let Some(new_position) = new_position {

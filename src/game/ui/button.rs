@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{palette, state::AppState};
+use crate::{game::core::round::Answer, palette, state::AppState};
 
 pub const NORMAL_BUTTON: Color = palette::SLATE_800;
 pub const HOVERED_BUTTON: Color = palette::TEAL_600;
@@ -11,19 +11,18 @@ pub const PRESSED_BUTTON_BORDER_COLOR: Color = palette::WHITE;
 #[derive(Component)]
 pub struct Shortcut(pub KeyCode);
 
+#[derive(Component)]
+pub enum ButtonAction {
+    SamePosition,
+    SameSound,
+    SameColor,
+}
+
 #[derive(Bundle)]
 pub struct GameButtonBundle {
     pub button: ButtonBundle,
     pub shortcut: Shortcut,
-}
-
-impl Default for GameButtonBundle {
-    fn default() -> Self {
-        Self {
-            button: ButtonBundle::default(),
-            shortcut: Shortcut(KeyCode::Space),
-        }
-    }
+    pub action: ButtonAction,
 }
 
 pub struct GameButtonPlugin;
@@ -39,16 +38,27 @@ impl Plugin for GameButtonPlugin {
 
 #[allow(clippy::type_complexity)]
 fn button_system(
+    mut answer: ResMut<Answer>,
     mut query: Query<
-        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &ButtonAction,
+        ),
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut color, mut border_color) in &mut query {
+    for (interaction, mut color, mut border_color, action) in &mut query {
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
                 border_color.0 = BUTTON_BORDER_COLOR;
+                match action {
+                    ButtonAction::SamePosition => answer.position = true,
+                    ButtonAction::SameSound => answer.sound = true,
+                    ButtonAction::SameColor => answer.color = true,
+                }
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

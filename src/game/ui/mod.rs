@@ -116,6 +116,7 @@ fn buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
                 ..default()
             },
             shortcut: Shortcut(KeyCode::KeyA),
+            action: button::ButtonAction::SamePosition,
         })
         .with_children(|parent| {
             parent.spawn(TextBundle::from_section(
@@ -144,6 +145,7 @@ fn buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
                 ..default()
             },
             shortcut: Shortcut(KeyCode::KeyS),
+            action: button::ButtonAction::SameSound,
         })
         .with_children(|parent| {
             parent.spawn(TextBundle::from_section(
@@ -172,6 +174,7 @@ fn buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
                 ..default()
             },
             shortcut: Shortcut(KeyCode::KeyD),
+            action: button::ButtonAction::SameColor,
         })
         .with_children(|parent| {
             parent.spawn(TextBundle::from_section(
