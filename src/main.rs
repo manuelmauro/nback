@@ -22,7 +22,7 @@ fn main() {
         .add_plugins(EmbeddedAssetPlugin::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                resolution: WindowResolution::new(504., 896.).with_scale_factor_override(0.5),
+                resolution: WindowResolution::new(504., 896.),
                 title: "Dual-N-Back".to_string(),
                 ..default()
             }),
