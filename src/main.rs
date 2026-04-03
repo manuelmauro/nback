@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_asset_loader::loading_state::{
-    config::ConfigureLoadingState, LoadingState, LoadingStateAppExt,
+    LoadingState, LoadingStateAppExt, config::ConfigureLoadingState,
 };
 use bevy_egui::EguiPlugin;
 use bevy_embedded_assets::EmbeddedAssetPlugin;

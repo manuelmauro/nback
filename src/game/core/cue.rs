@@ -2,8 +2,8 @@ use std::collections::VecDeque;
 
 use bevy::prelude::*;
 use rand::{
-    distr::{Distribution, StandardUniform},
     RngExt,
+    distr::{Distribution, StandardUniform},
 };
 
 use crate::game::tile::{color::TileColor, position::TilePosition, sound::TileSound};
@@ -57,7 +57,7 @@ where
     StandardUniform: Distribution<T>,
     T: Clone + PartialEq + Default,
 {
-    pub fn gen(&mut self) -> T {
+    pub fn next_cue(&mut self) -> T {
         let mut rng = rand::rng();
         let y: f64 = rng.random_range(0.0..1.0);
 
@@ -125,9 +125,9 @@ impl CueEngine {
     }
 
     pub fn new_cue(&mut self) -> (Option<TilePosition>, Option<TileColor>, Option<TileSound>) {
-        let new_position = self.positions.as_mut().map(|p| p.gen());
-        let new_color = self.colors.as_mut().map(|c| c.gen());
-        let new_sound = self.sounds.as_mut().map(|s| s.gen());
+        let new_position = self.positions.as_mut().map(|p| p.next_cue());
+        let new_color = self.colors.as_mut().map(|c| c.next_cue());
+        let new_sound = self.sounds.as_mut().map(|s| s.next_cue());
 
         (new_position, new_color, new_sound)
     }

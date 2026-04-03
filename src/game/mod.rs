@@ -4,22 +4,22 @@ use bevy::prelude::*;
 
 use crate::{
     config,
-    state::{despawn_screen, AppState, OnGameScreen},
+    state::{AppState, OnGameScreen, despawn_screen},
 };
 
 use self::{
     core::{
+        DualNBackBundle,
         cue::{CueEngine, CueTimer},
         round::{Answer, Round},
         score::Score,
         state::GameState,
-        DualNBackBundle,
     },
     input::InputPlugin,
     score::{GameScore, LatestGameScores},
     settings::GameSettings,
-    tile::{color::TileColor, position::TilePosition, sound::TileSound, TileBundle, TilePlugin},
-    ui::{button::GameButtonPlugin, UiPlugin},
+    tile::{TileBundle, TilePlugin, color::TileColor, position::TilePosition, sound::TileSound},
+    ui::{UiPlugin, button::GameButtonPlugin},
 };
 
 pub mod core;
@@ -142,12 +142,12 @@ fn setup(mut commands: Commands, settings: Res<GameSettings>) {
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
 fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) {
-    if let Ok((mut timer, state)) = query.single_mut() {
-        if *state == GameState::Playing {
-            timer.tick(time.delta());
-            if timer.just_finished() {
-                info!("tick!")
-            }
+    if let Ok((mut timer, state)) = query.single_mut()
+        && *state == GameState::Playing
+    {
+        timer.tick(time.delta());
+        if timer.just_finished() {
+            info!("tick!")
         }
     }
 }
@@ -172,69 +172,68 @@ fn end_of_round_system(
 ) {
     if let Ok((mut engine, mut round, mut score, mut position, mut color, mut sound, timer)) =
         query.single_mut()
+        && timer.just_finished()
     {
-        if timer.just_finished() {
-            if let Some(positions) = &engine.positions {
-                if answer.position {
-                    if positions.is_match() {
-                        score.record_tp();
-                    } else {
-                        score.record_fp();
-                    }
-                } else if positions.is_match() {
-                    score.record_fn();
+        if let Some(positions) = &engine.positions {
+            if answer.position {
+                if positions.is_match() {
+                    score.record_tp();
                 } else {
-                    score.record_tn();
+                    score.record_fp();
                 }
+            } else if positions.is_match() {
+                score.record_fn();
+            } else {
+                score.record_tn();
             }
-
-            if let Some(colors) = &engine.colors {
-                if answer.color {
-                    if colors.is_match() {
-                        score.record_tp();
-                    } else {
-                        score.record_fp();
-                    }
-                } else if colors.is_match() {
-                    score.record_fn();
-                } else {
-                    score.record_tn();
-                }
-            }
-
-            if let Some(sounds) = &engine.sounds {
-                if answer.sound {
-                    if sounds.is_match() {
-                        score.record_tp();
-                    } else {
-                        score.record_fp();
-                    }
-                } else if sounds.is_match() {
-                    score.record_fn();
-                } else {
-                    score.record_tn();
-                }
-            }
-
-            answer.reset();
-
-            let (new_position, new_color, new_sound) = engine.new_cue();
-            if let Some(new_position) = new_position {
-                *position = new_position;
-            }
-            if let Some(new_color) = new_color {
-                *color = new_color;
-            }
-            if let Some(new_sound) = new_sound {
-                *sound = new_sound;
-            }
-
-            events.write(EndOfRoundEvent {
-                round: round.current,
-            });
-
-            round.current += 1;
         }
+
+        if let Some(colors) = &engine.colors {
+            if answer.color {
+                if colors.is_match() {
+                    score.record_tp();
+                } else {
+                    score.record_fp();
+                }
+            } else if colors.is_match() {
+                score.record_fn();
+            } else {
+                score.record_tn();
+            }
+        }
+
+        if let Some(sounds) = &engine.sounds {
+            if answer.sound {
+                if sounds.is_match() {
+                    score.record_tp();
+                } else {
+                    score.record_fp();
+                }
+            } else if sounds.is_match() {
+                score.record_fn();
+            } else {
+                score.record_tn();
+            }
+        }
+
+        answer.reset();
+
+        let (new_position, new_color, new_sound) = engine.new_cue();
+        if let Some(new_position) = new_position {
+            *position = new_position;
+        }
+        if let Some(new_color) = new_color {
+            *color = new_color;
+        }
+        if let Some(new_sound) = new_sound {
+            *sound = new_sound;
+        }
+
+        events.write(EndOfRoundEvent {
+            round: round.current,
+        });
+
+        round.current += 1;
     }
 }
 
@@ -244,26 +243,26 @@ fn end_of_game_system(
     mut app_state: ResMut<NextState<AppState>>,
     query: Query<(&CueEngine, &Round, &CueTimer, &mut Score)>,
 ) {
-    if let Ok((engine, round, timer, score)) = query.single() {
-        if round.is_last() {
-            scores.0.push(GameScore {
-                n: engine.n(),
-                total_rounds: round.total,
-                round_duration: timer.0.duration().as_secs_f32(),
-                correct: score.correct(),
-                wrong: score.wrong(),
-                f1_score_percent: score.f1_score_percent(),
-            });
+    if let Ok((engine, round, timer, score)) = query.single()
+        && round.is_last()
+    {
+        scores.0.push(GameScore {
+            n: engine.n(),
+            total_rounds: round.total,
+            round_duration: timer.0.duration().as_secs_f32(),
+            correct: score.correct(),
+            wrong: score.wrong(),
+            f1_score_percent: score.f1_score_percent(),
+        });
 
-            if score.f1_score_percent() >= 80 {
-                settings.n += 1;
-                settings.set_rounds_from_n();
-            } else if score.f1_score_percent() <= 50 {
-                settings.n = settings.n.max(1);
-                settings.set_rounds_from_n();
-            }
-
-            app_state.set(AppState::Menu);
+        if score.f1_score_percent() >= 80 {
+            settings.n += 1;
+            settings.set_rounds_from_n();
+        } else if score.f1_score_percent() <= 50 {
+            settings.n = settings.n.max(1);
+            settings.set_rounds_from_n();
         }
+
+        app_state.set(AppState::Menu);
     }
 }

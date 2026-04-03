@@ -1,4 +1,4 @@
-use crate::state::{despawn_screen, AppState, OnSplashScreen};
+use crate::state::{AppState, OnSplashScreen, despawn_screen};
 use bevy::prelude::*;
 
 pub struct SplashPlugin;

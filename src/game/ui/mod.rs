@@ -4,7 +4,7 @@ use crate::state::{AppState, OnGameScreen};
 
 use self::{
     button::{GameButtonBundle, Shortcut},
-    text::{round_system, CurrentRoundText},
+    text::{CurrentRoundText, round_system},
 };
 
 use super::settings::GameSettings;

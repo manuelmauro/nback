@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng, RngExt,
+    distr::{Distribution, StandardUniform},
 };
 
 use crate::config;
