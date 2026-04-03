@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
+    RngExt,
 };
 
 use crate::palette;
@@ -17,9 +18,9 @@ pub enum TileColor {
     None,
 }
 
-impl Distribution<TileColor> for Standard {
+impl Distribution<TileColor> for StandardUniform {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TileColor {
-        match rng.gen_range(0..=5) {
+        match rng.random_range(0..=5) {
             0 => TileColor::A,
             1 => TileColor::B,
             2 => TileColor::C,

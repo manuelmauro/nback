@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
+    RngExt,
 };
 
 use crate::config;
@@ -43,9 +44,9 @@ impl TilePosition {
     }
 }
 
-impl Distribution<TilePosition> for Standard {
+impl Distribution<TilePosition> for StandardUniform {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TilePosition {
-        match rng.gen_range(0..=9) {
+        match rng.random_range(0..=9) {
             0 => TilePosition::TopLeft,
             1 => TilePosition::TopCenter,
             2 => TilePosition::TopRight,

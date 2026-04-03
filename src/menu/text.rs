@@ -10,6 +10,6 @@ pub fn nback_text_system(
     mut query: Query<&mut Text, With<NBackText>>,
 ) {
     for mut text in &mut query {
-        text.sections[0].value = format!("{}-Back", settings.n);
+        text.0 = format!("{}-Back", settings.n);
     }
 }

@@ -38,7 +38,6 @@ impl Plugin for GamePlugin {
             .add_plugins(TilePlugin)
             .add_plugins(InputPlugin)
             .add_plugins(GameButtonPlugin)
-            .add_event::<EndOfRoundEvent>()
             .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
                 PreUpdate,
@@ -46,102 +45,72 @@ impl Plugin for GamePlugin {
             )
             .add_systems(
                 Update,
-                (timer_system, end_of_round_system).run_if(in_state(AppState::Game)),
+                (timer_system, end_of_round_system)
+                    .run_if(in_state(AppState::Game)),
             )
             .add_systems(OnExit(AppState::Game), despawn_screen::<OnGameScreen>);
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    settings: Res<GameSettings>,
-    mut animations: ResMut<Assets<AnimationClip>>,
-) {
+fn setup(mut commands: Commands, settings: Res<GameSettings>) {
     // Add walls
     let edge = (config::TILE_SIZE * 3.0) + (config::TILE_SPACING * 4.0);
     let bounds = Vec2::new(edge, edge);
+
     // left
     commands.spawn((
-        SpriteBundle {
-            transform: Transform::from_xyz(-bounds.x / 2.0, 0.0, 0.0),
-            sprite: Sprite {
-                color: config::WALL_COLOR,
-                custom_size: Some(Vec2::new(
-                    config::WALL_THICKNESS,
-                    bounds.y + config::WALL_THICKNESS,
-                )),
-                ..default()
-            },
+        Sprite {
+            color: config::WALL_COLOR,
+            custom_size: Some(Vec2::new(
+                config::WALL_THICKNESS,
+                bounds.y + config::WALL_THICKNESS,
+            )),
             ..default()
         },
+        Transform::from_xyz(-bounds.x / 2.0, 0.0, 0.0),
         OnGameScreen,
     ));
     // right
     commands.spawn((
-        SpriteBundle {
-            transform: Transform::from_xyz(bounds.x / 2.0, 0.0, 0.0),
-            sprite: Sprite {
-                color: config::WALL_COLOR,
-                custom_size: Some(Vec2::new(
-                    config::WALL_THICKNESS,
-                    bounds.y + config::WALL_THICKNESS,
-                )),
-                ..default()
-            },
+        Sprite {
+            color: config::WALL_COLOR,
+            custom_size: Some(Vec2::new(
+                config::WALL_THICKNESS,
+                bounds.y + config::WALL_THICKNESS,
+            )),
             ..default()
         },
+        Transform::from_xyz(bounds.x / 2.0, 0.0, 0.0),
         OnGameScreen,
     ));
     // bottom
     commands.spawn((
-        SpriteBundle {
-            transform: Transform::from_xyz(0.0, -bounds.y / 2.0, 0.0),
-            sprite: Sprite {
-                color: config::WALL_COLOR,
-                custom_size: Some(Vec2::new(
-                    bounds.x + config::WALL_THICKNESS,
-                    config::WALL_THICKNESS,
-                )),
-                ..default()
-            },
+        Sprite {
+            color: config::WALL_COLOR,
+            custom_size: Some(Vec2::new(
+                bounds.x + config::WALL_THICKNESS,
+                config::WALL_THICKNESS,
+            )),
             ..default()
         },
+        Transform::from_xyz(0.0, -bounds.y / 2.0, 0.0),
         OnGameScreen,
     ));
     // top
     commands.spawn((
-        SpriteBundle {
-            transform: Transform::from_xyz(0.0, bounds.y / 2.0, 0.0),
-            sprite: Sprite {
-                color: config::WALL_COLOR,
-                custom_size: Some(Vec2::new(
-                    bounds.x + config::WALL_THICKNESS,
-                    config::WALL_THICKNESS,
-                )),
-                ..default()
-            },
+        Sprite {
+            color: config::WALL_COLOR,
+            custom_size: Some(Vec2::new(
+                bounds.x + config::WALL_THICKNESS,
+                config::WALL_THICKNESS,
+            )),
             ..default()
         },
+        Transform::from_xyz(0.0, bounds.y / 2.0, 0.0),
         OnGameScreen,
     ));
 
     let tile = Name::new("tile");
-    let mut animation = AnimationClip::default();
-
-    animation.add_curve_to_path(
-        EntityPath {
-            parts: vec![tile.clone()],
-        },
-        VariableCurve {
-            keyframe_timestamps: vec![0.0, 0.25],
-            keyframes: Keyframes::Scale(vec![Vec3::splat(0.8), Vec3::splat(1.0)]),
-            interpolation: Interpolation::Linear,
-        },
-    );
-
-    // Create the animation player, and set it to repeat
-    let mut player = AnimationPlayer::default();
-    player.play(animations.add(animation));
 
     // start with a cue
     let mut timer = CueTimer::with_duration(settings.round_time);
@@ -153,7 +122,6 @@ fn setup(
     commands.spawn((
         TileBundle {
             name: tile,
-            animation: player,
             ..default()
         },
         DualNBackBundle {
@@ -174,7 +142,7 @@ fn setup(
 /// Tick all the `CueTimer` components on entities within the scene using bevy's
 /// `Time` resource to get the delta between each update.
 fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) {
-    if let Ok((mut timer, state)) = query.get_single_mut() {
+    if let Ok((mut timer, state)) = query.single_mut() {
         if *state == GameState::Playing {
             timer.tick(time.delta());
             if timer.just_finished() {
@@ -184,13 +152,13 @@ fn timer_system(time: Res<Time>, mut query: Query<(&mut CueTimer, &GameState)>) 
     }
 }
 
-#[derive(Event)]
+#[derive(bevy::ecs::message::Message)]
 pub struct EndOfRoundEvent {
     pub round: usize,
 }
 
 fn end_of_round_system(
-    mut events: EventWriter<EndOfRoundEvent>,
+    mut events: MessageWriter<EndOfRoundEvent>,
     mut answer: ResMut<Answer>,
     mut query: Query<(
         &mut CueEngine,
@@ -203,7 +171,7 @@ fn end_of_round_system(
     )>,
 ) {
     if let Ok((mut engine, mut round, mut score, mut position, mut color, mut sound, timer)) =
-        query.get_single_mut()
+        query.single_mut()
     {
         if timer.just_finished() {
             if let Some(positions) = &engine.positions {
@@ -261,7 +229,7 @@ fn end_of_round_system(
                 *sound = new_sound;
             }
 
-            events.send(EndOfRoundEvent {
+            events.write(EndOfRoundEvent {
                 round: round.current,
             });
 
@@ -276,7 +244,7 @@ fn end_of_game_system(
     mut app_state: ResMut<NextState<AppState>>,
     query: Query<(&CueEngine, &Round, &CueTimer, &mut Score)>,
 ) {
-    if let Ok((engine, round, timer, score)) = query.get_single() {
+    if let Ok((engine, round, timer, score)) = query.single() {
         if round.is_last() {
             scores.0.push(GameScore {
                 n: engine.n(),

@@ -37,53 +37,47 @@ pub fn menu_ui(
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Column,
-                    padding: UiRect::all(Val::Px(5.0)),
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                padding: UiRect::all(Val::Px(5.0)),
                 ..default()
             },
             OnMenuScreen,
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         justify_content: JustifyContent::Center,
                         margin: UiRect::all(Val::Px(5.0)),
                         ..default()
                     },
-                    background_color: palette::SLATE_800.into(),
-                    ..default()
-                })
+                    BackgroundColor(palette::SLATE_800),
+                ))
                 .with_children(|parent| {
                     game_title(parent, font.clone());
                 });
 
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         flex_grow: 0.5,
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         margin: UiRect::all(Val::Px(5.0)),
                         ..default()
                     },
-                    background_color: palette::SLATE_800.into(),
-
-                    ..default()
-                })
+                    BackgroundColor(palette::SLATE_800),
+                ))
                 .with_children(|parent| {
                     select_n(parent, &settings, font.clone());
                 });
 
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         display: Display::Grid,
                         justify_content: JustifyContent::Center,
                         margin: UiRect::all(Val::Px(5.0)),
@@ -101,16 +95,15 @@ pub fn menu_ui(
                         padding: UiRect::all(Val::Px(24.0)),
                         ..default()
                     },
-                    background_color: palette::SLATE_800.into(),
-                    ..default()
-                })
+                    BackgroundColor(palette::SLATE_800),
+                ))
                 .with_children(|parent| {
                     cue_selection(parent, &settings, font.clone());
                 });
 
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         flex_grow: 0.5,
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
@@ -118,16 +111,15 @@ pub fn menu_ui(
                         margin: UiRect::all(Val::Px(5.0)),
                         ..default()
                     },
-                    background_color: palette::SLATE_800.into(),
-                    ..default()
-                })
+                    BackgroundColor(palette::SLATE_800),
+                ))
                 .with_children(|parent| {
                     play_button(parent, font.clone());
                 });
 
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         display: Display::Grid,
                         flex_grow: 0.8,
                         justify_content: JustifyContent::Center,
@@ -143,281 +135,258 @@ pub fn menu_ui(
                         padding: UiRect::all(Val::Px(12.0)),
                         ..default()
                     },
-                    background_color: palette::SLATE_900.into(),
-                    ..default()
-                })
+                    BackgroundColor(palette::SLATE_900),
+                ))
                 .with_children(|parent| {
                     score_history(parent, &scores, font.clone());
                 });
         });
 }
 
-fn game_title(parent: &mut ChildBuilder, font: Handle<Font>) {
-    parent.spawn(TextBundle::from_section(
-        "Dual-N-Back",
-        TextStyle {
+fn game_title(parent: &mut ChildSpawnerCommands, font: Handle<Font>) {
+    parent.spawn((
+        Text::new("Dual-N-Back"),
+        TextFont {
             font,
             font_size: 86.0,
-            color: palette::LIME_500,
+            ..default()
         },
+        TextColor(palette::LIME_500),
     ));
 }
 
-fn select_n(parent: &mut ChildBuilder, settings: &Res<GameSettings>, font: Handle<Font>) {
+fn select_n(parent: &mut ChildSpawnerCommands, settings: &Res<GameSettings>, font: Handle<Font>) {
     parent
         .spawn((
-            ButtonBundle {
-                style: Style {
-                    width: Val::Px(40.0),
-                    height: Val::Px(40.0),
-                    border: UiRect::all(Val::Px(3.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    margin: UiRect::all(Val::Px(5.0)),
-                    ..default()
-                },
-                border_color: button::BUTTON_BORDER_COLOR.into(),
-                background_color: button::NORMAL_BUTTON.into(),
+            Button,
+            Node {
+                width: Val::Px(40.0),
+                height: Val::Px(40.0),
+                border: UiRect::all(Val::Px(3.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: UiRect::all(Val::Px(5.0)),
                 ..default()
             },
+            BorderColor::all(button::BUTTON_BORDER_COLOR),
+            BackgroundColor(button::NORMAL_BUTTON),
             DecreaseNButton,
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "-",
-                TextStyle {
+            parent.spawn((
+                Text::new("-"),
+                TextFont {
                     font: font.clone(),
                     font_size: 40.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
+                    ..default()
                 },
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
             ));
         });
 
     parent
-        .spawn(NodeBundle {
-            style: Style {
-                margin: UiRect::all(Val::Px(5.0)),
-                ..Default::default()
-            },
+        .spawn(Node {
+            margin: UiRect::all(Val::Px(5.0)),
             ..Default::default()
         })
         .with_children(|parent| {
             parent.spawn((
-                TextBundle::from_section(
-                    settings.n.to_string(),
-                    TextStyle {
-                        font: font.clone(),
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
-                    },
-                ),
+                Text::new(settings.n.to_string()),
+                TextFont {
+                    font: font.clone(),
+                    font_size: 40.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 NBackText,
             ));
         });
 
     parent
         .spawn((
-            ButtonBundle {
-                style: Style {
-                    width: Val::Px(40.0),
-                    height: Val::Px(40.0),
-                    border: UiRect::all(Val::Px(3.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    margin: UiRect::all(Val::Px(5.0)),
-                    ..default()
-                },
-                border_color: button::BUTTON_BORDER_COLOR.into(),
-                background_color: button::NORMAL_BUTTON.into(),
+            Button,
+            Node {
+                width: Val::Px(40.0),
+                height: Val::Px(40.0),
+                border: UiRect::all(Val::Px(3.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: UiRect::all(Val::Px(5.0)),
                 ..default()
             },
+            BorderColor::all(button::BUTTON_BORDER_COLOR),
+            BackgroundColor(button::NORMAL_BUTTON),
             IncreaseNButton,
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "+",
-                TextStyle {
+            parent.spawn((
+                Text::new("+"),
+                TextFont {
                     font,
                     font_size: 40.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
+                    ..default()
                 },
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
             ));
         });
 }
 
-fn cue_selection(parent: &mut ChildBuilder, settings: &Res<GameSettings>, font: Handle<Font>) {
+fn cue_selection(parent: &mut ChildSpawnerCommands, settings: &Res<GameSettings>, font: Handle<Font>) {
     parent.spawn((
-        ButtonBundle {
-            style: Style {
-                width: Val::Px(32.0),
-                height: Val::Px(32.0),
-                border: UiRect::all(Val::Px(3.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            border_color: button::BUTTON_BORDER_COLOR.into(),
-            background_color: button::PRESSED_BUTTON.into(),
+        Button,
+        Node {
+            width: Val::Px(32.0),
+            height: Val::Px(32.0),
+            border: UiRect::all(Val::Px(3.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             ..default()
         },
+        BorderColor::all(button::BUTTON_BORDER_COLOR),
+        BackgroundColor(button::PRESSED_BUTTON),
         PositionCheckBox,
         Checkbox {
             checked: settings.position,
         },
     ));
 
-    parent.spawn(TextBundle::from_section(
-        "Position",
-        TextStyle {
+    parent.spawn((
+        Text::new("Position"),
+        TextFont {
             font: font.clone(),
             font_size: 32.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
+            ..default()
         },
+        TextColor(Color::srgb(0.9, 0.9, 0.9)),
     ));
 
     parent.spawn((
-        ButtonBundle {
-            style: Style {
-                width: Val::Px(32.0),
-                height: Val::Px(32.0),
-                border: UiRect::all(Val::Px(3.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            border_color: button::BUTTON_BORDER_COLOR.into(),
-            background_color: button::PRESSED_BUTTON.into(),
+        Button,
+        Node {
+            width: Val::Px(32.0),
+            height: Val::Px(32.0),
+            border: UiRect::all(Val::Px(3.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             ..default()
         },
+        BorderColor::all(button::BUTTON_BORDER_COLOR),
+        BackgroundColor(button::PRESSED_BUTTON),
         SoundCheckbox,
         Checkbox {
             checked: settings.sound,
         },
     ));
 
-    parent.spawn(TextBundle::from_section(
-        "Sound",
-        TextStyle {
+    parent.spawn((
+        Text::new("Sound"),
+        TextFont {
             font: font.clone(),
             font_size: 32.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
+            ..default()
         },
+        TextColor(Color::srgb(0.9, 0.9, 0.9)),
     ));
 
     parent.spawn((
-        ButtonBundle {
-            style: Style {
-                width: Val::Px(32.0),
-                height: Val::Px(32.0),
-                border: UiRect::all(Val::Px(3.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            border_color: button::BUTTON_BORDER_COLOR.into(),
-            background_color: button::PRESSED_BUTTON.into(),
+        Button,
+        Node {
+            width: Val::Px(32.0),
+            height: Val::Px(32.0),
+            border: UiRect::all(Val::Px(3.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             ..default()
         },
+        BorderColor::all(button::BUTTON_BORDER_COLOR),
+        BackgroundColor(button::PRESSED_BUTTON),
         ColorCheckBox,
         Checkbox {
             checked: settings.color,
         },
     ));
 
-    parent.spawn(TextBundle::from_section(
-        "Color",
-        TextStyle {
+    parent.spawn((
+        Text::new("Color"),
+        TextFont {
             font: font.clone(),
             font_size: 32.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
+            ..default()
         },
+        TextColor(Color::srgb(0.9, 0.9, 0.9)),
     ));
 }
 
-fn play_button(parent: &mut ChildBuilder, font: Handle<Font>) {
+fn play_button(parent: &mut ChildSpawnerCommands, font: Handle<Font>) {
     parent
         .spawn((
-            ButtonBundle {
-                style: Style {
-                    width: Val::Px(150.0),
-                    height: Val::Px(65.0),
-                    border: UiRect::all(Val::Px(3.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                border_color: button::BUTTON_BORDER_COLOR.into(),
-                background_color: button::NORMAL_BUTTON.into(),
+            Button,
+            Node {
+                width: Val::Px(150.0),
+                height: Val::Px(65.0),
+                border: UiRect::all(Val::Px(3.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
+            BorderColor::all(button::BUTTON_BORDER_COLOR),
+            BackgroundColor(button::NORMAL_BUTTON),
             PlayButton,
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "PLAY",
-                TextStyle {
+            parent.spawn((
+                Text::new("PLAY"),
+                TextFont {
                     font: font.clone(),
                     font_size: 32.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
+                    ..default()
                 },
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
             ));
         });
 }
 
-fn score_history(parent: &mut ChildBuilder, scores: &ResMut<LatestGameScores>, font: Handle<Font>) {
-    parent.spawn(TextBundle::from_section(
-        "N-Back",
-        TextStyle {
-            font: font.clone(),
-            font_size: 32.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
-        },
-    ));
+fn score_history(
+    parent: &mut ChildSpawnerCommands,
+    scores: &ResMut<LatestGameScores>,
+    font: Handle<Font>,
+) {
+    let header_style = TextFont {
+        font: font.clone(),
+        font_size: 32.0,
+        ..default()
+    };
+    let header_color = TextColor(Color::srgb(0.9, 0.9, 0.9));
 
-    parent.spawn(TextBundle::from_section(
-        "Time",
-        TextStyle {
-            font: font.clone(),
-            font_size: 32.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
-        },
-    ));
+    parent.spawn((Text::new("N-Back"), header_style.clone(), header_color));
+    parent.spawn((Text::new("Time"), header_style.clone(), header_color));
+    parent.spawn((Text::new("Score"), header_style.clone(), header_color));
 
-    parent.spawn(TextBundle::from_section(
-        "Score",
-        TextStyle {
-            font: font.clone(),
-            font_size: 32.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
-        },
-    ));
+    let row_style = TextFont {
+        font: font.clone(),
+        font_size: 24.0,
+        ..default()
+    };
+    let row_color = TextColor(Color::srgb(0.9, 0.9, 0.9));
 
     for score in scores.0.iter() {
-        parent.spawn(TextBundle::from_section(
-            format!("{}", score.n),
-            TextStyle {
-                font: font.clone(),
-                font_size: 24.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
-            },
+        parent.spawn((
+            Text::new(format!("{}", score.n)),
+            row_style.clone(),
+            row_color,
         ));
-
-        parent.spawn(TextBundle::from_section(
-            format!("{:.2}s", score.total_rounds as f32 * score.round_duration),
-            TextStyle {
-                font: font.clone(),
-                font_size: 24.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
-            },
+        parent.spawn((
+            Text::new(format!(
+                "{:.2}s",
+                score.total_rounds as f32 * score.round_duration
+            )),
+            row_style.clone(),
+            row_color,
         ));
-
-        parent.spawn(TextBundle::from_section(
-            format!("{}%", score.f1_score_percent),
-            TextStyle {
-                font: font.clone(),
-                font_size: 24.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
-            },
+        parent.spawn((
+            Text::new(format!("{}%", score.f1_score_percent)),
+            row_style.clone(),
+            row_color,
         ));
     }
 }
@@ -428,14 +397,14 @@ struct ScrollingList {
 }
 
 fn mouse_scroll(
-    mut mouse_wheel_events: EventReader<MouseWheel>,
-    mut query_list: Query<(&mut ScrollingList, &mut Style, &Parent, &Node)>,
-    query_node: Query<&Node>,
+    mut mouse_wheel_events: MessageReader<MouseWheel>,
+    mut query_list: Query<(&mut ScrollingList, &mut Node, &ChildOf, &ComputedNode)>,
+    query_node: Query<&ComputedNode>,
 ) {
     for mouse_wheel_event in mouse_wheel_events.read() {
-        for (mut scrolling_list, mut style, parent, list_node) in &mut query_list {
+        for (mut scrolling_list, mut node, child_of, list_node) in &mut query_list {
             let items_height = list_node.size().y;
-            let container_height = query_node.get(parent.get()).unwrap().size().y;
+            let container_height = query_node.get(child_of.parent()).unwrap().size().y;
 
             let max_scroll = (items_height - container_height).max(0.);
 
@@ -446,7 +415,7 @@ fn mouse_scroll(
 
             scrolling_list.position += dy;
             scrolling_list.position = scrolling_list.position.clamp(-max_scroll, 0.);
-            style.top = Val::Px(scrolling_list.position);
+            node.top = Val::Px(scrolling_list.position);
         }
     }
 }

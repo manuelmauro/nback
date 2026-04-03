@@ -1,4 +1,4 @@
-use bevy::{asset::Handle, ecs::system::Resource};
+use bevy::prelude::*;
 use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_kira_audio::AudioSource;
 

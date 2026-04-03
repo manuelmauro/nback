@@ -2,8 +2,8 @@ use std::collections::VecDeque;
 
 use bevy::prelude::*;
 use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
+    distr::{Distribution, StandardUniform},
+    RngExt,
 };
 
 use crate::game::tile::{color::TileColor, position::TilePosition, sound::TileSound};
@@ -54,17 +54,17 @@ impl<T: Default> CueChain<T> {
 
 impl<T> CueChain<T>
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
     T: Clone + PartialEq + Default,
 {
     pub fn gen(&mut self) -> T {
-        let mut rng = rand::thread_rng();
-        let y = rng.gen::<f64>();
+        let mut rng = rand::rng();
+        let y: f64 = rng.random_range(0.0..1.0);
 
         let cue = if y < 0.25 && *self.short_memory.front().unwrap() != default() {
             self.short_memory.front().unwrap().clone()
         } else {
-            rand::random()
+            rng.random()
         };
 
         self.short_memory.push_back(cue);

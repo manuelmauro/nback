@@ -22,14 +22,14 @@ fn main() {
         .add_plugins(EmbeddedAssetPlugin::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                resolution: WindowResolution::new(720., 1280.).with_scale_factor_override(1.0),
+                resolution: WindowResolution::new(720, 1280).with_scale_factor_override(1.0),
                 title: "Dual-N-Back".to_string(),
                 ..default()
             }),
             ..default()
         }))
         .add_plugins(AudioPlugin)
-        .add_plugins(EguiPlugin)
+        .add_plugins(EguiPlugin::default())
         .add_plugins(SplashPlugin)
         .add_plugins(MenuPlugin)
         .add_plugins(GamePlugin)
@@ -39,14 +39,14 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
 }
 
-fn log_transitions(mut transitions: EventReader<StateTransitionEvent<AppState>>) {
+fn log_transitions(mut transitions: MessageReader<StateTransitionEvent<AppState>>) {
     for transition in transitions.read() {
         info!(
             "transition: {:?} => {:?}",
-            transition.before, transition.after
+            transition.exited, transition.entered
         );
     }
 }
