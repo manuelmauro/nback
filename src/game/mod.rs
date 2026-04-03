@@ -38,6 +38,7 @@ impl Plugin for GamePlugin {
             .add_plugins(TilePlugin)
             .add_plugins(InputPlugin)
             .add_plugins(GameButtonPlugin)
+            .add_message::<EndOfRoundEvent>()
             .add_systems(OnEnter(AppState::Game), setup)
             .add_systems(
                 PreUpdate,
