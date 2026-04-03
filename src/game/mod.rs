@@ -46,8 +46,7 @@ impl Plugin for GamePlugin {
             )
             .add_systems(
                 Update,
-                (timer_system, end_of_round_system)
-                    .run_if(in_state(AppState::Game)),
+                (timer_system, end_of_round_system).run_if(in_state(AppState::Game)),
             )
             .add_systems(OnExit(AppState::Game), despawn_screen::<OnGameScreen>);
     }

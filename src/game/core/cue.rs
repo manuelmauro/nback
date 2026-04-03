@@ -125,23 +125,9 @@ impl CueEngine {
     }
 
     pub fn new_cue(&mut self) -> (Option<TilePosition>, Option<TileColor>, Option<TileSound>) {
-        let new_position = if self.positions.is_some() {
-            Some(self.positions.as_mut().unwrap().gen())
-        } else {
-            None
-        };
-
-        let new_color = if self.colors.is_some() {
-            Some(self.colors.as_mut().unwrap().gen())
-        } else {
-            None
-        };
-
-        let new_sound = if self.sounds.is_some() {
-            Some(self.sounds.as_mut().unwrap().gen())
-        } else {
-            None
-        };
+        let new_position = self.positions.as_mut().map(|p| p.gen());
+        let new_color = self.colors.as_mut().map(|c| c.gen());
+        let new_sound = self.sounds.as_mut().map(|s| s.gen());
 
         (new_position, new_color, new_sound)
     }

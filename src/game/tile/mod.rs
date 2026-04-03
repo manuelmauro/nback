@@ -71,10 +71,7 @@ impl Default for TileBundle {
 
 /// Update tile state every time the position changes.
 pub fn tile_position_system(
-    mut query: Query<
-        (&mut Transform, &mut TilePopAnimation, &TilePosition),
-        Changed<TilePosition>,
-    >,
+    mut query: Query<(&mut Transform, &mut TilePopAnimation, &TilePosition), Changed<TilePosition>>,
 ) {
     if let Ok((mut transform, mut anim, position)) = query.single_mut() {
         info!(?position, "tile updated");

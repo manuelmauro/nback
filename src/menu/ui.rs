@@ -231,7 +231,11 @@ fn select_n(parent: &mut ChildSpawnerCommands, settings: &Res<GameSettings>, fon
         });
 }
 
-fn cue_selection(parent: &mut ChildSpawnerCommands, settings: &Res<GameSettings>, font: Handle<Font>) {
+fn cue_selection(
+    parent: &mut ChildSpawnerCommands,
+    settings: &Res<GameSettings>,
+    font: Handle<Font>,
+) {
     parent.spawn((
         Button,
         Node {
