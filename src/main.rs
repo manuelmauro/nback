@@ -12,13 +12,6 @@ use nback::{
 
 fn main() {
     App::new()
-        .init_state::<AppState>()
-        .add_loading_state(
-            LoadingState::new(AppState::AssetLoading)
-                .continue_to_state(AppState::Menu)
-                .load_collection::<AudioAssets>(),
-        )
-        .insert_resource(ClearColor(palette::SLATE_800))
         .add_plugins(EmbeddedAssetPlugin::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -28,6 +21,13 @@ fn main() {
             }),
             ..default()
         }))
+        .insert_resource(ClearColor(palette::SLATE_800))
+        .init_state::<AppState>()
+        .add_loading_state(
+            LoadingState::new(AppState::AssetLoading)
+                .continue_to_state(AppState::Menu)
+                .load_collection::<AudioAssets>(),
+        )
         .add_plugins(AudioPlugin)
         .add_plugins(EguiPlugin::default())
         .add_plugins(SplashPlugin)
