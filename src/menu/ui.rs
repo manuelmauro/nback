@@ -39,6 +39,7 @@ pub fn menu_ui(
                 width: percent(100),
                 height: percent(100),
                 flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
                 padding: UiRect::all(theme::SP_MD),
                 row_gap: theme::SP_SM,
                 ..default()
@@ -74,6 +75,7 @@ fn card_node(children: impl Bundle) -> impl Bundle {
         Node {
             flex_direction: FlexDirection::Column,
             align_items: AlignItems::Center,
+            width: px(360),
             padding: UiRect::all(theme::SP_LG),
             border_radius: BorderRadius::all(theme::RADIUS_LG),
             ..default()
@@ -240,7 +242,7 @@ fn play_button(font: Handle<Font>) -> impl Bundle {
         Button,
         MenuButtonAction::Play,
         Node {
-            width: percent(100),
+            width: px(360),
             height: px(64),
             border_radius: BorderRadius::all(theme::RADIUS_MD),
             justify_content: JustifyContent::Center,
@@ -265,7 +267,7 @@ fn quit_button(font: Handle<Font>) -> impl Bundle {
         Button,
         MenuButtonAction::Quit,
         Node {
-            width: percent(100),
+            width: px(360),
             height: px(48),
             border_radius: BorderRadius::all(theme::RADIUS_MD),
             justify_content: JustifyContent::Center,
@@ -309,6 +311,7 @@ fn spawn_score_history(
             Node {
                 flex_direction: FlexDirection::Column,
                 flex_grow: 1.0,
+                width: px(360),
                 padding: UiRect::all(theme::SP_SM),
                 border_radius: BorderRadius::all(theme::RADIUS_LG),
                 ..default()
