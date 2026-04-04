@@ -6,6 +6,7 @@ use crate::{
         session::{Session, answer::Answer},
     },
     palette,
+    state::AppState,
 };
 
 pub const NORMAL_BUTTON: Color = palette::SLATE_800;
@@ -63,7 +64,8 @@ impl Plugin for GameButtonPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (button_system, button_shortcut_system).run_if(in_state(GamePhase::Playing)),
+            (button_system, button_shortcut_system)
+                .run_if(in_state(AppState::Game).and(in_state(GamePhase::Playing))),
         );
     }
 }

@@ -148,6 +148,7 @@ fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     commands.spawn((
         PauseOverlay,
+        DespawnOnExit(AppState::Game),
         Node {
             width: percent(100),
             height: percent(100),
