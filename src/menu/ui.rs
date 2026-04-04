@@ -281,35 +281,37 @@ fn spawn_score_history(
     let score_section = commands
         .spawn((
             Node {
-                display: Display::Grid,
+                flex_direction: FlexDirection::Column,
                 flex_grow: 1.0,
-                grid_template_columns: vec![
-                    GridTrack::fr(1.0),
-                    GridTrack::fr(1.0),
-                    GridTrack::fr(1.0),
-                    GridTrack::fr(1.5),
-                ],
-                align_content: AlignContent::Start,
-                row_gap: px(1),
                 padding: UiRect::all(theme::SP_SM),
                 border_radius: BorderRadius::all(theme::RADIUS_LG),
                 ..default()
             },
             BackgroundColor(theme::SURFACE),
         ))
-        .with_children(|p| {
-            for label in ["N", "Time", "Score", "Date"] {
-                p.spawn((
-                    Text::new(label),
-                    header_font.clone(),
-                    TextColor(theme::TEXT_MUTED),
-                    Node {
-                        padding: UiRect::all(theme::SP_SM),
-                        justify_self: JustifySelf::Center,
-                        ..default()
-                    },
-                ));
-            }
+        .with_children(|col| {
+            // Header row
+            col.spawn(Node {
+                flex_direction: FlexDirection::Row,
+                ..default()
+            })
+            .with_children(|row| {
+                for label in ["N", "Time", "Score", "Date"] {
+                    row.spawn((
+                        Text::new(label),
+                        header_font.clone(),
+                        TextColor(theme::TEXT_MUTED),
+                        Node {
+                            flex_basis: percent(25),
+                            padding: UiRect::all(theme::SP_SM),
+                            justify_content: JustifyContent::Center,
+                            ..default()
+                        },
+                    ));
+                }
+            });
+
+            // Data rows
             for (i, score) in scores.0.iter().enumerate() {
                 let bg = if i % 2 == 0 {
                     Color::NONE
@@ -321,24 +323,38 @@ fn spawn_score_history(
                     .get(..10)
                     .unwrap_or(&score.played_at)
                     .to_string();
-                for text in [
-                    format!("{}", score.n),
-                    format!("{:.0}s", score.total_rounds as f32 * score.round_duration),
-                    format!("{}%", score.f1_score_percent),
-                    date_short,
-                ] {
-                    p.spawn((
-                        Text::new(text),
-                        row_font.clone(),
-                        TextColor(theme::TEXT),
-                        Node {
-                            padding: UiRect::all(theme::SP_SM),
-                            justify_self: JustifySelf::Center,
-                            ..default()
-                        },
-                        BackgroundColor(bg),
-                    ));
-                }
+
+                col.spawn((
+                    Node {
+                        flex_direction: FlexDirection::Row,
+                        border_radius: BorderRadius::all(theme::RADIUS_SM),
+                        ..default()
+                    },
+                    BackgroundColor(bg),
+                ))
+                .with_children(|row| {
+                    for text in [
+                        format!("{}", score.n),
+                        format!(
+                            "{:.0}s",
+                            score.total_rounds as f32 * score.round_duration
+                        ),
+                        format!("{}%", score.f1_score_percent),
+                        date_short.clone(),
+                    ] {
+                        row.spawn((
+                            Text::new(text),
+                            row_font.clone(),
+                            TextColor(theme::TEXT),
+                            Node {
+                                flex_basis: percent(25),
+                                padding: UiRect::all(theme::SP_SM),
+                                justify_content: JustifyContent::Center,
+                                ..default()
+                            },
+                        ));
+                    }
+                });
             }
         })
         .id();
