@@ -15,6 +15,7 @@ use super::{
     text::NBackText,
 };
 
+
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
@@ -171,20 +172,20 @@ fn cue_grid(settings: &GameSettings, font: Handle<Font>) -> impl Bundle {
             ..default()
         },
         children![
-            checkbox(settings.position, CheckboxAction::Position, font.clone()),
+            checkbox(settings.position, CheckboxAction::Position),
             cue_label("Position", font.clone()),
-            checkbox(settings.color, CheckboxAction::Color, font.clone()),
+            checkbox(settings.color, CheckboxAction::Color),
             cue_label("Color", font.clone()),
-            checkbox(settings.shape, CheckboxAction::Shape, font.clone()),
+            checkbox(settings.shape, CheckboxAction::Shape),
             cue_label("Shape", font.clone()),
-            checkbox(settings.sound, CheckboxAction::Sound, font.clone()),
+            checkbox(settings.sound, CheckboxAction::Sound),
             cue_label("Sound", font),
         ],
     )
 }
 
-fn checkbox(checked: bool, action: CheckboxAction, font: Handle<Font>) -> impl Bundle {
-    let (bg, check_color) = if checked {
+fn checkbox(checked: bool, action: CheckboxAction) -> impl Bundle {
+    let (bg, mark_color) = if checked {
         (theme::ACCENT, theme::BG)
     } else {
         (theme::SURFACE, Color::NONE)
@@ -206,13 +207,13 @@ fn checkbox(checked: bool, action: CheckboxAction, font: Handle<Font>) -> impl B
         BorderColor::all(theme::BORDER),
         BackgroundColor(bg),
         children![(
-            Text::new("✓"),
-            TextFont {
-                font,
-                font_size: 24.0,
+            Node {
+                width: px(16),
+                height: px(16),
+                border_radius: BorderRadius::all(theme::RADIUS_SM),
                 ..default()
             },
-            TextColor(check_color),
+            BackgroundColor(mark_color),
             CheckMark,
         )],
     )

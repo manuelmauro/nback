@@ -16,7 +16,7 @@ pub enum CheckboxAction {
     Sound,
 }
 
-/// Marker for the "✓" text child so we can toggle its visibility.
+/// Marker for the inner check indicator node.
 #[derive(Component)]
 pub struct CheckMark;
 
@@ -31,7 +31,7 @@ type CheckboxQuery<'w> = (
 pub fn checkbox_system(
     mut settings: ResMut<GameSettings>,
     mut query: Query<CheckboxQuery, (Changed<Interaction>, With<Button>)>,
-    mut check_marks: Query<&mut TextColor, With<CheckMark>>,
+    mut check_marks: Query<&mut BackgroundColor, With<CheckMark>>,
 ) {
     for (interaction, mut color, mut checkbox, action, children) in &mut query {
         if *interaction == Interaction::Pressed {
@@ -45,8 +45,8 @@ pub fn checkbox_system(
 
             // Toggle check-mark visibility
             for child in children.iter() {
-                if let Ok(mut text_color) = check_marks.get_mut(child) {
-                    text_color.0 = if checkbox.checked {
+                if let Ok(mut bg) = check_marks.get_mut(child) {
+                    bg.0 = if checkbox.checked {
                         theme::BG
                     } else {
                         Color::NONE
