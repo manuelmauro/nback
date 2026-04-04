@@ -8,3 +8,4 @@ pub mod palette;
 pub mod persistence;
 pub mod splash;
 pub mod state;
+pub mod theme;

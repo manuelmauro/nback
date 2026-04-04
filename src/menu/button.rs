@@ -1,11 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::settings::GameSettings, palette, state::AppState};
-
-pub const NORMAL_BUTTON: Color = palette::SLATE_800;
-pub const HOVERED_BUTTON: Color = palette::LIME_900;
-pub const PRESSED_BUTTON: Color = palette::LIME_500;
-pub const BUTTON_BORDER_COLOR: Color = palette::WHITE;
+use crate::{game::settings::GameSettings, state::AppState, theme};
 
 #[derive(Component)]
 pub enum MenuButtonAction {
@@ -28,7 +23,7 @@ pub fn menu_button_system(
     for (interaction, mut color, action) in &mut query {
         match *interaction {
             Interaction::Pressed => {
-                *color = PRESSED_BUTTON.into();
+                *color = theme::ACCENT_PRESS.into();
                 match action {
                     MenuButtonAction::Play => {
                         app_state.set(AppState::Game);
@@ -44,10 +39,10 @@ pub fn menu_button_system(
                 }
             }
             Interaction::Hovered => {
-                *color = HOVERED_BUTTON.into();
+                *color = theme::ACCENT_HOVER.into();
             }
             Interaction::None => {
-                *color = NORMAL_BUTTON.into();
+                *color = theme::SURFACE.into();
             }
         }
     }

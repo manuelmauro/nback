@@ -11,10 +11,10 @@ use nback::{
     config,
     game::GamePlugin,
     menu::MenuPlugin,
-    palette,
     persistence::{Database, PersistencePlugin},
     splash::SplashPlugin,
     state::AppState,
+    theme,
 };
 
 fn main() {
@@ -34,7 +34,7 @@ fn main() {
             }),
             ..default()
         }))
-        .insert_resource(ClearColor(palette::SLATE_800))
+        .insert_resource(ClearColor(theme::BG))
         .init_state::<AppState>()
         .add_loading_state(
             LoadingState::new(AppState::AssetLoading)

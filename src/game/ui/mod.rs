@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
-use crate::state::AppState;
+use crate::{state::AppState, theme};
 
 use self::{
     button::{ButtonAction, game_button},
-    text::{CurrentRoundText, round_system},
+    text::{CurrentRoundText, TimerBar, round_system, timer_bar_system},
 };
 
 use super::settings::GameSettings;
@@ -17,7 +17,10 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::Game), game_ui)
-            .add_systems(Update, round_system.run_if(in_state(AppState::Game)));
+            .add_systems(
+                Update,
+                (round_system, timer_bar_system).run_if(in_state(AppState::Game)),
+            );
     }
 }
 
@@ -34,14 +37,13 @@ pub fn game_ui(
             width: percent(100),
             height: percent(100),
             flex_direction: FlexDirection::Column,
-            padding: UiRect::all(px(20)),
+            padding: UiRect::all(theme::SP_MD),
             ..default()
         },
         children![
-            // Top bar: N-Back label + Round counter
+            // Top bar: N-Back + Round counter
             (
                 Node {
-                    flex_grow: 1.0,
                     flex_direction: FlexDirection::Row,
                     justify_content: JustifyContent::SpaceBetween,
                     width: percent(100),
@@ -52,53 +54,78 @@ pub fn game_ui(
                         Text::new(format!("{}-Back", settings.n)),
                         TextFont {
                             font: font.clone(),
-                            font_size: 40.0,
+                            font_size: 36.0,
                             ..default()
                         },
-                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        TextColor(theme::TEXT),
                     ),
                     (
                         Text::new(""),
                         TextFont {
                             font: font.clone(),
-                            font_size: 40.0,
+                            font_size: 36.0,
                             ..default()
                         },
-                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        TextColor(theme::TEXT_MUTED),
                         CurrentRoundText,
                     ),
                 ],
             ),
-            // Bottom bar: action buttons
+            // Timer progress bar
             (
                 Node {
-                    flex_grow: 1.0,
+                    width: percent(100),
+                    height: px(6),
+                    margin: UiRect::vertical(theme::SP_SM),
+                    border_radius: BorderRadius::all(theme::RADIUS_FULL),
+                    ..default()
+                },
+                BackgroundColor(theme::TIMER_TRACK),
+                children![(
+                    Node {
+                        width: percent(0),
+                        height: percent(100),
+                        border_radius: BorderRadius::all(theme::RADIUS_FULL),
+                        ..default()
+                    },
+                    BackgroundColor(theme::TIMER_FILL),
+                    TimerBar,
+                )],
+            ),
+            // Spacer
+            (Node {
+                flex_grow: 1.0,
+                ..default()
+            },),
+            // Action buttons
+            (
+                Node {
                     flex_direction: FlexDirection::Row,
-                    align_items: AlignItems::End,
-                    justify_content: JustifyContent::SpaceBetween,
+                    column_gap: theme::SP_SM,
+                    width: percent(100),
                     ..default()
                 },
                 children![
                     game_button(
-                        "Position (A)",
+                        "Pos (A)",
                         font.clone(),
                         KeyCode::KeyA,
                         ButtonAction::SamePosition
                     ),
                     game_button(
-                        "Color (S)",
+                        "Col (S)",
                         font.clone(),
                         KeyCode::KeyS,
                         ButtonAction::SameColor
                     ),
                     game_button(
-                        "Shape (D)",
+                        "Shp (D)",
                         font.clone(),
                         KeyCode::KeyD,
                         ButtonAction::SameShape
                     ),
                     game_button(
-                        "Sound (F)",
+                        "Snd (F)",
                         font.clone(),
                         KeyCode::KeyF,
                         ButtonAction::SameSound
