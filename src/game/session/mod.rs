@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 
 use crate::{
@@ -28,7 +26,6 @@ pub struct SessionPlugin;
 impl Plugin for SessionPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<EndOfRoundEvent>()
-            .add_systems(OnEnter(AppState::Game), spawn_session)
             .add_systems(
                 PreUpdate,
                 end_of_game_system.run_if(in_state(AppState::Game)),
@@ -40,30 +37,6 @@ impl Plugin for SessionPlugin {
                     .run_if(in_state(AppState::Game)),
             );
     }
-}
-
-fn spawn_session(mut commands: Commands, settings: Res<GameSettings>) {
-    // Start with a cue almost finished so the first round triggers immediately
-    let mut timer = CueTimer::with_duration(settings.round_time);
-    timer.tick(Duration::from_millis(
-        ((settings.round_time * 1000.0) as u64) - 1,
-    ));
-
-    commands.spawn((
-        Name::new("session"),
-        Session,
-        CueEngine::new(
-            settings.n,
-            settings.position,
-            settings.color,
-            settings.sound,
-        ),
-        timer,
-        Round::with_total(settings.rounds),
-        Score::default(),
-        Answer::default(),
-        DespawnOnExit(AppState::Game),
-    ));
 }
 
 /// Tick the cue timer every frame.
