@@ -57,8 +57,9 @@ pub fn menu_ui(
                 card_node(children![n_selector_row(&settings, font.clone())]),
                 // Cue toggles card
                 card_node(children![cue_grid(&settings, font.clone())]),
-                // Play button
+                // Play / Quit buttons
                 play_button(font.clone()),
+                quit_button(font.clone()),
             ],
         ))
         .id();
@@ -255,6 +256,31 @@ fn play_button(font: Handle<Font>) -> impl Bundle {
                 ..default()
             },
             TextColor(theme::BG),
+        )],
+    )
+}
+
+fn quit_button(font: Handle<Font>) -> impl Bundle {
+    (
+        Button,
+        MenuButtonAction::Quit,
+        Node {
+            width: percent(100),
+            height: px(48),
+            border_radius: BorderRadius::all(theme::RADIUS_MD),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        BackgroundColor(theme::SURFACE_ALT),
+        children![(
+            Text::new("Quit"),
+            TextFont {
+                font,
+                font_size: 24.0,
+                ..default()
+            },
+            TextColor(theme::TEXT_MUTED),
         )],
     )
 }

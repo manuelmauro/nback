@@ -5,6 +5,7 @@ use crate::{game::settings::GameSettings, state::AppState, theme};
 #[derive(Component)]
 pub enum MenuButtonAction {
     Play,
+    Quit,
     IncreaseN,
     DecreaseN,
 }
@@ -17,6 +18,7 @@ type MenuButtonQuery<'w> = (
 
 pub fn menu_button_system(
     mut app_state: ResMut<NextState<AppState>>,
+    mut exit: MessageWriter<AppExit>,
     mut settings: ResMut<GameSettings>,
     mut query: Query<MenuButtonQuery, (Changed<Interaction>, With<Button>)>,
 ) {
@@ -27,6 +29,9 @@ pub fn menu_button_system(
                 match action {
                     MenuButtonAction::Play => {
                         app_state.set(AppState::Game);
+                    }
+                    MenuButtonAction::Quit => {
+                        exit.write(AppExit::Success);
                     }
                     MenuButtonAction::IncreaseN => {
                         settings.n += 1;
