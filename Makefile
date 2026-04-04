@@ -20,30 +20,38 @@ fmt:
 # Run rust clippy with debug profile
 clippy:
 	cargo clippy --all --all-targets -- -D warnings
+	cargo clippy --all --all-targets --features debug -- -D warnings
 # Run rust clippy with release profile
 clippy-release:
 	cargo clippy --release --all --all-targets -- -D warnings
+	cargo clippy --release --all --all-targets --features debug -- -D warnings
 
 # Check code with debug profile
 check:
 	cargo check
+	cargo check --features debug
 # Check code with release profile
 check-release:
 	cargo check --release
+	cargo check --release --features debug
 
 # Build all binaries with debug profile
 build:
 	cargo build
+	cargo build --features debug
 # Build all binaries with release profile
 build-release:
 	cargo build --release
+	cargo build --release --features debug
 
 # Run all unit tests with debug profile
 test:
 	cargo test --all
+	cargo test --all --features debug
 # Run all unit tests with release profile
 test-release:
 	cargo test --release --all
+	cargo test --release --all --features debug
 
 # Run the game
 run:
