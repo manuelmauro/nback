@@ -2,3 +2,9 @@
 
 # operating system
 .DS_Store
+
+# AI agents
+.pi/
+.claude/
+.codex/
+.agents/
