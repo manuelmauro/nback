@@ -8,6 +8,7 @@ use bevy::prelude::*;
 pub struct Answer {
     pub position: bool,
     pub color: bool,
+    pub shape: bool,
     pub sound: bool,
 }
 
@@ -16,6 +17,7 @@ impl Answer {
         info!("reset answer");
         self.position = false;
         self.color = false;
+        self.shape = false;
         self.sound = false;
     }
 }

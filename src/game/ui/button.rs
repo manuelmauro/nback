@@ -20,8 +20,9 @@ pub struct Shortcut(pub KeyCode);
 #[derive(Component)]
 pub enum ButtonAction {
     SamePosition,
-    SameSound,
     SameColor,
+    SameShape,
+    SameSound,
 }
 
 /// Returns a game button bundle as a tuple.
@@ -86,8 +87,9 @@ fn button_system(
                 *border_color = BorderColor::all(BUTTON_BORDER_COLOR);
                 match action {
                     ButtonAction::SamePosition => answer.position = true,
-                    ButtonAction::SameSound => answer.sound = true,
                     ButtonAction::SameColor => answer.color = true,
+                    ButtonAction::SameShape => answer.shape = true,
+                    ButtonAction::SameSound => answer.sound = true,
                 }
             }
             Interaction::Hovered => {
@@ -124,8 +126,9 @@ fn button_shortcut_system(
         if keyboard_input.just_pressed(shortcut.0) {
             match action {
                 ButtonAction::SamePosition => answer.position = true,
-                ButtonAction::SameSound => answer.sound = true,
                 ButtonAction::SameColor => answer.color = true,
+                ButtonAction::SameShape => answer.shape = true,
+                ButtonAction::SameSound => answer.sound = true,
             }
         }
 

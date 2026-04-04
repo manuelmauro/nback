@@ -15,8 +15,9 @@ pub struct Checkbox {
 #[derive(Component)]
 pub enum CheckboxAction {
     Position,
-    Sound,
     Color,
+    Shape,
+    Sound,
 }
 
 type CheckboxQuery<'w> = (
@@ -42,8 +43,9 @@ pub fn checkbox_system(
 
             match action {
                 CheckboxAction::Position => settings.position = checkbox.checked,
-                CheckboxAction::Sound => settings.sound = checkbox.checked,
                 CheckboxAction::Color => settings.color = checkbox.checked,
+                CheckboxAction::Shape => settings.shape = checkbox.checked,
+                CheckboxAction::Sound => settings.sound = checkbox.checked,
             }
         }
     }
