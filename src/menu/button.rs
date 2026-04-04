@@ -10,10 +10,16 @@ pub enum MenuButtonAction {
     DecreaseN,
 }
 
+/// Stores the button's resting background color so it can be restored
+/// after hover/press.
+#[derive(Component, Deref)]
+pub struct RestingColor(pub Color);
+
 type MenuButtonQuery<'w> = (
     &'w Interaction,
     &'w mut BackgroundColor,
     &'w MenuButtonAction,
+    &'w RestingColor,
 );
 
 pub fn menu_button_system(
@@ -22,7 +28,7 @@ pub fn menu_button_system(
     mut settings: ResMut<GameSettings>,
     mut query: Query<MenuButtonQuery, (Changed<Interaction>, With<Button>)>,
 ) {
-    for (interaction, mut color, action) in &mut query {
+    for (interaction, mut color, action, resting) in &mut query {
         match *interaction {
             Interaction::Pressed => {
                 *color = theme::ACCENT_PRESS.into();
@@ -47,7 +53,7 @@ pub fn menu_button_system(
                 *color = theme::ACCENT_HOVER.into();
             }
             Interaction::None => {
-                *color = theme::SURFACE.into();
+                *color = (**resting).into();
             }
         }
     }

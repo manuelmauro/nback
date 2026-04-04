@@ -10,7 +10,7 @@ use crate::{
 };
 
 use super::{
-    button::MenuButtonAction,
+    button::{MenuButtonAction, RestingColor},
     checkbox::{CheckMark, Checkbox, CheckboxAction},
     text::NBackText,
 };
@@ -131,6 +131,7 @@ fn round_button(
             ..default()
         },
         BackgroundColor(theme::SURFACE),
+        RestingColor(theme::SURFACE),
         BorderColor::all(theme::BORDER),
         children![(
             Text::new(label),
@@ -250,6 +251,7 @@ fn play_button(font: Handle<Font>) -> impl Bundle {
             ..default()
         },
         BackgroundColor(theme::ACCENT),
+        RestingColor(theme::ACCENT),
         children![(
             Text::new("PLAY"),
             TextFont {
@@ -275,6 +277,7 @@ fn quit_button(font: Handle<Font>) -> impl Bundle {
             ..default()
         },
         BackgroundColor(theme::SURFACE_ALT),
+        RestingColor(theme::SURFACE_ALT),
         children![(
             Text::new("Quit"),
             TextFont {
