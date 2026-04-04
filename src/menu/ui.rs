@@ -293,6 +293,7 @@ fn spawn_score_history(
             // Header row
             col.spawn(Node {
                 flex_direction: FlexDirection::Row,
+                align_items: AlignItems::Center,
                 ..default()
             })
             .with_children(|row| {
@@ -327,6 +328,7 @@ fn spawn_score_history(
                 col.spawn((
                     Node {
                         flex_direction: FlexDirection::Row,
+                        align_items: AlignItems::Center,
                         border_radius: BorderRadius::all(theme::RADIUS_SM),
                         ..default()
                     },
@@ -335,10 +337,7 @@ fn spawn_score_history(
                 .with_children(|row| {
                     for text in [
                         format!("{}", score.n),
-                        format!(
-                            "{:.0}s",
-                            score.total_rounds as f32 * score.round_duration
-                        ),
+                        format!("{:.0}s", score.total_rounds as f32 * score.round_duration),
                         format!("{}%", score.f1_score_percent),
                         date_short.clone(),
                     ] {
