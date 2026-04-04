@@ -51,6 +51,6 @@ impl CueEngine {
 
 impl Default for CueEngine {
     fn default() -> Self {
-        CueEngine::new(2, true, true, false, true)
+        CueEngine::new(2, true, true, true, true)
     }
 }

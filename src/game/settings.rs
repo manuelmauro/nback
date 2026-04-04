@@ -25,7 +25,7 @@ impl Default for GameSettings {
             round_time: 3.0,
             position: true,
             color: true,
-            shape: false,
+            shape: true,
             sound: true,
         }
     }
