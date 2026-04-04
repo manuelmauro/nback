@@ -58,16 +58,37 @@ pub struct TileMeshes {
 }
 
 impl TileMeshes {
+    /// Build meshes sized so every shape fills a `TILE_SIZE × TILE_SIZE` box.
+    ///
+    /// `RegularPolygon::new(r, n)` takes the *circumradius* (center → vertex).
+    /// Each shape's bounding box depends on its geometry, so we compute a
+    /// per-shape circumradius that makes the largest dimension equal to
+    /// `TILE_SIZE`.
     pub fn new(meshes: &mut Assets<Mesh>) -> Self {
-        let r = config::TILE_SIZE / 2.0;
+        use std::f32::consts::{FRAC_PI_4, TAU};
+
+        let size = config::TILE_SIZE;
+
+        // Circle:   bbox = 2r × 2r           → r = size / 2
+        // Triangle: bbox = r√3 × 1.5r        → r = size / √3  (width-limited)
+        // Square:   bbox = r√2 × r√2 (rot.)  → r = size / √2
+        // Pentagon: bbox = 2r·sin(72°) × …   → r = size / (2·sin(72°))
+        // Hexagon:  bbox = r√3 × 2r           → r = size / 2   (height-limited)
+        let r_circle = size / 2.0;
+        let r_triangle = size / 3_f32.sqrt();
+        let r_square = size / 2_f32.sqrt();
+        let r_pentagon = size / (2.0 * (TAU / 5.0).sin());
+        let r_hexagon = size / 2.0;
+
         TileMeshes {
-            circle: meshes.add(Circle::new(r)),
-            triangle: meshes.add(RegularPolygon::new(r, 3)),
-            square: meshes.add(Mesh::from(RegularPolygon::new(r, 4)).rotated_by(
-                Quat::from_rotation_z(std::f32::consts::FRAC_PI_4),
-            )),
-            pentagon: meshes.add(RegularPolygon::new(r, 5)),
-            hexagon: meshes.add(RegularPolygon::new(r, 6)),
+            circle: meshes.add(Circle::new(r_circle)),
+            triangle: meshes.add(RegularPolygon::new(r_triangle, 3)),
+            square: meshes.add(
+                Mesh::from(RegularPolygon::new(r_square, 4))
+                    .rotated_by(Quat::from_rotation_z(FRAC_PI_4)),
+            ),
+            pentagon: meshes.add(RegularPolygon::new(r_pentagon, 5)),
+            hexagon: meshes.add(RegularPolygon::new(r_hexagon, 6)),
         }
     }
 
