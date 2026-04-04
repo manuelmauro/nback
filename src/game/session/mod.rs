@@ -35,7 +35,7 @@ impl Plugin for SessionPlugin {
                 Update,
                 (timer_system, end_of_round_system)
                     .chain()
-                    .run_if(in_state(AppState::Game).and(in_state(GamePhase::Playing))),
+                    .run_if(in_state(GamePhase::Playing)),
             );
     }
 }
