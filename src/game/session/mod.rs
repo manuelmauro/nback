@@ -7,6 +7,7 @@ use crate::{
         settings::GameSettings,
         tile::{color::TileColor, position::TilePosition, shape::TileShape, sound::TileSound},
     },
+    persistence::Database,
     state::AppState,
 };
 
@@ -110,8 +111,9 @@ fn end_of_round_system(
     round.current += 1;
 }
 
-/// When the last round is reached, record the score and return to menu.
+/// When the last round is reached, persist the score and return to menu.
 fn end_of_game_system(
+    db: Res<Database>,
     mut settings: ResMut<GameSettings>,
     mut history: ResMut<ScoreHistory>,
     mut app_state: ResMut<NextState<AppState>>,
@@ -123,14 +125,20 @@ fn end_of_game_system(
         return;
     }
 
-    history.0.push(ScoreRecord {
+    let record = ScoreRecord {
         n: engine.n(),
         total_rounds: round.total,
         round_duration: timer.0.duration().as_secs_f32(),
         correct: score.correct(),
         wrong: score.wrong(),
         f1_score_percent: score.f1_score_percent(),
-    });
+        ..default()
+    };
+
+    db.insert_score(&record);
+
+    // Reload the full history so timestamps are populated.
+    *history = db.load_scores();
 
     if score.f1_score_percent() >= 80 {
         settings.n += 1;

@@ -5,5 +5,6 @@ pub mod debug;
 pub mod game;
 pub mod menu;
 pub mod palette;
+pub mod persistence;
 pub mod splash;
 pub mod state;

@@ -9,15 +9,21 @@ use nback::debug::DebugPlugin;
 use nback::{
     asset::AudioAssets,
     config,
-    game::{GamePlugin, score::ScoreHistory, settings::GameSettings},
+    game::GamePlugin,
     menu::MenuPlugin,
     palette,
+    persistence::{Database, PersistencePlugin},
     splash::SplashPlugin,
     state::AppState,
 };
 
 fn main() {
     let mut app = App::new();
+
+    // Open (or create) the database and load persisted state.
+    let db = Database::open();
+    let settings = db.load_settings();
+    let scores = db.load_scores();
 
     app.add_plugins(EmbeddedAssetPlugin::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -35,9 +41,16 @@ fn main() {
                 .continue_to_state(AppState::Menu)
                 .load_collection::<AudioAssets>(),
         )
-        .insert_resource(GameSettings::default())
-        .insert_resource(ScoreHistory::default())
-        .add_plugins((AudioPlugin, SplashPlugin, MenuPlugin, GamePlugin));
+        .insert_resource(settings)
+        .insert_resource(scores)
+        .insert_resource(db)
+        .add_plugins((
+            AudioPlugin,
+            PersistencePlugin,
+            SplashPlugin,
+            MenuPlugin,
+            GamePlugin,
+        ));
 
     #[cfg(feature = "debug")]
     app.add_plugins(DebugPlugin);
