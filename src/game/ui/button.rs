@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::session::{Session, answer::Answer},
+    game::{
+        phase::GamePhase,
+        session::{Session, answer::Answer},
+    },
     palette,
-    state::AppState,
 };
 
 pub const NORMAL_BUTTON: Color = palette::SLATE_800;
@@ -61,7 +63,7 @@ impl Plugin for GameButtonPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (button_system, button_shortcut_system).run_if(in_state(AppState::Game)),
+            (button_system, button_shortcut_system).run_if(in_state(GamePhase::Playing)),
         );
     }
 }

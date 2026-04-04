@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     game::{
+        phase::GamePhase,
         score::{ScoreHistory, ScoreRecord},
         settings::GameSettings,
         tile::{color::TileColor, position::TilePosition, sound::TileSound},
@@ -34,7 +35,7 @@ impl Plugin for SessionPlugin {
                 Update,
                 (timer_system, end_of_round_system)
                     .chain()
-                    .run_if(in_state(AppState::Game)),
+                    .run_if(in_state(GamePhase::Playing)),
             );
     }
 }
