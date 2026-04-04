@@ -26,7 +26,7 @@ impl Plugin for TilePlugin {
     }
 }
 
-/// Simple pop animation component (replaces the old AnimationPlayer usage).
+/// Simple pop animation component.
 #[derive(Component)]
 pub struct TilePopAnimation {
     pub timer: Timer,
@@ -40,45 +40,35 @@ impl Default for TilePopAnimation {
     }
 }
 
-#[derive(Bundle)]
-pub struct TileBundle {
-    pub sprite: Sprite,
-    pub transform: Transform,
-    pub name: Name,
-    pub animation: TilePopAnimation,
-    pub position: TilePosition,
-    pub color: TileColor,
-    pub sound: TileSound,
-}
+/// Marker component for the game tile. Required components are auto-inserted.
+#[derive(Component, Default)]
+#[require(TilePopAnimation, TilePosition, TileColor, TileSound)]
+pub struct Tile;
 
-impl Default for TileBundle {
-    fn default() -> Self {
-        TileBundle {
-            transform: Transform::from_translation((&TilePosition::None).into()),
-            sprite: Sprite {
+impl Tile {
+    /// Returns the default sprite + transform for the tile.
+    pub fn bundle() -> (Tile, Sprite, Transform) {
+        (
+            Tile,
+            Sprite {
                 color: (&TileColor::None).into(),
                 custom_size: Some(Vec2::new(config::TILE_SIZE, config::TILE_SIZE)),
                 ..default()
             },
-            name: Name::default(),
-            animation: TilePopAnimation::default(),
-            position: TilePosition::None,
-            color: TileColor::None,
-            sound: TileSound::None,
-        }
+            Transform::from_translation((&TilePosition::None).into()),
+        )
     }
 }
 
 /// Update tile state every time the position changes.
 pub fn tile_position_system(
-    mut query: Query<(&mut Transform, &mut TilePopAnimation, &TilePosition), Changed<TilePosition>>,
+    mut tile: Single<(&mut Transform, &mut TilePopAnimation, &TilePosition), Changed<TilePosition>>,
 ) {
-    if let Ok((mut transform, mut anim, position)) = query.single_mut() {
-        info!(?position, "tile updated");
-        transform.translation = position.into();
-        // Reset and start the pop animation
-        anim.timer.reset();
-    }
+    let (transform, anim, position) = &mut *tile;
+    info!(?position, "tile updated");
+    transform.translation = (*position).into();
+    // Reset and start the pop animation
+    anim.timer.reset();
 }
 
 /// Animate tile scale (pop effect: 0.8 → 1.0).
@@ -97,46 +87,43 @@ pub fn tile_pop_animation_system(
 }
 
 /// Update tile state every time the color changes.
-pub fn tile_color_system(mut query: Query<(&mut Sprite, &TileColor), Changed<TileColor>>) {
-    if let Ok((mut sprite, color)) = query.single_mut() {
-        info!(?color, "tile updated");
-        sprite.color = color.into();
-    }
+pub fn tile_color_system(mut tile: Single<(&mut Sprite, &TileColor), Changed<TileColor>>) {
+    let (sprite, color) = &mut *tile;
+    info!(?color, "tile updated");
+    sprite.color = (*color).into();
 }
 
 /// Update tile state every time the sound changes.
 pub fn tile_sound_system(
     audio: Res<Audio>,
     audio_assets: Res<AudioAssets>,
-    mut query: Query<&TileSound, Changed<TileSound>>,
+    sound: Single<&TileSound, Changed<TileSound>>,
 ) {
-    if let Ok(sound) = query.single_mut() {
-        match sound {
-            TileSound::C => {
-                audio.play(audio_assets.c.clone());
-            }
-            TileSound::H => {
-                audio.play(audio_assets.h.clone());
-            }
-            TileSound::K => {
-                audio.play(audio_assets.k.clone());
-            }
-            TileSound::L => {
-                audio.play(audio_assets.l.clone());
-            }
-            TileSound::Q => {
-                audio.play(audio_assets.q.clone());
-            }
-            TileSound::R => {
-                audio.play(audio_assets.r.clone());
-            }
-            TileSound::S => {
-                audio.play(audio_assets.s.clone());
-            }
-            TileSound::T => {
-                audio.play(audio_assets.t.clone());
-            }
-            TileSound::None => (),
+    match *sound {
+        TileSound::C => {
+            audio.play(audio_assets.c.clone());
         }
+        TileSound::H => {
+            audio.play(audio_assets.h.clone());
+        }
+        TileSound::K => {
+            audio.play(audio_assets.k.clone());
+        }
+        TileSound::L => {
+            audio.play(audio_assets.l.clone());
+        }
+        TileSound::Q => {
+            audio.play(audio_assets.q.clone());
+        }
+        TileSound::R => {
+            audio.play(audio_assets.r.clone());
+        }
+        TileSound::S => {
+            audio.play(audio_assets.s.clone());
+        }
+        TileSound::T => {
+            audio.play(audio_assets.t.clone());
+        }
+        TileSound::None => (),
     }
 }

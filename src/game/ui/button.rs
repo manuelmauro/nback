@@ -18,14 +18,37 @@ pub enum ButtonAction {
     SameColor,
 }
 
-#[derive(Bundle)]
-pub struct GameButtonBundle {
-    pub button: Button,
-    pub node: Node,
-    pub border_color: BorderColor,
-    pub background_color: BackgroundColor,
-    pub shortcut: Shortcut,
-    pub action: ButtonAction,
+/// Returns a game button bundle as a tuple.
+pub fn game_button(
+    label: &str,
+    font: Handle<Font>,
+    shortcut: KeyCode,
+    action: ButtonAction,
+) -> impl Bundle + use<'_> {
+    (
+        Button,
+        Node {
+            width: px(150),
+            height: px(65),
+            border: UiRect::all(px(3)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        BorderColor::all(BUTTON_BORDER_COLOR),
+        BackgroundColor(NORMAL_BUTTON),
+        Shortcut(shortcut),
+        action,
+        children![(
+            Text::new(label),
+            TextFont {
+                font,
+                font_size: 20.0,
+                ..default()
+            },
+            TextColor(Color::srgb(0.9, 0.9, 0.9)),
+        )],
+    )
 }
 
 pub struct GameButtonPlugin;
@@ -39,18 +62,16 @@ impl Plugin for GameButtonPlugin {
     }
 }
 
-#[allow(clippy::type_complexity)]
+type ButtonQuery<'w> = (
+    &'w Interaction,
+    &'w mut BackgroundColor,
+    &'w mut BorderColor,
+    &'w ButtonAction,
+);
+
 fn button_system(
     mut answer: ResMut<Answer>,
-    mut query: Query<
-        (
-            &Interaction,
-            &mut BackgroundColor,
-            &mut BorderColor,
-            &ButtonAction,
-        ),
-        (Changed<Interaction>, With<Button>),
-    >,
+    mut query: Query<ButtonQuery, (Changed<Interaction>, With<Button>)>,
 ) {
     for (interaction, mut color, mut border_color, action) in &mut query {
         match *interaction {

@@ -30,15 +30,12 @@ fn main() {
                 .continue_to_state(AppState::Menu)
                 .load_collection::<AudioAssets>(),
         )
-        .add_plugins(AudioPlugin);
+        .add_plugins((AudioPlugin, SplashPlugin, MenuPlugin, GamePlugin));
 
     #[cfg(feature = "debug")]
     app.add_plugins(DebugPlugin);
 
-    app.add_plugins(SplashPlugin)
-        .add_plugins(MenuPlugin)
-        .add_plugins(GamePlugin)
-        .add_systems(Startup, setup)
+    app.add_systems(Startup, setup)
         .add_systems(Update, (fit_ui_scale, log_transitions))
         .run();
 }
@@ -58,8 +55,7 @@ fn setup(mut commands: Commands) {
 
 /// Keeps the UI scale in sync with the window size so that all `Val::Px` values
 /// (authored for the 720×1280 reference resolution) scale uniformly.
-fn fit_ui_scale(mut ui_scale: ResMut<UiScale>, windows: Query<&Window>) {
-    let window = windows.single().unwrap();
+fn fit_ui_scale(mut ui_scale: ResMut<UiScale>, window: Single<&Window>) {
     let scale = (window.width() / config::REF_WIDTH).min(window.height() / config::REF_HEIGHT);
 
     if ui_scale.0 != scale {
