@@ -6,8 +6,6 @@ use rand::{
     distr::{Distribution, StandardUniform},
 };
 
-use crate::game::tile::{color::TileColor, position::TilePosition, sound::TileSound};
-
 #[derive(Component, Deref, DerefMut)]
 pub struct CueTimer(pub Timer);
 
@@ -23,7 +21,10 @@ impl Default for CueTimer {
     }
 }
 
-/// Memorization and generation of new cues.
+/// Memorization and generation of new cues for one stimulus channel.
+///
+/// `CueChain` is generic over the cue type — the n-back algorithm doesn't
+/// know about positions, colors, or sounds.
 pub struct CueChain<T> {
     short_memory: VecDeque<T>,
 }
@@ -80,68 +81,6 @@ impl<T: PartialEq + Default> CueChain<T> {
             self.short_memory.back() == self.short_memory.front()
         } else {
             false
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct CueEngine {
-    n: usize,
-    pub positions: Option<CueChain<TilePosition>>,
-    pub colors: Option<CueChain<TileColor>>,
-    pub sounds: Option<CueChain<TileSound>>,
-}
-
-impl CueEngine {
-    pub fn with(n: usize, position: bool, color: bool, sound: bool) -> Self {
-        let positions = if position {
-            Some(CueChain::with_n_back(n))
-        } else {
-            None
-        };
-
-        let colors = if color {
-            Some(CueChain::with_n_back(n))
-        } else {
-            None
-        };
-
-        let sounds = if sound {
-            Some(CueChain::with_n_back(n))
-        } else {
-            None
-        };
-
-        CueEngine {
-            n,
-            positions,
-            colors,
-            sounds,
-        }
-    }
-
-    pub fn n(&self) -> usize {
-        self.n
-    }
-
-    pub fn new_cue(&mut self) -> (Option<TilePosition>, Option<TileColor>, Option<TileSound>) {
-        let new_position = self.positions.as_mut().map(|p| p.next_cue());
-        let new_color = self.colors.as_mut().map(|c| c.next_cue());
-        let new_sound = self.sounds.as_mut().map(|s| s.next_cue());
-
-        (new_position, new_color, new_sound)
-    }
-}
-
-impl Default for CueEngine {
-    fn default() -> Self {
-        let n = 2;
-
-        CueEngine {
-            n,
-            positions: Some(CueChain::with_n_back(n)),
-            colors: Some(CueChain::with_n_back(n)),
-            sounds: Some(CueChain::with_n_back(n)),
         }
     }
 }

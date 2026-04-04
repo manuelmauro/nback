@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{game::core::round::Answer, palette, state::AppState};
+use crate::{
+    game::session::{Session, answer::Answer},
+    palette,
+    state::AppState,
+};
 
 pub const NORMAL_BUTTON: Color = palette::SLATE_800;
 pub const HOVERED_BUTTON: Color = palette::TEAL_600;
@@ -70,7 +74,7 @@ type ButtonQuery<'w> = (
 );
 
 fn button_system(
-    mut answer: ResMut<Answer>,
+    mut answer: Single<&mut Answer, With<Session>>,
     mut query: Query<ButtonQuery, (Changed<Interaction>, With<Button>)>,
 ) {
     for (interaction, mut color, mut border_color, action) in &mut query {
@@ -98,12 +102,29 @@ fn button_system(
 
 fn button_shortcut_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut BackgroundColor, &mut BorderColor, &Shortcut), With<Button>>,
+    mut answer: Single<&mut Answer, With<Session>>,
+    mut query: Query<
+        (
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &Shortcut,
+            &ButtonAction,
+        ),
+        With<Button>,
+    >,
 ) {
-    for (mut color, mut border_color, shortcut) in &mut query {
+    for (mut color, mut border_color, shortcut, action) in &mut query {
         if keyboard_input.pressed(shortcut.0) {
             *color = PRESSED_BUTTON.into();
             *border_color = BorderColor::all(PRESSED_BUTTON_BORDER_COLOR);
+        }
+
+        if keyboard_input.just_pressed(shortcut.0) {
+            match action {
+                ButtonAction::SamePosition => answer.position = true,
+                ButtonAction::SameSound => answer.sound = true,
+                ButtonAction::SameColor => answer.color = true,
+            }
         }
 
         if keyboard_input.just_released(shortcut.0) {

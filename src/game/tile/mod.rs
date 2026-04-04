@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
-use crate::{asset::AudioAssets, config, state::AppState};
+use crate::{asset::AudioAssets, state::AppState};
 
 use self::{color::TileColor, position::TilePosition, sound::TileSound};
 
@@ -44,21 +44,6 @@ impl Default for TilePopAnimation {
 #[derive(Component, Default)]
 #[require(TilePopAnimation, TilePosition, TileColor, TileSound)]
 pub struct Tile;
-
-impl Tile {
-    /// Returns the default sprite + transform for the tile.
-    pub fn bundle() -> (Tile, Sprite, Transform) {
-        (
-            Tile,
-            Sprite {
-                color: (&TileColor::None).into(),
-                custom_size: Some(Vec2::new(config::TILE_SIZE, config::TILE_SIZE)),
-                ..default()
-            },
-            Transform::from_translation((&TilePosition::None).into()),
-        )
-    }
-}
 
 /// Update tile state every time the position changes.
 pub fn tile_position_system(

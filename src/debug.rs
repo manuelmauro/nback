@@ -3,11 +3,8 @@ use bevy_egui::{EguiContexts, EguiPrimaryContextPass, egui};
 
 use crate::{
     game::{
-        core::{
-            cue::{CueEngine, CueTimer},
-            round::{Answer, Round},
-            score::Score,
-            state::GameState,
+        session::{
+            Session, answer::Answer, cue::CueTimer, engine::CueEngine, round::Round, score::Score,
         },
         settings::GameSettings,
     },
@@ -27,8 +24,7 @@ fn debug_ui_system(
     mut contexts: EguiContexts,
     app_state: Res<State<AppState>>,
     settings: Option<Res<GameSettings>>,
-    answer: Option<Res<Answer>>,
-    query: Query<(&CueEngine, &GameState, &CueTimer, &Round, &Score)>,
+    query: Query<(&CueEngine, &CueTimer, &Round, &Score, &Answer), With<Session>>,
 ) {
     let Some(ctx) = contexts.ctx_mut().ok() else {
         return;
@@ -72,17 +68,13 @@ fn debug_ui_system(
                     });
             }
 
-            if let Ok((engine, game_state, timer, round, score)) = query.single() {
+            if let Ok((engine, timer, round, score, answer)) = query.single() {
                 ui.separator();
 
                 egui::CollapsingHeader::new("Game")
                     .default_open(true)
                     .show(ui, |ui| {
                         egui::Grid::new("game_grid").show(ui, |ui| {
-                            ui.label("State");
-                            ui.label(format!("{:?}", game_state));
-                            ui.end_row();
-
                             ui.label("Round");
                             ui.label(format!("{} / {}", round.current, round.total));
                             ui.end_row();
@@ -113,39 +105,24 @@ fn debug_ui_system(
 
                             ui.label("Position match");
                             ui.label(match &engine.positions {
-                                Some(p) => {
-                                    if p.is_match() {
-                                        "🟢 YES"
-                                    } else {
-                                        "⚫ no"
-                                    }
-                                }
+                                Some(p) if p.is_match() => "🟢 YES",
+                                Some(_) => "⚫ no",
                                 None => "—",
                             });
                             ui.end_row();
 
                             ui.label("Color match");
                             ui.label(match &engine.colors {
-                                Some(c) => {
-                                    if c.is_match() {
-                                        "🟢 YES"
-                                    } else {
-                                        "⚫ no"
-                                    }
-                                }
+                                Some(c) if c.is_match() => "🟢 YES",
+                                Some(_) => "⚫ no",
                                 None => "—",
                             });
                             ui.end_row();
 
                             ui.label("Sound match");
                             ui.label(match &engine.sounds {
-                                Some(s) => {
-                                    if s.is_match() {
-                                        "🟢 YES"
-                                    } else {
-                                        "⚫ no"
-                                    }
-                                }
+                                Some(s) if s.is_match() => "🟢 YES",
+                                Some(_) => "⚫ no",
                                 None => "—",
                             });
                             ui.end_row();
@@ -172,27 +149,25 @@ fn debug_ui_system(
                         });
                     });
 
-                if let Some(answer) = &answer {
-                    ui.separator();
+                ui.separator();
 
-                    egui::CollapsingHeader::new("Current Answer")
-                        .default_open(true)
-                        .show(ui, |ui| {
-                            egui::Grid::new("answer_grid").show(ui, |ui| {
-                                ui.label("Position");
-                                ui.label(if answer.position { "🟢" } else { "⚫" });
-                                ui.end_row();
+                egui::CollapsingHeader::new("Current Answer")
+                    .default_open(true)
+                    .show(ui, |ui| {
+                        egui::Grid::new("answer_grid").show(ui, |ui| {
+                            ui.label("Position");
+                            ui.label(if answer.position { "🟢" } else { "⚫" });
+                            ui.end_row();
 
-                                ui.label("Color");
-                                ui.label(if answer.color { "🟢" } else { "⚫" });
-                                ui.end_row();
+                            ui.label("Color");
+                            ui.label(if answer.color { "🟢" } else { "⚫" });
+                            ui.end_row();
 
-                                ui.label("Sound");
-                                ui.label(if answer.sound { "🟢" } else { "⚫" });
-                                ui.end_row();
-                            });
+                            ui.label("Sound");
+                            ui.label(if answer.sound { "🟢" } else { "⚫" });
+                            ui.end_row();
                         });
-                }
+                    });
             }
         });
 }

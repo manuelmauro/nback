@@ -4,7 +4,7 @@ use bevy::{
 };
 
 use crate::{
-    game::{score::LatestGameScores, settings::GameSettings},
+    game::{score::ScoreHistory, settings::GameSettings},
     palette,
     state::AppState,
 };
@@ -28,7 +28,7 @@ pub fn menu_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     settings: Res<GameSettings>,
-    scores: ResMut<LatestGameScores>,
+    scores: ResMut<ScoreHistory>,
 ) {
     let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
 
@@ -270,7 +270,7 @@ fn play_button(font: Handle<Font>) -> impl Bundle {
 fn spawn_score_history(
     commands: &mut Commands,
     parent: Entity,
-    scores: &LatestGameScores,
+    scores: &ScoreHistory,
     font: Handle<Font>,
 ) {
     let header_style = TextFont {
