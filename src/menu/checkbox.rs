@@ -31,7 +31,7 @@ type CheckboxQuery<'w> = (
 pub fn checkbox_system(
     mut settings: ResMut<GameSettings>,
     mut query: Query<CheckboxQuery, (Changed<Interaction>, With<Button>)>,
-    mut check_marks: Query<&mut BackgroundColor, With<CheckMark>>,
+    mut check_marks: Query<&mut BackgroundColor, (With<CheckMark>, Without<Button>)>,
 ) {
     for (interaction, mut color, mut checkbox, action, children) in &mut query {
         if *interaction == Interaction::Pressed {

@@ -15,7 +15,6 @@ use super::{
     text::NBackText,
 };
 
-
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
