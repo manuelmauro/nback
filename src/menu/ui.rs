@@ -15,22 +15,55 @@ use super::{
     text::NBackText,
 };
 
+const SCORES_PER_PAGE: usize = 5;
+
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::Menu), menu_ui)
-            .add_systems(Update, mouse_scroll.run_if(in_state(AppState::Menu)));
+        app.insert_resource(ScorePage(0))
+            .add_systems(OnEnter(AppState::Menu), menu_ui)
+            .add_systems(
+                Update,
+                (
+                    mouse_scroll,
+                    page_button_system,
+                    rebuild_score_table.run_if(resource_changed::<ScorePage>),
+                )
+                    .run_if(in_state(AppState::Menu)),
+            );
     }
 }
+
+/// Current page index for the score history table.
+#[derive(Resource)]
+pub struct ScorePage(pub usize);
+
+/// Marker for the score table container so we can rebuild it.
+#[derive(Component)]
+struct ScoreTableContainer;
+
+#[derive(Component)]
+enum PageAction {
+    Prev,
+    Next,
+}
+
+/// Marker for the page info text (e.g. "1 / 3").
+#[derive(Component)]
+struct PageInfoText;
 
 pub fn menu_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     settings: Res<GameSettings>,
     scores: ResMut<ScoreHistory>,
+    mut page: ResMut<ScorePage>,
 ) {
     let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
+
+    // Reset to first page when entering the menu (scores may have changed).
+    page.0 = 0;
 
     let root = commands
         .spawn((
@@ -65,7 +98,7 @@ pub fn menu_ui(
         ))
         .id();
 
-    spawn_score_history(&mut commands, root, &scores, font);
+    spawn_score_section(&mut commands, root, &scores, font);
 }
 
 // ── widgets ──────────────────────────────────────────────────────────
@@ -292,10 +325,124 @@ fn quit_button(font: Handle<Font>) -> impl Bundle {
 
 // ── score history ────────────────────────────────────────────────────
 
-fn spawn_score_history(
+fn spawn_score_section(
     commands: &mut Commands,
     parent: Entity,
     scores: &ScoreHistory,
+    font: Handle<Font>,
+) {
+    let total_pages = total_pages(scores.0.len());
+
+    let section = commands
+        .spawn((
+            Node {
+                flex_direction: FlexDirection::Column,
+                width: px(360),
+                row_gap: theme::SP_SM,
+                ..default()
+            },
+        ))
+        .with_children(|col| {
+            // Table
+            col.spawn((
+                ScoreTableContainer,
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect::all(theme::SP_SM),
+                    border_radius: BorderRadius::all(theme::RADIUS_LG),
+                    ..default()
+                },
+                BackgroundColor(theme::SURFACE),
+            ))
+            .with_children(|table| {
+                build_score_rows(table, scores, 0, font.clone());
+            });
+
+            // Pagination controls
+            if total_pages > 1 {
+                col.spawn(Node {
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    column_gap: theme::SP_MD,
+                    ..default()
+                })
+                .with_children(|row| {
+                    // Prev
+                    row.spawn((
+                        Button,
+                        PageAction::Prev,
+                        Node {
+                            width: px(40),
+                            height: px(36),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            border_radius: BorderRadius::all(theme::RADIUS_SM),
+                            ..default()
+                        },
+                        BackgroundColor(theme::SURFACE),
+                    ))
+                    .with_children(|btn| {
+                        btn.spawn((
+                            Text::new("‹"),
+                            TextFont {
+                                font: font.clone(),
+                                font_size: 28.0,
+                                ..default()
+                            },
+                            TextColor(theme::TEXT),
+                        ));
+                    });
+
+                    // Page info
+                    row.spawn((
+                        Text::new(format!("1 / {}", total_pages)),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: 20.0,
+                            ..default()
+                        },
+                        TextColor(theme::TEXT_MUTED),
+                        PageInfoText,
+                    ));
+
+                    // Next
+                    row.spawn((
+                        Button,
+                        PageAction::Next,
+                        Node {
+                            width: px(40),
+                            height: px(36),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            border_radius: BorderRadius::all(theme::RADIUS_SM),
+                            ..default()
+                        },
+                        BackgroundColor(theme::SURFACE),
+                    ))
+                    .with_children(|btn| {
+                        btn.spawn((
+                            Text::new("›"),
+                            TextFont {
+                                font: font.clone(),
+                                font_size: 28.0,
+                                ..default()
+                            },
+                            TextColor(theme::TEXT),
+                        ));
+                    });
+                });
+            }
+        })
+        .id();
+
+    commands.entity(parent).add_child(section);
+}
+
+fn build_score_rows(
+    table: &mut ChildSpawnerCommands,
+    scores: &ScoreHistory,
+    page: usize,
     font: Handle<Font>,
 ) {
     let header_font = TextFont {
@@ -309,30 +456,66 @@ fn spawn_score_history(
         ..default()
     };
 
-    let score_section = commands
-        .spawn((
-            Node {
-                flex_direction: FlexDirection::Column,
-                width: px(360),
-                padding: UiRect::all(theme::SP_SM),
-                border_radius: BorderRadius::all(theme::RADIUS_LG),
-                ..default()
-            },
-            BackgroundColor(theme::SURFACE),
-        ))
-        .with_children(|col| {
-            // Header row
-            col.spawn(Node {
-                flex_direction: FlexDirection::Row,
-                align_items: AlignItems::Center,
-                ..default()
-            })
+    // Header
+    table
+        .spawn(Node {
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
+            ..default()
+        })
+        .with_children(|row| {
+            for label in ["N", "Time", "Score", "Date"] {
+                row.spawn((
+                    Text::new(label),
+                    header_font.clone(),
+                    TextColor(theme::TEXT_MUTED),
+                    Node {
+                        flex_basis: percent(25),
+                        padding: UiRect::all(theme::SP_SM),
+                        justify_content: JustifyContent::Center,
+                        ..default()
+                    },
+                ));
+            }
+        });
+
+    // Data rows for this page
+    let start = page * SCORES_PER_PAGE;
+    let page_scores = scores.0.iter().skip(start).take(SCORES_PER_PAGE);
+
+    for (i, score) in page_scores.enumerate() {
+        let bg = if i % 2 == 0 {
+            Color::NONE
+        } else {
+            theme::SURFACE_ALT
+        };
+        let date_short = score
+            .played_at
+            .get(..10)
+            .unwrap_or(&score.played_at)
+            .to_string();
+
+        table
+            .spawn((
+                Node {
+                    flex_direction: FlexDirection::Row,
+                    align_items: AlignItems::Center,
+                    border_radius: BorderRadius::all(theme::RADIUS_SM),
+                    ..default()
+                },
+                BackgroundColor(bg),
+            ))
             .with_children(|row| {
-                for label in ["N", "Time", "Score", "Date"] {
+                for text in [
+                    format!("{}", score.n),
+                    format!("{:.0}s", score.total_rounds as f32 * score.round_duration),
+                    format!("{}%", score.f1_score_percent),
+                    date_short.clone(),
+                ] {
                     row.spawn((
-                        Text::new(label),
-                        header_font.clone(),
-                        TextColor(theme::TEXT_MUTED),
+                        Text::new(text),
+                        row_font.clone(),
+                        TextColor(theme::TEXT),
                         Node {
                             flex_basis: percent(25),
                             padding: UiRect::all(theme::SP_SM),
@@ -342,54 +525,65 @@ fn spawn_score_history(
                     ));
                 }
             });
+    }
+}
 
-            // Data rows
-            for (i, score) in scores.0.iter().enumerate() {
-                let bg = if i % 2 == 0 {
-                    Color::NONE
-                } else {
-                    theme::SURFACE_ALT
-                };
-                let date_short = score
-                    .played_at
-                    .get(..10)
-                    .unwrap_or(&score.played_at)
-                    .to_string();
+fn total_pages(count: usize) -> usize {
+    if count == 0 { 1 } else { count.div_ceil(SCORES_PER_PAGE) }
+}
 
-                col.spawn((
-                    Node {
-                        flex_direction: FlexDirection::Row,
-                        align_items: AlignItems::Center,
-                        border_radius: BorderRadius::all(theme::RADIUS_SM),
-                        ..default()
-                    },
-                    BackgroundColor(bg),
-                ))
-                .with_children(|row| {
-                    for text in [
-                        format!("{}", score.n),
-                        format!("{:.0}s", score.total_rounds as f32 * score.round_duration),
-                        format!("{}%", score.f1_score_percent),
-                        date_short.clone(),
-                    ] {
-                        row.spawn((
-                            Text::new(text),
-                            row_font.clone(),
-                            TextColor(theme::TEXT),
-                            Node {
-                                flex_basis: percent(25),
-                                padding: UiRect::all(theme::SP_SM),
-                                justify_content: JustifyContent::Center,
-                                ..default()
-                            },
-                        ));
-                    }
-                });
+type PageQuery<'w> = (&'w Interaction, &'w PageAction);
+
+/// Handle prev/next page button presses.
+fn page_button_system(
+    scores: Res<ScoreHistory>,
+    mut page: ResMut<ScorePage>,
+    query: Query<PageQuery, (Changed<Interaction>, With<Button>)>,
+) {
+    let max_page = total_pages(scores.0.len()).saturating_sub(1);
+    for (interaction, action) in &query {
+        if *interaction == Interaction::Pressed {
+            match action {
+                PageAction::Prev => {
+                    page.0 = page.0.saturating_sub(1);
+                }
+                PageAction::Next => {
+                    page.0 = (page.0 + 1).min(max_page);
+                }
             }
-        })
-        .id();
+        }
+    }
+}
 
-    commands.entity(parent).add_child(score_section);
+/// Rebuild the score table rows when the page changes.
+fn rebuild_score_table(
+    mut commands: Commands,
+    page: Res<ScorePage>,
+    scores: Res<ScoreHistory>,
+    asset_server: Res<AssetServer>,
+    table_query: Query<(Entity, &Children), With<ScoreTableContainer>>,
+    mut page_text: Query<&mut Text, With<PageInfoText>>,
+) {
+    let Ok((table_entity, children)) = table_query.single() else {
+        return;
+    };
+
+    // Despawn old rows
+    for child in children.iter() {
+        commands.entity(child).despawn();
+    }
+
+    // Rebuild
+    let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
+    commands.entity(table_entity).with_children(|table| {
+        build_score_rows(table, &scores, page.0, font);
+    });
+
+    // Update page info text
+    let pages = total_pages(scores.0.len());
+    if let Ok(mut text) = page_text.single_mut() {
+        text.0 = format!("{} / {}", page.0 + 1, pages);
+    }
 }
 
 // ── scroll ───────────────────────────────────────────────────────────
