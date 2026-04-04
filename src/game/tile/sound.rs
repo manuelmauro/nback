@@ -4,8 +4,6 @@ use rand::{
     distr::{Distribution, StandardUniform},
 };
 
-use crate::config;
-
 #[derive(Component, Clone, Debug, Default, PartialEq)]
 pub enum TileSound {
     C,
@@ -22,7 +20,7 @@ pub enum TileSound {
 
 impl Distribution<TileSound> for StandardUniform {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TileSound {
-        match rng.random_range(0..=5) {
+        match rng.random_range(0..=7) {
             0 => TileSound::C,
             1 => TileSound::H,
             2 => TileSound::K,
@@ -31,22 +29,6 @@ impl Distribution<TileSound> for StandardUniform {
             5 => TileSound::R,
             6 => TileSound::S,
             _ => TileSound::T,
-        }
-    }
-}
-
-impl From<&TileSound> for Option<&str> {
-    fn from(c: &TileSound) -> Self {
-        match c {
-            TileSound::C => Some(config::TILE_SOUND_C),
-            TileSound::H => Some(config::TILE_SOUND_H),
-            TileSound::K => Some(config::TILE_SOUND_K),
-            TileSound::L => Some(config::TILE_SOUND_L),
-            TileSound::Q => Some(config::TILE_SOUND_Q),
-            TileSound::R => Some(config::TILE_SOUND_R),
-            TileSound::S => Some(config::TILE_SOUND_S),
-            TileSound::T => Some(config::TILE_SOUND_T),
-            TileSound::None => None,
         }
     }
 }

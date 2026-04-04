@@ -84,7 +84,7 @@ impl<T: PartialEq + Default> CueChain<T> {
     }
 }
 
-#[derive(Component, Resource)]
+#[derive(Component)]
 pub struct CueEngine {
     n: usize,
     pub positions: Option<CueChain<TilePosition>>,
