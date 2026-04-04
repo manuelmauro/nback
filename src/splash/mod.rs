@@ -1,4 +1,4 @@
-use crate::state::{despawn_screen, AppState, OnSplashScreen};
+use crate::state::{AppState, OnSplashScreen, despawn_screen};
 use bevy::prelude::*;
 
 pub struct SplashPlugin;
@@ -18,26 +18,22 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    ..default()
-                },
+            Node {
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 ..default()
             },
             OnSplashScreen,
         ))
         .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                style: Style {
+            parent.spawn((
+                ImageNode::new(icon),
+                Node {
                     width: Val::Px(200.0),
                     ..default()
                 },
-                image: UiImage::new(icon),
-                ..default()
-            });
+            ));
         });
 }

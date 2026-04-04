@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
+    Rng, RngExt,
+    distr::{Distribution, StandardUniform},
 };
 
 use crate::config;
@@ -20,9 +20,9 @@ pub enum TileSound {
     None,
 }
 
-impl Distribution<TileSound> for Standard {
+impl Distribution<TileSound> for StandardUniform {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TileSound {
-        match rng.gen_range(0..=5) {
+        match rng.random_range(0..=5) {
             0 => TileSound::C,
             1 => TileSound::H,
             2 => TileSound::K,

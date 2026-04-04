@@ -20,7 +20,10 @@ pub enum ButtonAction {
 
 #[derive(Bundle)]
 pub struct GameButtonBundle {
-    pub button: ButtonBundle,
+    pub button: Button,
+    pub node: Node,
+    pub border_color: BorderColor,
+    pub background_color: BackgroundColor,
     pub shortcut: Shortcut,
     pub action: ButtonAction,
 }
@@ -53,7 +56,7 @@ fn button_system(
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
-                border_color.0 = BUTTON_BORDER_COLOR;
+                *border_color = BorderColor::all(BUTTON_BORDER_COLOR);
                 match action {
                     ButtonAction::SamePosition => answer.position = true,
                     ButtonAction::SameSound => answer.sound = true,
@@ -62,11 +65,11 @@ fn button_system(
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
-                border_color.0 = BUTTON_BORDER_COLOR;
+                *border_color = BorderColor::all(BUTTON_BORDER_COLOR);
             }
             Interaction::None => {
                 *color = NORMAL_BUTTON.into();
-                border_color.0 = BUTTON_BORDER_COLOR;
+                *border_color = BorderColor::all(BUTTON_BORDER_COLOR);
             }
         }
     }
@@ -79,12 +82,12 @@ fn button_shortcut_system(
     for (mut color, mut border_color, shortcut) in &mut query {
         if keyboard_input.pressed(shortcut.0) {
             *color = PRESSED_BUTTON.into();
-            border_color.0 = PRESSED_BUTTON_BORDER_COLOR;
+            *border_color = BorderColor::all(PRESSED_BUTTON_BORDER_COLOR);
         }
 
         if keyboard_input.just_released(shortcut.0) {
             *color = NORMAL_BUTTON.into();
-            border_color.0 = BUTTON_BORDER_COLOR;
+            *border_color = BorderColor::all(BUTTON_BORDER_COLOR);
         }
     }
 }

@@ -4,7 +4,7 @@ use crate::state::{AppState, OnGameScreen};
 
 use self::{
     button::{GameButtonBundle, Shortcut},
-    text::{round_system, CurrentRoundText},
+    text::{CurrentRoundText, round_system},
 };
 
 use super::settings::GameSettings;
@@ -30,14 +30,11 @@ pub fn game_ui(
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Column,
-                    padding: UiRect::all(Val::Px(20.0)),
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                padding: UiRect::all(Val::Px(20.0)),
                 ..default()
             },
             OnGameScreen,
@@ -45,145 +42,137 @@ pub fn game_ui(
         .with_children(|parent| {
             parent
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            flex_grow: 1.0,
-                            flex_direction: FlexDirection::Row,
-                            justify_content: JustifyContent::SpaceBetween,
-                            width: Val::Percent(100.0),
-                            ..default()
-                        },
+                    Node {
+                        flex_grow: 1.0,
+                        flex_direction: FlexDirection::Row,
+                        justify_content: JustifyContent::SpaceBetween,
+                        width: Val::Percent(100.0),
                         ..default()
                     },
                     OnGameScreen,
                 ))
-                .with_children(|parent| game_info(parent, settings, font.clone()));
+                .with_children(|parent| {
+                    // Game info - N-Back label
+                    parent.spawn((
+                        Text::new(format!("{}-Back", settings.n)),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: 40.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                    ));
+                    // Round counter
+                    parent.spawn((
+                        Text::new(""),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: 40.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        CurrentRoundText,
+                    ));
+                });
 
             parent
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            flex_grow: 1.0,
-                            flex_direction: FlexDirection::Row,
-                            align_items: AlignItems::End,
-                            justify_content: JustifyContent::SpaceBetween,
-                            ..default()
-                        },
+                    Node {
+                        flex_grow: 1.0,
+                        flex_direction: FlexDirection::Row,
+                        align_items: AlignItems::End,
+                        justify_content: JustifyContent::SpaceBetween,
                         ..default()
                     },
                     OnGameScreen,
                 ))
-                .with_children(|parent| buttons(parent, font));
-        });
-}
+                .with_children(|parent| {
+                    // Position button
+                    parent
+                        .spawn(GameButtonBundle {
+                            button: Button,
+                            node: Node {
+                                width: Val::Px(150.0),
+                                height: Val::Px(65.0),
+                                border: UiRect::all(Val::Px(3.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::NORMAL_BUTTON.into(),
+                            shortcut: Shortcut(KeyCode::KeyA),
+                            action: button::ButtonAction::SamePosition,
+                        })
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Text::new("Position (A)"),
+                                TextFont {
+                                    font: font.clone(),
+                                    font_size: 20.0,
+                                    ..default()
+                                },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                            ));
+                        });
 
-fn game_info(parent: &mut ChildBuilder, settings: Res<GameSettings>, font: Handle<Font>) {
-    parent.spawn(TextBundle::from_section(
-        format!("{}-Back", settings.n),
-        TextStyle {
-            font: font.clone(),
-            font_size: 40.0,
-            color: Color::rgb(0.9, 0.9, 0.9),
-        },
-    ));
-    parent.spawn((
-        TextBundle::from_section(
-            "",
-            TextStyle {
-                font: font.clone(),
-                font_size: 40.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
-            },
-        ),
-        CurrentRoundText,
-    ));
-}
+                    // Sound button
+                    parent
+                        .spawn(GameButtonBundle {
+                            button: Button,
+                            node: Node {
+                                width: Val::Px(150.0),
+                                height: Val::Px(65.0),
+                                border: UiRect::all(Val::Px(3.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::NORMAL_BUTTON.into(),
+                            shortcut: Shortcut(KeyCode::KeyS),
+                            action: button::ButtonAction::SameSound,
+                        })
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Text::new("Sound (S)"),
+                                TextFont {
+                                    font: font.clone(),
+                                    font_size: 20.0,
+                                    ..default()
+                                },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                            ));
+                        });
 
-fn buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
-    parent
-        .spawn(GameButtonBundle {
-            button: ButtonBundle {
-                style: Style {
-                    width: Val::Px(150.0),
-                    height: Val::Px(65.0),
-                    border: UiRect::all(Val::Px(3.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                border_color: button::BUTTON_BORDER_COLOR.into(),
-                background_color: button::NORMAL_BUTTON.into(),
-                ..default()
-            },
-            shortcut: Shortcut(KeyCode::KeyA),
-            action: button::ButtonAction::SamePosition,
-        })
-        .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Position (A)",
-                TextStyle {
-                    font: font.clone(),
-                    font_size: 20.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
-                },
-            ));
-        });
-
-    parent
-        .spawn(GameButtonBundle {
-            button: ButtonBundle {
-                style: Style {
-                    width: Val::Px(150.0),
-                    height: Val::Px(65.0),
-                    border: UiRect::all(Val::Px(3.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                border_color: button::BUTTON_BORDER_COLOR.into(),
-                background_color: button::NORMAL_BUTTON.into(),
-                ..default()
-            },
-            shortcut: Shortcut(KeyCode::KeyS),
-            action: button::ButtonAction::SameSound,
-        })
-        .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Sound (S)",
-                TextStyle {
-                    font: font.clone(),
-                    font_size: 20.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
-                },
-            ));
-        });
-
-    parent
-        .spawn(GameButtonBundle {
-            button: ButtonBundle {
-                style: Style {
-                    width: Val::Px(150.0),
-                    height: Val::Px(65.0),
-                    border: UiRect::all(Val::Px(3.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                border_color: button::BUTTON_BORDER_COLOR.into(),
-                background_color: button::NORMAL_BUTTON.into(),
-                ..default()
-            },
-            shortcut: Shortcut(KeyCode::KeyD),
-            action: button::ButtonAction::SameColor,
-        })
-        .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Color (D)",
-                TextStyle {
-                    font: font.clone(),
-                    font_size: 20.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
-                },
-            ));
+                    // Color button
+                    parent
+                        .spawn(GameButtonBundle {
+                            button: Button,
+                            node: Node {
+                                width: Val::Px(150.0),
+                                height: Val::Px(65.0),
+                                border: UiRect::all(Val::Px(3.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            border_color: button::BUTTON_BORDER_COLOR.into(),
+                            background_color: button::NORMAL_BUTTON.into(),
+                            shortcut: Shortcut(KeyCode::KeyD),
+                            action: button::ButtonAction::SameColor,
+                        })
+                        .with_children(|parent| {
+                            parent.spawn((
+                                Text::new("Color (D)"),
+                                TextFont {
+                                    font: font.clone(),
+                                    font_size: 20.0,
+                                    ..default()
+                                },
+                                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                            ));
+                        });
+                });
         });
 }

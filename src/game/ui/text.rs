@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::{settings::GameSettings, EndOfRoundEvent};
+use crate::game::{EndOfRoundEvent, settings::GameSettings};
 
 #[derive(Component)]
 pub struct CurrentRoundText;
@@ -8,12 +8,12 @@ pub struct CurrentRoundText;
 #[allow(clippy::type_complexity)]
 pub fn round_system(
     settings: Res<GameSettings>,
-    mut events: EventReader<EndOfRoundEvent>,
-    mut query: Query<(&mut Text, &CurrentRoundText)>,
+    mut events: MessageReader<EndOfRoundEvent>,
+    mut query: Query<&mut Text, With<CurrentRoundText>>,
 ) {
-    for (text, _) in &mut query.get_single_mut() {
+    if let Ok(mut text) = query.single_mut() {
         for e in events.read() {
-            text.sections[0].value = format!("{}/{}", e.round, settings.rounds);
+            text.0 = format!("{}/{}", e.round, settings.rounds);
         }
     }
 }
