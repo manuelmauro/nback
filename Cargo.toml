@@ -16,6 +16,7 @@ bevy_egui = { version = "0.39.1", optional = true, default-features = false, fea
     "open_url",
     "default_fonts",
     "render",
+    "bevy_ui",
 ] }
 bevy_embedded_assets = "0.15.0"
 bevy_kira_audio = "0.25.0"
