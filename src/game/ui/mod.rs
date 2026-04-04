@@ -49,7 +49,6 @@ pub fn game_ui(
                         width: Val::Percent(100.0),
                         ..default()
                     },
-                    OnGameScreen,
                 ))
                 .with_children(|parent| {
                     // Game info - N-Back label
@@ -84,7 +83,6 @@ pub fn game_ui(
                         justify_content: JustifyContent::SpaceBetween,
                         ..default()
                     },
-                    OnGameScreen,
                 ))
                 .with_children(|parent| {
                     // Position button
