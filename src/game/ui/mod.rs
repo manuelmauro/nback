@@ -86,16 +86,22 @@ pub fn game_ui(
                         ButtonAction::SamePosition
                     ),
                     game_button(
-                        "Sound (S)",
+                        "Color (S)",
                         font.clone(),
                         KeyCode::KeyS,
-                        ButtonAction::SameSound
+                        ButtonAction::SameColor
                     ),
                     game_button(
-                        "Color (D)",
+                        "Shape (D)",
                         font.clone(),
                         KeyCode::KeyD,
-                        ButtonAction::SameColor
+                        ButtonAction::SameShape
+                    ),
+                    game_button(
+                        "Sound (F)",
+                        font.clone(),
+                        KeyCode::KeyF,
+                        ButtonAction::SameSound
                     ),
                 ],
             ),

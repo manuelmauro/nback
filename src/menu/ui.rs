@@ -83,6 +83,7 @@ pub fn menu_ui(
                             GridTrack::min_content(),
                             GridTrack::min_content(),
                             GridTrack::min_content(),
+                            GridTrack::min_content(),
                         ],
                         row_gap: px(12),
                         column_gap: px(12),
@@ -93,10 +94,12 @@ pub fn menu_ui(
                     children![
                         checkbox(settings.position, CheckboxAction::Position),
                         cue_label("Position", font.clone()),
-                        checkbox(settings.sound, CheckboxAction::Sound),
-                        cue_label("Sound", font.clone()),
                         checkbox(settings.color, CheckboxAction::Color),
                         cue_label("Color", font.clone()),
+                        checkbox(settings.shape, CheckboxAction::Shape),
+                        cue_label("Shape", font.clone()),
+                        checkbox(settings.sound, CheckboxAction::Sound),
+                        cue_label("Sound", font.clone()),
                     ],
                 ),
                 // Play button

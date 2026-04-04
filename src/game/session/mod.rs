@@ -5,7 +5,7 @@ use crate::{
         phase::GamePhase,
         score::{ScoreHistory, ScoreRecord},
         settings::GameSettings,
-        tile::{color::TileColor, position::TilePosition, sound::TileSound},
+        tile::{color::TileColor, position::TilePosition, shape::TileShape, sound::TileSound},
     },
     state::AppState,
 };
@@ -66,10 +66,15 @@ fn end_of_round_system(
         ),
         With<Session>,
     >,
-    mut tile: Single<(&mut TilePosition, &mut TileColor, &mut TileSound)>,
+    mut tile: Single<(
+        &mut TilePosition,
+        &mut TileColor,
+        &mut TileShape,
+        &mut TileSound,
+    )>,
 ) {
     let (engine, round, score, answer, timer) = &mut *session;
-    let (position, color, sound) = &mut *tile;
+    let (position, color, shape, sound) = &mut *tile;
 
     if !timer.just_finished() {
         return;
@@ -78,19 +83,23 @@ fn end_of_round_system(
     // Evaluate each cue channel
     score.evaluate(&engine.positions, answer.position);
     score.evaluate(&engine.colors, answer.color);
+    score.evaluate(&engine.shapes, answer.shape);
     score.evaluate(&engine.sounds, answer.sound);
 
     answer.reset();
 
     // Generate next cues
-    let (new_position, new_color, new_sound) = engine.new_cue();
-    if let Some(p) = new_position {
+    let cue = engine.new_cue();
+    if let Some(p) = cue.position {
         **position = p;
     }
-    if let Some(c) = new_color {
+    if let Some(c) = cue.color {
         **color = c;
     }
-    if let Some(s) = new_sound {
+    if let Some(s) = cue.shape {
+        **shape = s;
+    }
+    if let Some(s) = cue.sound {
         **sound = s;
     }
 

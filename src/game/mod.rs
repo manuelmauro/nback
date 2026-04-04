@@ -8,7 +8,7 @@ use self::{
         score::Score,
     },
     settings::GameSettings,
-    tile::{Tile, TilePlugin},
+    tile::{Tile, TileMeshes, TilePlugin},
     ui::{UiPlugin, button::GameButtonPlugin},
 };
 
@@ -33,7 +33,12 @@ impl Plugin for GamePlugin {
 }
 
 /// Spawn the arena, the tile with its first cue, and the session entity.
-fn setup_game(mut commands: Commands, settings: Res<GameSettings>) {
+fn setup_game(
+    mut commands: Commands,
+    settings: Res<GameSettings>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     let edge = (config::TILE_SIZE * 3.0) + (config::TILE_SPACING * 4.0);
     let bounds = Vec2::new(edge, edge);
     let marker = DespawnOnExit(AppState::Game);
@@ -76,34 +81,42 @@ fn setup_game(mut commands: Commands, settings: Res<GameSettings>) {
         ));
     }
 
+    // Pre-build mesh handles for every shape variant.
+    let tile_meshes = TileMeshes::new(&mut meshes);
+
     // Create engine and generate the first cue up-front so the player
     // sees a real cue from the start (no phantom round).
     let mut engine = CueEngine::new(
         settings.n,
         settings.position,
         settings.color,
+        settings.shape,
         settings.sound,
     );
-    let (first_pos, first_color, first_sound) = engine.new_cue();
+    let first = engine.new_cue();
 
-    let tile_pos = first_pos.unwrap_or_default();
-    let tile_color = first_color.unwrap_or_default();
-    let tile_sound = first_sound.unwrap_or_default();
+    let tile_pos = first.position.unwrap_or_default();
+    let tile_color = first.color.unwrap_or_default();
+    let tile_shape = first.shape.unwrap_or_default();
+    let tile_sound = first.sound.unwrap_or_default();
 
-    // Spawn tile with the first cue already applied.
+    let mesh_handle = tile_meshes.get(&tile_shape);
+    let mat_handle = materials.add(ColorMaterial::from_color(Color::from(&tile_color)));
+
+    commands.insert_resource(tile_meshes);
+
+    // Spawn tile with the first cue already applied (mesh-based rendering).
     // Change-detection will fire on the first frame, playing the sound
     // and triggering the pop animation.
     commands.spawn((
         Name::new("tile"),
         Tile,
-        Sprite {
-            color: (&tile_color).into(),
-            custom_size: Some(Vec2::new(config::TILE_SIZE, config::TILE_SIZE)),
-            ..default()
-        },
+        Mesh2d(mesh_handle),
+        MeshMaterial2d(mat_handle),
         Transform::from_translation((&tile_pos).into()),
         tile_pos,
         tile_color,
+        tile_shape,
         tile_sound,
         marker.clone(),
     ));
@@ -158,7 +171,6 @@ fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6)),
-        // Render on top of the game UI
         GlobalZIndex(10),
         children![(
             Text::new("PAUSED"),

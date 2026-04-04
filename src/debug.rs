@@ -61,6 +61,10 @@ fn debug_ui_system(
                             ui.label(if settings.color { "✅" } else { "❌" });
                             ui.end_row();
 
+                            ui.label("Shape cues");
+                            ui.label(if settings.shape { "✅" } else { "❌" });
+                            ui.end_row();
+
                             ui.label("Sound cues");
                             ui.label(if settings.sound { "✅" } else { "❌" });
                             ui.end_row();
@@ -119,6 +123,14 @@ fn debug_ui_system(
                             });
                             ui.end_row();
 
+                            ui.label("Shape match");
+                            ui.label(match &engine.shapes {
+                                Some(s) if s.is_match() => "🟢 YES",
+                                Some(_) => "⚫ no",
+                                None => "—",
+                            });
+                            ui.end_row();
+
                             ui.label("Sound match");
                             ui.label(match &engine.sounds {
                                 Some(s) if s.is_match() => "🟢 YES",
@@ -161,6 +173,10 @@ fn debug_ui_system(
 
                             ui.label("Color");
                             ui.label(if answer.color { "🟢" } else { "⚫" });
+                            ui.end_row();
+
+                            ui.label("Shape");
+                            ui.label(if answer.shape { "🟢" } else { "⚫" });
                             ui.end_row();
 
                             ui.label("Sound");

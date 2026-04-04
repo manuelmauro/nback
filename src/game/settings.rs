@@ -7,6 +7,7 @@ pub struct GameSettings {
     pub round_time: f32,
     pub position: bool,
     pub color: bool,
+    pub shape: bool,
     pub sound: bool,
 }
 
@@ -24,6 +25,7 @@ impl Default for GameSettings {
             round_time: 3.0,
             position: true,
             color: true,
+            shape: true,
             sound: true,
         }
     }

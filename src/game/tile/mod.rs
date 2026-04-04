@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
-use crate::{asset::AudioAssets, state::AppState};
+use crate::{asset::AudioAssets, config, state::AppState};
 
-use self::{color::TileColor, position::TilePosition, sound::TileSound};
+use self::{color::TileColor, position::TilePosition, shape::TileShape, sound::TileSound};
 
 pub mod color;
 pub mod position;
+pub mod shape;
 pub mod sound;
 
 pub struct TilePlugin;
@@ -18,6 +19,7 @@ impl Plugin for TilePlugin {
             (
                 tile_position_system,
                 tile_color_system,
+                tile_shape_system,
                 tile_sound_system,
                 tile_pop_animation_system,
             )
@@ -42,8 +44,64 @@ impl Default for TilePopAnimation {
 
 /// Marker component for the game tile. Required components are auto-inserted.
 #[derive(Component, Default)]
-#[require(TilePopAnimation, TilePosition, TileColor, TileSound)]
+#[require(TilePopAnimation, TilePosition, TileColor, TileShape, TileSound)]
 pub struct Tile;
+
+/// Pre-computed mesh handles for each tile shape.
+#[derive(Resource)]
+pub struct TileMeshes {
+    pub circle: Handle<Mesh>,
+    pub triangle: Handle<Mesh>,
+    pub square: Handle<Mesh>,
+    pub pentagon: Handle<Mesh>,
+    pub hexagon: Handle<Mesh>,
+}
+
+impl TileMeshes {
+    /// Build meshes sized so every shape fills a `TILE_SIZE × TILE_SIZE` box.
+    ///
+    /// `RegularPolygon::new(r, n)` takes the *circumradius* (center → vertex).
+    /// Each shape's bounding box depends on its geometry, so we compute a
+    /// per-shape circumradius that makes the largest dimension equal to
+    /// `TILE_SIZE`.
+    pub fn new(meshes: &mut Assets<Mesh>) -> Self {
+        use std::f32::consts::{FRAC_PI_4, TAU};
+
+        let size = config::TILE_SIZE;
+
+        // Circle:   bbox = 2r × 2r           → r = size / 2
+        // Triangle: bbox = r√3 × 1.5r        → r = size / √3  (width-limited)
+        // Square:   bbox = r√2 × r√2 (rot.)  → r = size / √2
+        // Pentagon: bbox = 2r·sin(72°) × …   → r = size / (2·sin(72°))
+        // Hexagon:  bbox = r√3 × 2r           → r = size / 2   (height-limited)
+        let r_circle = size / 2.0;
+        let r_triangle = size / 3_f32.sqrt();
+        let r_square = size / 2_f32.sqrt();
+        let r_pentagon = size / (2.0 * (TAU / 5.0).sin());
+        let r_hexagon = size / 2.0;
+
+        TileMeshes {
+            circle: meshes.add(Circle::new(r_circle)),
+            triangle: meshes.add(RegularPolygon::new(r_triangle, 3)),
+            square: meshes.add(
+                Mesh::from(RegularPolygon::new(r_square, 4))
+                    .rotated_by(Quat::from_rotation_z(FRAC_PI_4)),
+            ),
+            pentagon: meshes.add(RegularPolygon::new(r_pentagon, 5)),
+            hexagon: meshes.add(RegularPolygon::new(r_hexagon, 6)),
+        }
+    }
+
+    pub fn get(&self, shape: &TileShape) -> Handle<Mesh> {
+        match shape {
+            TileShape::Circle => self.circle.clone(),
+            TileShape::Triangle => self.triangle.clone(),
+            TileShape::Square | TileShape::None => self.square.clone(),
+            TileShape::Pentagon => self.pentagon.clone(),
+            TileShape::Hexagon => self.hexagon.clone(),
+        }
+    }
+}
 
 /// Update tile state every time the position changes.
 pub fn tile_position_system(
@@ -52,7 +110,6 @@ pub fn tile_position_system(
     let (transform, anim, position) = &mut *tile;
     info!(?position, "tile updated");
     transform.translation = (*position).into();
-    // Reset and start the pop animation
     anim.timer.reset();
 }
 
@@ -71,11 +128,27 @@ pub fn tile_pop_animation_system(
     }
 }
 
-/// Update tile state every time the color changes.
-pub fn tile_color_system(mut tile: Single<(&mut Sprite, &TileColor), Changed<TileColor>>) {
-    let (sprite, color) = &mut *tile;
-    info!(?color, "tile updated");
-    sprite.color = (*color).into();
+/// Update tile material color when the color cue changes.
+pub fn tile_color_system(
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    tile: Single<(&MeshMaterial2d<ColorMaterial>, &TileColor), Changed<TileColor>>,
+) {
+    let (mat_handle, color) = *tile;
+    info!(?color, "tile color updated");
+    if let Some(material) = materials.get_mut(mat_handle) {
+        material.color = color.into();
+    }
+}
+
+/// Swap the tile mesh when the shape cue changes.
+pub fn tile_shape_system(
+    tile_meshes: Res<TileMeshes>,
+    mut tile: Single<(&mut Mesh2d, &mut TilePopAnimation, &TileShape), Changed<TileShape>>,
+) {
+    let (mesh, anim, shape) = &mut *tile;
+    info!(?shape, "tile shape updated");
+    mesh.0 = tile_meshes.get(shape);
+    anim.timer.reset();
 }
 
 /// Update tile state every time the sound changes.
