@@ -15,27 +15,12 @@ impl Round {
         self.current >= self.total
     }
 }
+
 impl Default for Round {
     fn default() -> Self {
         Round {
             total: 10,
             current: 0,
         }
-    }
-}
-
-#[derive(Resource, Debug, Default)]
-pub struct Answer {
-    pub position: bool,
-    pub color: bool,
-    pub sound: bool,
-}
-
-impl Answer {
-    pub fn reset(&mut self) {
-        info!("reset answer");
-        self.position = false;
-        self.color = false;
-        self.sound = false;
     }
 }

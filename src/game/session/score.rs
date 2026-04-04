@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 
+use super::cue::CueChain;
+
+/// Confusion-matrix score tracker for the current game session.
 #[derive(Component, Default)]
 pub struct Score {
     false_pos: usize,
@@ -48,5 +51,21 @@ impl Score {
 
     pub fn f1_score_percent(&self) -> usize {
         (self.f1_score() * 100.0) as usize
+    }
+
+    /// Evaluate a single cue channel and record the result.
+    pub fn evaluate<T: PartialEq + Default>(
+        &mut self,
+        chain: &Option<CueChain<T>>,
+        answered: bool,
+    ) {
+        if let Some(chain) = chain {
+            match (answered, chain.is_match()) {
+                (true, true) => self.record_tp(),
+                (true, false) => self.record_fp(),
+                (false, true) => self.record_fn(),
+                (false, false) => self.record_tn(),
+            }
+        }
     }
 }

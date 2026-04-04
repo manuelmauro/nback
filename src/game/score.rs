@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
+/// A snapshot of one completed game session for the history table.
 #[derive(Default)]
-pub struct GameScore {
+pub struct ScoreRecord {
     pub n: usize,
     pub total_rounds: usize,
     pub round_duration: f32,
@@ -10,5 +11,6 @@ pub struct GameScore {
     pub f1_score_percent: usize,
 }
 
+/// Accumulated score history across game sessions.
 #[derive(Default, Resource)]
-pub struct LatestGameScores(pub Vec<GameScore>);
+pub struct ScoreHistory(pub Vec<ScoreRecord>);

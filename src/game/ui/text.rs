@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::{EndOfRoundEvent, settings::GameSettings};
+use crate::game::{session::EndOfRoundEvent, settings::GameSettings};
 
 #[derive(Component)]
 pub struct CurrentRoundText;

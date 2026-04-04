@@ -7,7 +7,12 @@ use bevy_kira_audio::AudioPlugin;
 #[cfg(feature = "debug")]
 use nback::debug::DebugPlugin;
 use nback::{
-    asset::AudioAssets, config, game::GamePlugin, menu::MenuPlugin, palette, splash::SplashPlugin,
+    asset::AudioAssets,
+    config,
+    game::{GamePlugin, score::ScoreHistory, settings::GameSettings},
+    menu::MenuPlugin,
+    palette,
+    splash::SplashPlugin,
     state::AppState,
 };
 
@@ -30,6 +35,8 @@ fn main() {
                 .continue_to_state(AppState::Menu)
                 .load_collection::<AudioAssets>(),
         )
+        .insert_resource(GameSettings::default())
+        .insert_resource(ScoreHistory::default())
         .add_plugins((AudioPlugin, SplashPlugin, MenuPlugin, GamePlugin));
 
     #[cfg(feature = "debug")]
