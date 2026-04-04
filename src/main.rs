@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::WindowResolution};
+use bevy::{camera::ScalingMode, prelude::*, ui::UiScale, window::WindowResolution};
 use bevy_asset_loader::loading_state::{
     LoadingState, LoadingStateAppExt, config::ConfigureLoadingState,
 };
@@ -7,7 +7,7 @@ use bevy_kira_audio::AudioPlugin;
 #[cfg(feature = "debug")]
 use nback::debug::DebugPlugin;
 use nback::{
-    asset::AudioAssets, game::GamePlugin, menu::MenuPlugin, palette, splash::SplashPlugin,
+    asset::AudioAssets, config, game::GamePlugin, menu::MenuPlugin, palette, splash::SplashPlugin,
     state::AppState,
 };
 
@@ -17,7 +17,7 @@ fn main() {
     app.add_plugins(EmbeddedAssetPlugin::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                resolution: WindowResolution::new(720, 1280).with_scale_factor_override(1.0),
+                resolution: WindowResolution::new(720, 1280),
                 title: "Dual-N-Back".to_string(),
                 ..default()
             }),
@@ -39,12 +39,32 @@ fn main() {
         .add_plugins(MenuPlugin)
         .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
-        .add_systems(Update, log_transitions)
+        .add_systems(Update, (fit_ui_scale, log_transitions))
         .run();
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2d);
+    commands.spawn((
+        Camera2d,
+        Projection::Orthographic(OrthographicProjection {
+            scaling_mode: ScalingMode::AutoMin {
+                min_width: config::WORLD_WIDTH,
+                min_height: config::WORLD_WIDTH,
+            },
+            ..OrthographicProjection::default_2d()
+        }),
+    ));
+}
+
+/// Keeps the UI scale in sync with the window size so that all `Val::Px` values
+/// (authored for the 720×1280 reference resolution) scale uniformly.
+fn fit_ui_scale(mut ui_scale: ResMut<UiScale>, windows: Query<&Window>) {
+    let window = windows.single().unwrap();
+    let scale = (window.width() / config::REF_WIDTH).min(window.height() / config::REF_HEIGHT);
+
+    if ui_scale.0 != scale {
+        ui_scale.0 = scale;
+    }
 }
 
 fn log_transitions(mut transitions: MessageReader<StateTransitionEvent<AppState>>) {

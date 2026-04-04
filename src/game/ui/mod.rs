@@ -41,15 +41,13 @@ pub fn game_ui(
         ))
         .with_children(|parent| {
             parent
-                .spawn((
-                    Node {
-                        flex_grow: 1.0,
-                        flex_direction: FlexDirection::Row,
-                        justify_content: JustifyContent::SpaceBetween,
-                        width: Val::Percent(100.0),
-                        ..default()
-                    },
-                ))
+                .spawn(Node {
+                    flex_grow: 1.0,
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceBetween,
+                    width: Val::Percent(100.0),
+                    ..default()
+                })
                 .with_children(|parent| {
                     // Game info - N-Back label
                     parent.spawn((
@@ -75,15 +73,13 @@ pub fn game_ui(
                 });
 
             parent
-                .spawn((
-                    Node {
-                        flex_grow: 1.0,
-                        flex_direction: FlexDirection::Row,
-                        align_items: AlignItems::End,
-                        justify_content: JustifyContent::SpaceBetween,
-                        ..default()
-                    },
-                ))
+                .spawn(Node {
+                    flex_grow: 1.0,
+                    flex_direction: FlexDirection::Row,
+                    align_items: AlignItems::End,
+                    justify_content: JustifyContent::SpaceBetween,
+                    ..default()
+                })
                 .with_children(|parent| {
                     // Position button
                     parent
