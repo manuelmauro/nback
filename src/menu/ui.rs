@@ -313,7 +313,6 @@ fn spawn_score_history(
         .spawn((
             Node {
                 flex_direction: FlexDirection::Column,
-                flex_grow: 1.0,
                 width: px(360),
                 padding: UiRect::all(theme::SP_SM),
                 border_radius: BorderRadius::all(theme::RADIUS_LG),
