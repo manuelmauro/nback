@@ -9,6 +9,8 @@ pub struct ScoreRecord {
     pub correct: usize,
     pub wrong: usize,
     pub f1_score_percent: usize,
+    /// ISO-8601 timestamp (filled by the database on insert).
+    pub played_at: String,
 }
 
 /// Accumulated score history across game sessions.
