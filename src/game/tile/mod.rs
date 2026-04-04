@@ -63,7 +63,9 @@ impl TileMeshes {
         TileMeshes {
             circle: meshes.add(Circle::new(r)),
             triangle: meshes.add(RegularPolygon::new(r, 3)),
-            square: meshes.add(RegularPolygon::new(r, 4)),
+            square: meshes.add(Mesh::from(RegularPolygon::new(r, 4)).rotated_by(
+                Quat::from_rotation_z(std::f32::consts::FRAC_PI_4),
+            )),
             pentagon: meshes.add(RegularPolygon::new(r, 5)),
             hexagon: meshes.add(RegularPolygon::new(r, 6)),
         }
