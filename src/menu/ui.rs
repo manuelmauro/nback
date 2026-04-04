@@ -32,90 +32,92 @@ pub fn menu_ui(
 ) {
     let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
 
-    commands.spawn((
-        DespawnOnExit(AppState::Menu),
-        Node {
-            width: percent(100),
-            height: percent(100),
-            flex_direction: FlexDirection::Column,
-            padding: UiRect::all(px(5)),
-            ..default()
-        },
-        children![
-            // Title
-            (
-                Node {
-                    justify_content: JustifyContent::Center,
-                    margin: UiRect::all(px(5)),
-                    ..default()
-                },
-                BackgroundColor(palette::SLATE_800),
-                children![game_title(font.clone())],
-            ),
-            // N selector
-            (
-                Node {
-                    flex_grow: 0.5,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    margin: UiRect::all(px(5)),
-                    ..default()
-                },
-                BackgroundColor(palette::SLATE_800),
-                children![
-                    decrease_n_button(font.clone()),
-                    nback_label(&settings, font.clone()),
-                    increase_n_button(font.clone()),
-                ],
-            ),
-            // Cue selection
-            (
-                Node {
-                    display: Display::Grid,
-                    justify_content: JustifyContent::Center,
-                    margin: UiRect::all(px(5)),
-                    grid_template_columns: vec![
-                        GridTrack::min_content(),
-                        GridTrack::min_content(),
+    let root = commands
+        .spawn((
+            DespawnOnExit(AppState::Menu),
+            Node {
+                width: percent(100),
+                height: percent(100),
+                flex_direction: FlexDirection::Column,
+                padding: UiRect::all(px(5)),
+                ..default()
+            },
+            children![
+                // Title
+                (
+                    Node {
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(px(5)),
+                        ..default()
+                    },
+                    BackgroundColor(palette::SLATE_800),
+                    children![game_title(font.clone())],
+                ),
+                // N selector
+                (
+                    Node {
+                        flex_grow: 0.5,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        margin: UiRect::all(px(5)),
+                        ..default()
+                    },
+                    BackgroundColor(palette::SLATE_800),
+                    children![
+                        decrease_n_button(font.clone()),
+                        nback_label(&settings, font.clone()),
+                        increase_n_button(font.clone()),
                     ],
-                    grid_template_rows: vec![
-                        GridTrack::min_content(),
-                        GridTrack::min_content(),
-                        GridTrack::min_content(),
+                ),
+                // Cue selection
+                (
+                    Node {
+                        display: Display::Grid,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(px(5)),
+                        grid_template_columns: vec![
+                            GridTrack::min_content(),
+                            GridTrack::min_content(),
+                        ],
+                        grid_template_rows: vec![
+                            GridTrack::min_content(),
+                            GridTrack::min_content(),
+                            GridTrack::min_content(),
+                        ],
+                        row_gap: px(12),
+                        column_gap: px(12),
+                        padding: UiRect::all(px(24)),
+                        ..default()
+                    },
+                    BackgroundColor(palette::SLATE_800),
+                    children![
+                        checkbox(settings.position, CheckboxAction::Position),
+                        cue_label("Position", font.clone()),
+                        checkbox(settings.sound, CheckboxAction::Sound),
+                        cue_label("Sound", font.clone()),
+                        checkbox(settings.color, CheckboxAction::Color),
+                        cue_label("Color", font.clone()),
                     ],
-                    row_gap: px(12),
-                    column_gap: px(12),
-                    padding: UiRect::all(px(24)),
-                    ..default()
-                },
-                BackgroundColor(palette::SLATE_800),
-                children![
-                    checkbox(settings.position, CheckboxAction::Position),
-                    cue_label("Position", font.clone()),
-                    checkbox(settings.sound, CheckboxAction::Sound),
-                    cue_label("Sound", font.clone()),
-                    checkbox(settings.color, CheckboxAction::Color),
-                    cue_label("Color", font.clone()),
-                ],
-            ),
-            // Play button
-            (
-                Node {
-                    flex_grow: 0.5,
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    margin: UiRect::all(px(5)),
-                    ..default()
-                },
-                BackgroundColor(palette::SLATE_800),
-                children![play_button(font.clone())],
-            ),
-        ],
-    ));
+                ),
+                // Play button
+                (
+                    Node {
+                        flex_grow: 0.5,
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        margin: UiRect::all(px(5)),
+                        ..default()
+                    },
+                    BackgroundColor(palette::SLATE_800),
+                    children![play_button(font.clone())],
+                ),
+            ],
+        ))
+        .id();
 
-    // Score history — spawned separately since children are dynamic
-    spawn_score_history(&mut commands, &scores, font);
+    // Score history — spawned separately because children are dynamic
+    spawn_score_history(&mut commands, root, &scores, font);
 }
 
 fn game_title(font: Handle<Font>) -> impl Bundle {
@@ -265,7 +267,12 @@ fn play_button(font: Handle<Font>) -> impl Bundle {
     )
 }
 
-fn spawn_score_history(commands: &mut Commands, scores: &LatestGameScores, font: Handle<Font>) {
+fn spawn_score_history(
+    commands: &mut Commands,
+    parent: Entity,
+    scores: &LatestGameScores,
+    font: Handle<Font>,
+) {
     let header_style = TextFont {
         font: font.clone(),
         font_size: 32.0,
@@ -280,9 +287,8 @@ fn spawn_score_history(commands: &mut Commands, scores: &LatestGameScores, font:
     };
     let row_color = TextColor(Color::srgb(0.9, 0.9, 0.9));
 
-    commands
+    let score_section = commands
         .spawn((
-            DespawnOnExit(AppState::Menu),
             Node {
                 display: Display::Grid,
                 flex_grow: 0.8,
@@ -326,7 +332,10 @@ fn spawn_score_history(commands: &mut Commands, scores: &LatestGameScores, font:
                     row_color,
                 ));
             }
-        });
+        })
+        .id();
+
+    commands.entity(parent).add_child(score_section);
 }
 
 #[derive(Component, Default)]
