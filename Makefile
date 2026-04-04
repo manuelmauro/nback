@@ -1,4 +1,4 @@
-.PHONY: setup clean fmt-check fmt clippy clippy-release check check-release build build-release test test-release run ci doc help
+.PHONY: setup clean fmt-check fmt clippy clippy-release check check-release build build-release test test-release run run-debug ci doc help
 
 # Setup development environment
 setup:
@@ -48,6 +48,10 @@ test-release:
 # Run the game
 run:
 	cargo run
+
+# Run the game with debug UI
+run-debug:
+	cargo run --features debug
 
 # Run all CI checks (fmt, clippy, test, build)
 ci: fmt clippy test build

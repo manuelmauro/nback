@@ -1,4 +1,6 @@
 pub mod asset;
+#[cfg(feature = "debug")]
+pub mod debug;
 pub mod config;
 pub mod game;
 pub mod menu;

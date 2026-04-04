@@ -5,10 +5,14 @@ edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+debug = ["bevy_egui"]
+
 [dependencies]
 bevy = { version = "0.18.1" }
 bevy_asset_loader = "0.26.0"
-bevy_egui = { version = "0.39.1", default-features = false, features = [
+bevy_egui = { version = "0.39.1", optional = true, default-features = false, features = [
     "open_url",
     "default_fonts",
     "render",
