@@ -12,6 +12,7 @@ use self::{
     ui::{UiPlugin, button::GameButtonPlugin},
 };
 
+pub mod phase;
 pub mod score;
 pub mod session;
 pub mod settings;
@@ -22,8 +23,12 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((SessionPlugin, TilePlugin, UiPlugin, GameButtonPlugin))
-            .add_systems(OnEnter(AppState::Game), setup_game);
+        app.add_sub_state::<phase::GamePhase>()
+            .add_plugins((SessionPlugin, TilePlugin, UiPlugin, GameButtonPlugin))
+            .add_systems(OnEnter(AppState::Game), setup_game)
+            .add_systems(Update, toggle_pause.run_if(in_state(AppState::Game)))
+            .add_systems(OnEnter(phase::GamePhase::Paused), spawn_pause_overlay)
+            .add_systems(OnEnter(phase::GamePhase::Playing), despawn_pause_overlay);
     }
 }
 
@@ -119,4 +124,55 @@ fn setup_game(mut commands: Commands, settings: Res<GameSettings>) {
         Answer::default(),
         marker,
     ));
+}
+
+/// Toggle between Playing and Paused on Escape.
+fn toggle_pause(
+    input: Res<ButtonInput<KeyCode>>,
+    current: Res<State<phase::GamePhase>>,
+    mut next: ResMut<NextState<phase::GamePhase>>,
+) {
+    if input.just_pressed(KeyCode::Escape) {
+        next.set(match current.get() {
+            phase::GamePhase::Playing => phase::GamePhase::Paused,
+            phase::GamePhase::Paused => phase::GamePhase::Playing,
+        });
+    }
+}
+
+#[derive(Component)]
+struct PauseOverlay;
+
+fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
+
+    commands.spawn((
+        PauseOverlay,
+        Node {
+            width: percent(100),
+            height: percent(100),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            position_type: PositionType::Absolute,
+            ..default()
+        },
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6)),
+        // Render on top of the game UI
+        GlobalZIndex(10),
+        children![(
+            Text::new("PAUSED"),
+            TextFont {
+                font,
+                font_size: 80.0,
+                ..default()
+            },
+            TextColor(Color::WHITE),
+        )],
+    ));
+}
+
+fn despawn_pause_overlay(mut commands: Commands, query: Query<Entity, With<PauseOverlay>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
 }
