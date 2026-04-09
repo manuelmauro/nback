@@ -57,7 +57,7 @@ pub fn game_ui(
                             font_size: 36.0,
                             ..default()
                         },
-                        TextColor(theme::TEXT),
+                        TextColor(theme::TEXT_ACCENT),
                     ),
                     (
                         Text::new(""),
@@ -66,7 +66,7 @@ pub fn game_ui(
                             font_size: 36.0,
                             ..default()
                         },
-                        TextColor(theme::TEXT_MUTED),
+                        TextColor(theme::TEXT),
                         CurrentRoundText,
                     ),
                 ],
@@ -75,12 +75,14 @@ pub fn game_ui(
             (
                 Node {
                     width: percent(100),
-                    height: px(6),
+                    height: px(8),
                     margin: UiRect::vertical(theme::SP_SM),
+                    border: UiRect::all(theme::STROKE_SM),
                     border_radius: BorderRadius::all(theme::RADIUS_FULL),
                     ..default()
                 },
                 BackgroundColor(theme::TIMER_TRACK),
+                BorderColor::all(theme::BORDER),
                 children![(
                     Node {
                         width: percent(0),

@@ -171,10 +171,12 @@ fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
                 padding: UiRect::axes(theme::SP_XL, theme::SP_LG),
                 row_gap: theme::SP_LG,
                 min_width: px(300),
+                border: UiRect::all(theme::STROKE_MD),
                 border_radius: BorderRadius::all(theme::RADIUS_LG),
                 ..default()
             },
             BackgroundColor(theme::SURFACE),
+            BorderColor::all(theme::BORDER),
             children![
                 (
                     Text::new("PAUSED"),
@@ -183,19 +185,19 @@ fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
                         font_size: 64.0,
                         ..default()
                     },
-                    TextColor(theme::TEXT),
+                    TextColor(theme::TEXT_ACCENT),
                 ),
                 pause_btn(
                     "Resume",
                     PauseAction::Resume,
-                    theme::ACCENT,
-                    theme::BG,
+                    theme::BUTTON_PRIMARY,
+                    theme::TEXT_ON_ACCENT,
                     font.clone()
                 ),
                 pause_btn(
                     "Quit to Menu",
                     PauseAction::Quit,
-                    theme::SURFACE_ALT,
+                    theme::BUTTON_SECONDARY,
                     theme::TEXT,
                     font
                 ),
@@ -206,7 +208,7 @@ fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn pause_btn(
     label: &str,
     action: PauseAction,
-    bg: Color,
+    palette: theme::ButtonPalette,
     text: Color,
     font: Handle<Font>,
 ) -> impl Bundle + use<'_> {
@@ -216,12 +218,15 @@ fn pause_btn(
         Node {
             width: percent(100),
             height: px(52),
+            border: UiRect::all(theme::STROKE_SM),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(theme::RADIUS_MD),
             ..default()
         },
-        BackgroundColor(bg),
+        BackgroundColor(palette.idle_bg),
+        BorderColor::all(palette.idle_border),
+        palette,
         children![(
             Text::new(label),
             TextFont {
@@ -233,14 +238,22 @@ fn pause_btn(
         )],
     )
 }
-type PauseQuery<'w> = (&'w Interaction, &'w PauseAction);
+type PauseQuery<'w> = (
+    &'w Interaction,
+    &'w mut BackgroundColor,
+    &'w mut BorderColor,
+    &'w PauseAction,
+    &'w theme::ButtonPalette,
+);
 
 fn pause_button_system(
     mut next_phase: ResMut<NextState<phase::GamePhase>>,
     mut next_app: ResMut<NextState<AppState>>,
-    query: Query<PauseQuery, (Changed<Interaction>, With<Button>)>,
+    mut query: Query<PauseQuery, (Changed<Interaction>, With<Button>)>,
 ) {
-    for (interaction, action) in &query {
+    for (interaction, mut color, mut border, action, palette) in &mut query {
+        theme::apply_button_palette(interaction, palette, &mut color, &mut border);
+
         if *interaction == Interaction::Pressed {
             match action {
                 PauseAction::Resume => next_phase.set(phase::GamePhase::Playing),

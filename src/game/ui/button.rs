@@ -31,12 +31,15 @@ pub fn game_button(
         Node {
             flex_grow: 1.0,
             height: px(56),
+            border: UiRect::all(theme::STROKE_SM),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(theme::RADIUS_MD),
             ..default()
         },
-        BackgroundColor(theme::GAME_BTN),
+        BackgroundColor(theme::BUTTON_GAME.idle_bg),
+        BorderColor::all(theme::BUTTON_GAME.idle_border),
+        theme::BUTTON_GAME,
         Shortcut(shortcut),
         action,
         children![(
@@ -62,28 +65,36 @@ impl Plugin for GameButtonPlugin {
     }
 }
 
-type ButtonQuery<'w> = (&'w Interaction, &'w mut BackgroundColor, &'w ButtonAction);
+type ButtonQuery<'w> = (
+    &'w Interaction,
+    &'w mut BackgroundColor,
+    &'w mut BorderColor,
+    &'w ButtonAction,
+    &'w theme::ButtonPalette,
+);
+
+type ShortcutButtonQuery<'w> = (
+    &'w Interaction,
+    &'w mut BackgroundColor,
+    &'w mut BorderColor,
+    &'w Shortcut,
+    &'w ButtonAction,
+    &'w theme::ButtonPalette,
+);
 
 fn button_system(
     mut answer: Single<&mut Answer, With<Session>>,
     mut query: Query<ButtonQuery, (Changed<Interaction>, With<Button>)>,
 ) {
-    for (interaction, mut color, action) in &mut query {
-        match *interaction {
-            Interaction::Pressed => {
-                *color = theme::GAME_BTN_PRESS.into();
-                match action {
-                    ButtonAction::SamePosition => answer.position = true,
-                    ButtonAction::SameColor => answer.color = true,
-                    ButtonAction::SameShape => answer.shape = true,
-                    ButtonAction::SameSound => answer.sound = true,
-                }
-            }
-            Interaction::Hovered => {
-                *color = theme::GAME_BTN_HOVER.into();
-            }
-            Interaction::None => {
-                *color = theme::GAME_BTN.into();
+    for (interaction, mut color, mut border, action, palette) in &mut query {
+        theme::apply_button_palette(interaction, palette, &mut color, &mut border);
+
+        if *interaction == Interaction::Pressed {
+            match action {
+                ButtonAction::SamePosition => answer.position = true,
+                ButtonAction::SameColor => answer.color = true,
+                ButtonAction::SameShape => answer.shape = true,
+                ButtonAction::SameSound => answer.sound = true,
             }
         }
     }
@@ -92,11 +103,12 @@ fn button_system(
 fn button_shortcut_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut answer: Single<&mut Answer, With<Session>>,
-    mut query: Query<(&mut BackgroundColor, &Shortcut, &ButtonAction), With<Button>>,
+    mut query: Query<ShortcutButtonQuery, With<Button>>,
 ) {
-    for (mut color, shortcut, action) in &mut query {
+    for (interaction, mut color, mut border, shortcut, action, palette) in &mut query {
         if keyboard_input.pressed(shortcut.0) {
-            *color = theme::GAME_BTN_PRESS.into();
+            color.0 = palette.pressed_bg;
+            *border = BorderColor::all(palette.pressed_border);
         }
         if keyboard_input.just_pressed(shortcut.0) {
             match action {
@@ -107,7 +119,7 @@ fn button_shortcut_system(
             }
         }
         if keyboard_input.just_released(shortcut.0) {
-            *color = theme::GAME_BTN.into();
+            theme::apply_button_palette(interaction, palette, &mut color, &mut border);
         }
     }
 }

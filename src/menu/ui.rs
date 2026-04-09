@@ -334,14 +334,12 @@ fn spawn_score_section(
     let total_pages = total_pages(scores.0.len());
 
     let section = commands
-        .spawn((
-            Node {
-                flex_direction: FlexDirection::Column,
-                width: px(360),
-                row_gap: theme::SP_SM,
-                ..default()
-            },
-        ))
+        .spawn((Node {
+            flex_direction: FlexDirection::Column,
+            width: px(360),
+            row_gap: theme::SP_SM,
+            ..default()
+        },))
         .with_children(|col| {
             // Table
             col.spawn((
@@ -529,7 +527,11 @@ fn build_score_rows(
 }
 
 fn total_pages(count: usize) -> usize {
-    if count == 0 { 1 } else { count.div_ceil(SCORES_PER_PAGE) }
+    if count == 0 {
+        1
+    } else {
+        count.div_ceil(SCORES_PER_PAGE)
+    }
 }
 
 type PageQuery<'w> = (&'w Interaction, &'w PageAction);

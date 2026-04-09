@@ -33,9 +33,5 @@ pub fn timer_bar_system(
 ) {
     let fraction = session.elapsed().as_secs_f32() / session.duration().as_secs_f32();
     bar_node.width = percent(fraction * 100.0);
-    bar_bg.0 = if fraction > 0.8 {
-        theme::ACCENT_PRESS
-    } else {
-        theme::TIMER_FILL
-    };
+    bar_bg.0 = theme::TIMER_FILL;
 }
