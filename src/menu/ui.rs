@@ -87,11 +87,11 @@ pub fn menu_ui(
                     },
                     children![game_title(font.clone())],
                 ),
-                // N selector card
+                // N selector section
                 card_node(children![n_selector_row(&settings, font.clone())]),
-                // Cue toggles card
+                // Cue toggles section
                 card_node(children![cue_grid(&settings, font.clone())]),
-                // Play / Quit buttons
+                // Primary menu actions
                 play_button(font.clone()),
                 quit_button(font.clone()),
             ],

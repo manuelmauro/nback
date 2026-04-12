@@ -19,7 +19,7 @@ pub enum ButtonAction {
     SameSound,
 }
 
-/// Returns a compact pill-shaped game button.
+/// Returns the answer button bundle used in the in-game action row.
 pub fn game_button(
     label: &str,
     font: Handle<Font>,

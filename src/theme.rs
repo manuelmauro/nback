@@ -1,4 +1,4 @@
-//! Design tokens and interaction palettes for a neon UI look.
+//! Design tokens and interaction palettes shared across the UI.
 
 use bevy::prelude::*;
 
@@ -123,7 +123,7 @@ pub const STROKE_MD: Val = Val::Px(2.0);
 
 // ── radii ───────────────────────────────────────────────────────────
 
-// Keep corners square in this PR.
+// Radius tokens are zeroed for now to keep this change focused on shared theming.
 pub const RADIUS_SM: Val = Val::Px(0.0);
 pub const RADIUS_MD: Val = Val::Px(0.0);
 pub const RADIUS_LG: Val = Val::Px(0.0);
