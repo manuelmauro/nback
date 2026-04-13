@@ -1,7 +1,3 @@
-use bevy::prelude::*;
-
-use crate::{config, state::AppState};
-
 use self::{
     session::{
         Session, SessionPlugin, answer::Answer, cue::CueTimer, engine::CueEngine, round::Round,
@@ -11,16 +7,15 @@ use self::{
     tile::{Tile, TileMeshes, TilePlugin},
     ui::{UiPlugin, button::GameButtonPlugin},
 };
-
+use crate::{config, state::AppState, theme};
+use bevy::prelude::*;
 pub mod phase;
 pub mod score;
 pub mod session;
 pub mod settings;
 pub mod tile;
 pub mod ui;
-
 pub struct GamePlugin;
-
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_sub_state::<phase::GamePhase>()
@@ -28,10 +23,13 @@ impl Plugin for GamePlugin {
             .add_systems(OnEnter(AppState::Game), setup_game)
             .add_systems(Update, toggle_pause.run_if(in_state(AppState::Game)))
             .add_systems(OnEnter(phase::GamePhase::Paused), spawn_pause_overlay)
-            .add_systems(OnEnter(phase::GamePhase::Playing), despawn_pause_overlay);
+            .add_systems(OnEnter(phase::GamePhase::Playing), despawn_pause_overlay)
+            .add_systems(
+                Update,
+                pause_button_system.run_if(in_state(phase::GamePhase::Paused)),
+            );
     }
 }
-
 /// Spawn the arena, the tile with its first cue, and the session entity.
 fn setup_game(
     mut commands: Commands,
@@ -42,7 +40,6 @@ fn setup_game(
     let edge = (config::TILE_SIZE * 3.0) + (config::TILE_SPACING * 4.0);
     let bounds = Vec2::new(edge, edge);
     let marker = DespawnOnExit(AppState::Game);
-
     // Walls: left, right, bottom, top
     for (x, y, w, h) in [
         (
@@ -80,10 +77,8 @@ fn setup_game(
             marker.clone(),
         ));
     }
-
     // Pre-build mesh handles for every shape variant.
     let tile_meshes = TileMeshes::new(&mut meshes);
-
     // Create engine and generate the first cue up-front so the player
     // sees a real cue from the start (no phantom round).
     let mut engine = CueEngine::new(
@@ -94,17 +89,13 @@ fn setup_game(
         settings.sound,
     );
     let first = engine.new_cue();
-
     let tile_pos = first.position.unwrap_or_default();
     let tile_color = first.color.unwrap_or_default();
     let tile_shape = first.shape.unwrap_or_default();
     let tile_sound = first.sound.unwrap_or_default();
-
     let mesh_handle = tile_meshes.get(&tile_shape);
     let mat_handle = materials.add(ColorMaterial::from_color(Color::from(&tile_color)));
-
     commands.insert_resource(tile_meshes);
-
     // Spawn tile with the first cue already applied (mesh-based rendering).
     // Change-detection will fire on the first frame, playing the sound
     // and triggering the pop animation.
@@ -120,7 +111,6 @@ fn setup_game(
         tile_sound,
         marker.clone(),
     ));
-
     // Spawn session. The engine already consumed the first cue, and
     // current starts at 1 (round 0 is the cue we just displayed).
     // The timer starts fresh — the player gets the full duration.
@@ -138,7 +128,6 @@ fn setup_game(
         marker,
     ));
 }
-
 /// Toggle between Playing and Paused on Escape.
 fn toggle_pause(
     input: Res<ButtonInput<KeyCode>>,
@@ -152,13 +141,15 @@ fn toggle_pause(
         });
     }
 }
-
 #[derive(Component)]
 struct PauseOverlay;
-
+#[derive(Component)]
+enum PauseAction {
+    Resume,
+    Quit,
+}
 fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load("embedded://fonts/FiraSans-Bold.ttf");
-
     commands.spawn((
         PauseOverlay,
         DespawnOnExit(AppState::Game),
@@ -172,18 +163,105 @@ fn spawn_pause_overlay(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6)),
         GlobalZIndex(10),
+        // Card
         children![(
-            Text::new("PAUSED"),
-            TextFont {
-                font,
-                font_size: 80.0,
+            Node {
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                padding: UiRect::axes(theme::SP_XL, theme::SP_LG),
+                row_gap: theme::SP_LG,
+                min_width: px(300),
+                border: UiRect::all(theme::STROKE_MD),
+                border_radius: BorderRadius::all(theme::RADIUS_LG),
                 ..default()
             },
-            TextColor(Color::WHITE),
+            BackgroundColor(theme::SURFACE),
+            BorderColor::all(theme::BORDER),
+            children![
+                (
+                    Text::new("PAUSED"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: 64.0,
+                        ..default()
+                    },
+                    TextColor(theme::TEXT_ACCENT),
+                ),
+                pause_btn(
+                    "Resume",
+                    PauseAction::Resume,
+                    theme::BUTTON_PRIMARY,
+                    theme::TEXT_ON_ACCENT,
+                    font.clone()
+                ),
+                pause_btn(
+                    "Quit to Menu",
+                    PauseAction::Quit,
+                    theme::BUTTON_SECONDARY,
+                    theme::TEXT,
+                    font
+                ),
+            ],
         )],
     ));
 }
+fn pause_btn(
+    label: &str,
+    action: PauseAction,
+    palette: theme::ButtonPalette,
+    text: Color,
+    font: Handle<Font>,
+) -> impl Bundle + use<'_> {
+    (
+        Button,
+        action,
+        Node {
+            width: percent(100),
+            height: px(52),
+            border: UiRect::all(theme::STROKE_SM),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            border_radius: BorderRadius::all(theme::RADIUS_MD),
+            ..default()
+        },
+        BackgroundColor(palette.idle_bg),
+        BorderColor::all(palette.idle_border),
+        palette,
+        children![(
+            Text::new(label),
+            TextFont {
+                font,
+                font_size: 26.0,
+                ..default()
+            },
+            TextColor(text),
+        )],
+    )
+}
+type PauseQuery<'w> = (
+    &'w Interaction,
+    &'w mut BackgroundColor,
+    &'w mut BorderColor,
+    &'w PauseAction,
+    &'w theme::ButtonPalette,
+);
 
+fn pause_button_system(
+    mut next_phase: ResMut<NextState<phase::GamePhase>>,
+    mut next_app: ResMut<NextState<AppState>>,
+    mut query: Query<PauseQuery, (Changed<Interaction>, With<Button>)>,
+) {
+    for (interaction, mut color, mut border, action, palette) in &mut query {
+        theme::apply_button_palette(interaction, palette, &mut color, &mut border);
+
+        if *interaction == Interaction::Pressed {
+            match action {
+                PauseAction::Resume => next_phase.set(phase::GamePhase::Playing),
+                PauseAction::Quit => next_app.set(AppState::Menu),
+            }
+        }
+    }
+}
 fn despawn_pause_overlay(mut commands: Commands, query: Query<Entity, With<PauseOverlay>>) {
     for entity in &query {
         commands.entity(entity).despawn();

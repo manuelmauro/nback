@@ -1,37 +1,43 @@
 use bevy::prelude::*;
 
-use crate::{game::settings::GameSettings, palette, state::AppState};
-
-pub const NORMAL_BUTTON: Color = palette::SLATE_800;
-pub const HOVERED_BUTTON: Color = palette::LIME_900;
-pub const PRESSED_BUTTON: Color = palette::LIME_500;
-pub const BUTTON_BORDER_COLOR: Color = palette::WHITE;
+use crate::{game::settings::GameSettings, state::AppState, theme};
 
 #[derive(Component)]
 pub enum MenuButtonAction {
     Play,
+    Quit,
     IncreaseN,
     DecreaseN,
 }
+
+/// Stores the button's resting background color so it can be restored
+/// after hover/press.
+#[derive(Component, Deref)]
+pub struct RestingColor(pub Color);
 
 type MenuButtonQuery<'w> = (
     &'w Interaction,
     &'w mut BackgroundColor,
     &'w MenuButtonAction,
+    &'w RestingColor,
 );
 
 pub fn menu_button_system(
     mut app_state: ResMut<NextState<AppState>>,
+    mut exit: MessageWriter<AppExit>,
     mut settings: ResMut<GameSettings>,
     mut query: Query<MenuButtonQuery, (Changed<Interaction>, With<Button>)>,
 ) {
-    for (interaction, mut color, action) in &mut query {
+    for (interaction, mut color, action, resting) in &mut query {
         match *interaction {
             Interaction::Pressed => {
-                *color = PRESSED_BUTTON.into();
+                *color = theme::ACCENT_PRESS.into();
                 match action {
                     MenuButtonAction::Play => {
                         app_state.set(AppState::Game);
+                    }
+                    MenuButtonAction::Quit => {
+                        exit.write(AppExit::Success);
                     }
                     MenuButtonAction::IncreaseN => {
                         settings.n += 1;
@@ -44,10 +50,10 @@ pub fn menu_button_system(
                 }
             }
             Interaction::Hovered => {
-                *color = HOVERED_BUTTON.into();
+                *color = theme::ACCENT_HOVER.into();
             }
             Interaction::None => {
-                *color = NORMAL_BUTTON.into();
+                *color = (**resting).into();
             }
         }
     }
