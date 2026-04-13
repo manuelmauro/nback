@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Resource)]
+#[derive(Clone, Resource)]
 pub struct GameSettings {
     pub n: usize,
     pub rounds: usize,

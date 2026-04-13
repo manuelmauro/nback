@@ -1,6 +1,9 @@
-use std::{path::PathBuf, sync::Mutex};
+#[cfg(not(target_arch = "wasm32"))]
+use std::path::PathBuf;
+use std::sync::Mutex;
 
 use bevy::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use rusqlite::Connection;
 
 use crate::game::{
@@ -8,6 +11,7 @@ use crate::game::{
     settings::GameSettings,
 };
 
+#[cfg(not(target_arch = "wasm32"))]
 /// Wraps a SQLite connection as a Bevy resource.
 ///
 /// `Connection` is not `Sync`, so we wrap it in a `Mutex`.
@@ -16,6 +20,21 @@ pub struct Database {
     conn: Mutex<Connection>,
 }
 
+#[cfg(target_arch = "wasm32")]
+#[derive(Default)]
+struct MemoryDatabase {
+    settings: GameSettings,
+    scores: ScoreHistory,
+}
+
+#[cfg(target_arch = "wasm32")]
+/// In the browser we keep settings and score history in memory only.
+#[derive(Resource, Default)]
+pub struct Database {
+    state: Mutex<MemoryDatabase>,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 impl Database {
     /// Open (or create) the database in the platform data directory.
     ///
@@ -109,7 +128,8 @@ impl Database {
 
     pub fn load_scores(&self) -> ScoreHistory {
         let conn = self.conn.lock().expect("db lock poisoned");
-        let mut stmt = conn.prepare(
+        let mut stmt = conn
+            .prepare(
                 "SELECT n, total_rounds, round_duration, correct, wrong, f1_score_percent, played_at
                  FROM scores ORDER BY id DESC LIMIT 50",
             )
@@ -152,11 +172,54 @@ impl Database {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+impl Database {
+    /// Open the in-memory fallback used by the browser build.
+    pub fn open() -> Self {
+        Database::default()
+    }
+
+    pub fn load_settings(&self) -> GameSettings {
+        self.state
+            .lock()
+            .expect("db lock poisoned")
+            .settings
+            .clone()
+    }
+
+    pub fn save_settings(&self, s: &GameSettings) {
+        self.state.lock().expect("db lock poisoned").settings = s.clone();
+    }
+
+    pub fn load_scores(&self) -> ScoreHistory {
+        self.state.lock().expect("db lock poisoned").scores.clone()
+    }
+
+    pub fn insert_score(&self, record: &ScoreRecord) {
+        let mut state = self.state.lock().expect("db lock poisoned");
+        let mut record = record.clone();
+        record.played_at = session_timestamp();
+        state.scores.0.insert(0, record);
+        state.scores.0.truncate(50);
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 fn db_path() -> PathBuf {
     dirs::data_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("nback")
         .join("nback.db")
+}
+
+#[cfg(target_arch = "wasm32")]
+fn session_timestamp() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_secs().to_string())
+        .unwrap_or_default()
 }
 
 pub struct PersistencePlugin;
