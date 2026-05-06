@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  WASM_BINDGEN_CLI_VERSION: 0.2.117
 
 jobs:
   # Run cargo test
@@ -96,3 +97,46 @@ jobs:
           components: rustfmt
       - name: Run cargo fmt
         run: cargo fmt --all -- --check
+
+  # Build and package the web target
+  wasm:
+    name: Wasm Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Install wasm-bindgen-cli
+        run: cargo install wasm-bindgen-cli --version ${{ env.WASM_BINDGEN_CLI_VERSION }}
+      - name: Build wasm release binary
+        run: cargo build --release --target wasm32-unknown-unknown
+      - name: Smoke-test web packaging
+        run: |
+          out_dir="$(mktemp -d)"
+          wasm-bindgen \
+            --no-typescript \
+            --out-name bevy_game \
+            --out-dir "$out_dir" \
+            --target web \
+            target/wasm32-unknown-unknown/release/nback.wasm
+          cp wasm/index.html wasm/restart-audio-context.js "$out_dir"/
+          test -f "$out_dir/bevy_game.js"
+          test -f "$out_dir/bevy_game_bg.wasm"
+          test -f "$out_dir/index.html"
+          test -f "$out_dir/restart-audio-context.js"
+          (cd "$out_dir" && zip --recurse-paths "$RUNNER_TEMP/nback-wasm.zip" .)
+          test -f "$RUNNER_TEMP/nback-wasm.zip"
